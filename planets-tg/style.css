@@ -1434,3 +1434,17 @@
   background: rgba(30, 34, 70, 0.5);
   color: #8e9bc2;
 }
+
+
+/* ---------- settings gear button ---------- */
+.icon-btn.settings-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #e2e8f0 !important;
+}
+.icon-btn.settings-btn svg {
+  display: block !important;
+  width: 20px !important;
+  height: 20px !important;
+}
