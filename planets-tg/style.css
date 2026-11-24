@@ -1275,3 +1275,51 @@
 .hud {
   padding-top: calc(var(--tg-top-inset, 0px) + 8px);
 }
+
+
+/* ---------- telegram fullscreen layout & controls order ---------- */
+.app {
+  height: 100dvh !important;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: calc(var(--tg-top-inset, 48px) + 4px) !important;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+  box-sizing: border-box;
+}
+.hud {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+.stage {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bottom-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+.bottom-row > .invite-btn {
+  width: 100%;
+}
+.invite-friend-btn {
+  background-color: rgba(88, 52, 140, 0.55);
+}
+.vip-wide {
+  width: 100% !important;
+  margin-top: 8px;
+  grid-column: 1 / -1;
+}
+@media (max-width: 768px) {
+  .bottom-row {
+    gap: 7px;
+  }
+  .vip-wide {
+    margin-top: 7px;
+  }
+}

@@ -39,6 +39,7 @@
     'Убрать мелкие': 'Clear small planets',
     'Убрать мелкие планеты': 'Clear small planets',
     '+1 Бустер за рекламу': '+1 Booster for ad',
+    '+1 Бустер за друга': '+1 Booster for friend',
     'ОПАСНО': 'DANGER',
     'Не удалось загрузить физический движок.': 'Failed to load the physics engine.',
     'Проверьте подключение к интернету и обновите страницу.':

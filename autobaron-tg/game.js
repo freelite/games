@@ -2032,6 +2032,69 @@ function welcomeModalHTML(){
     '</div>';
 }
 
+
+function setupModalDrag(){
+  const root = $('modalRoot');
+  if(!root) return;
+  const modalEl = root.querySelector('.modal');
+  if(!modalEl) return;
+  modalEl.style.transform = '';
+  const handle = modalEl.querySelector('.modal-grip');
+  let startY = null;
+  let delta = 0;
+  let active = false;
+  const begin = function(y){
+    startY = y;
+    delta = 0;
+    active = true;
+    modalEl.style.transition = 'none';
+  };
+  const move = function(y){
+    if(!active) return;
+    delta = Math.max(0, y - startY);
+    if(delta > 0) modalEl.style.transform = 'translateY(' + delta + 'px)';
+  };
+  const finish = function(){
+    if(!active) return;
+    active = false;
+    modalEl.style.transition = 'transform 0.22s ease';
+    if(delta > 65){
+      modalEl.style.transform = 'translateY(105%)';
+      setTimeout(function(){ closeModal(); }, 180);
+    }else{
+      modalEl.style.transform = '';
+    }
+    startY = null;
+    delta = 0;
+  };
+  const bind = function(el){
+    el.addEventListener('touchstart', function(e){
+      if(!e.touches || !e.touches.length) return;
+      begin(e.touches[0].clientY);
+    }, { passive: true });
+    el.addEventListener('touchmove', function(e){
+      if(!active || !e.touches || !e.touches.length) return;
+      move(e.touches[0].clientY);
+      if(delta > 0 && e.cancelable) e.preventDefault();
+    }, { passive: false });
+    el.addEventListener('touchend', finish, { passive: true });
+    el.addEventListener('touchcancel', finish, { passive: true });
+  };
+  if(handle) bind(handle);
+  modalEl.addEventListener('touchstart', function(e){
+    if(modalEl.scrollTop > 0) return;
+    if(!e.touches || !e.touches.length) return;
+    begin(e.touches[0].clientY);
+  }, { passive: true });
+  modalEl.addEventListener('touchmove', function(e){
+    if(!active || !e.touches || !e.touches.length) return;
+    move(e.touches[0].clientY);
+    if(delta > 0 && e.cancelable) e.preventDefault();
+  }, { passive: false });
+  modalEl.addEventListener('touchend', finish, { passive: true });
+  modalEl.addEventListener('touchcancel', finish, { passive: true });
+}
+
 function renderModal(){
   const root = $('modalRoot');
   if(!root) return;
@@ -2042,8 +2105,11 @@ function renderModal(){
   else if(modal.type === 'welcome') html = welcomeModalHTML();
   else html = vipModalHTML();
   if(!html){ closeModal(); return; }
-  root.innerHTML = '<div class="modal-backdrop" data-action="close-modal"></div><div class="modal">' + html + '</div>';
+  root.innerHTML = '<div class="modal-backdrop" data-action="close-modal"></div><div class="modal' +
+    (modal.type === 'welcome' ? ' modal-welcome' : '') + '">' + html + '</div>';
+  root.classList.toggle('welcome-open', modal.type === 'welcome');
   openModalRoot();
+  setupModalDrag();
   const chat = root.querySelector('.chat');
   if(chat) chat.scrollTop = chat.scrollHeight;
 }

@@ -1292,3 +1292,43 @@ body, .app, main, #app {
 .topbar {
   padding-top: calc(var(--tg-top-inset, 0px) + 8px);
 }
+
+
+/* ---------- telegram fullscreen toasts / modals ---------- */
+.toasts {
+  top: calc(var(--tg-top-inset, 52px) + 6px) !important;
+  z-index: 950;
+}
+.modal-root.open {
+  align-items: flex-start !important;
+  padding: 0 !important;
+}
+.modal-root.open .modal {
+  margin-top: calc(var(--tg-top-inset, 52px) + 10px) !important;
+  max-height: calc(100dvh - var(--tg-top-inset, 52px) - 10px) !important;
+  border-radius: 22px 22px 0 0;
+  width: 100%;
+}
+.modal-root.open.welcome-open {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+}
+.modal-root.open.welcome-open .modal {
+  margin: auto !important;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  max-height: 86dvh;
+  border-radius: 22px;
+}
+@media (max-width: 768px) {
+  .modal-root .modal-close {
+    display: none !important;
+  }
+}
+@media (min-width: 769px) {
+  .modal-root .modal-close {
+    display: flex !important;
+  }
+}
