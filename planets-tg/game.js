@@ -49,8 +49,7 @@ const ADSGRAM_BLOCK_ID = '61632';
  ------------------------------------------------------------ */
   let WORLD_W = 400;
   let WORLD_H = 600;
-  const DANGER_Y_RATIO = 0.11;
-let DANGER_Y = 120;
+  let DANGER_Y = 120;
   const HOLD_Y = -36;
   const MAX_LEVEL = 10;
   const DROP_COOLDOWN = 0.42;
