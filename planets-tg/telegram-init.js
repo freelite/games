@@ -55,7 +55,7 @@
   }
 
   function inviteUrl() {
-    var bot = (window.TG_BOT_USERNAME || 'your_bot_username').replace(/^@/, '');
+    var bot = (window.TG_BOT_USERNAME || 'planet_merge_game_bot').replace(/^@/, '');
     return 'https://t.me/' + bot + '/game?startapp=ref_' + userId();
   }
 
@@ -82,7 +82,7 @@
 
   window.AdController = {
     show: function () {
-      var block = window.ADSGRAM_BLOCK_ID || 'int-0000';
+      var block = window.ADSGRAM_BLOCK_ID || '61632';
       if (!window.Adsgram) {
         return Promise.reject(new Error('Adsgram SDK not loaded'));
       }
