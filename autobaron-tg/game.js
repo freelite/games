@@ -2040,43 +2040,46 @@ function setupModalDrag(){
   if(!modalBox) return;
   const handle = modalBox.querySelector('.modal-grip');
   if(!handle) return;
-  modalBox.style.transform = '';
-  modalBox.style.transition = '';
+  const backdrop = root.querySelector('.modal-backdrop');
   let startY = null;
   let deltaY = 0;
-  let active = false;
   handle.addEventListener('touchstart', function(e){
     if(!e.touches || !e.touches.length) return;
     startY = e.touches[0].clientY;
     deltaY = 0;
-    active = true;
-    modalBox.style.transition = 'none';
+    modalBox.style.setProperty('animation', 'none', 'important');
+    modalBox.style.setProperty('transition', 'none', 'important');
   }, { passive: true });
   handle.addEventListener('touchmove', function(e){
-    if(!active || !e.touches || !e.touches.length) return;
+    if(startY === null || !e.touches || !e.touches.length) return;
     deltaY = Math.max(0, e.touches[0].clientY - startY);
-    if(deltaY > 0){
-      modalBox.style.transform = 'translateY(' + deltaY + 'px)';
-      if(e.cancelable) e.preventDefault();
-    }
+    if(e.cancelable) e.preventDefault();
+    modalBox.style.setProperty('transform', 'translate3d(0, ' + deltaY + 'px, 0)', 'important');
+    if(backdrop) backdrop.style.opacity = String(Math.max(0, 1 - deltaY / 420));
   }, { passive: false });
-  const finish = function(){
-    if(!active) return;
-    active = false;
-    modalBox.style.transition = 'transform 0.24s ease-out';
-    if(deltaY > 80){
-      modalBox.style.transform = 'translateY(100%)';
-      setTimeout(function(){
-        modalBox.style.transition = '';
-        modalBox.style.transform = '';
-        closeModal();
-      }, 220);
-    }else{
-      modalBox.style.transform = 'translateY(0)';
-    }
+  function finish(){
+    if(startY === null) return;
     startY = null;
+    modalBox.style.setProperty('transition', 'transform 0.25s cubic-bezier(0.22, 1, 0.36, 1)', 'important');
+    if(deltaY > 85){
+      modalBox.style.setProperty('transform', 'translate3d(0, 100%, 0)', 'important');
+      if(backdrop) backdrop.style.opacity = '0';
+      setTimeout(function(){
+        modalBox.style.removeProperty('transform');
+        modalBox.style.removeProperty('transition');
+        modalBox.style.removeProperty('animation');
+        if(backdrop) backdrop.style.opacity = '';
+        closeModal();
+      }, 240);
+    }else{
+      modalBox.style.setProperty('transform', 'translate3d(0, 0, 0)', 'important');
+      if(backdrop) backdrop.style.opacity = '';
+      setTimeout(function(){
+        modalBox.style.removeProperty('transition');
+      }, 260);
+    }
     deltaY = 0;
-  };
+  }
   handle.addEventListener('touchend', finish, { passive: true });
   handle.addEventListener('touchcancel', finish, { passive: true });
 }
