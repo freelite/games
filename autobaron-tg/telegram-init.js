@@ -56,7 +56,7 @@
 
   function inviteUrl() {
     var bot = (window.TG_BOT_USERNAME || 'your_bot_username').replace(/^@/, '');
-    return 'https://t.me/' + bot + '?startapp=ref_' + userId();
+    return 'https://t.me/' + bot + '/game?startapp=ref_' + userId();
   }
 
   function share() {
@@ -83,8 +83,8 @@
   window.AdController = {
     show: function () {
       var block = window.ADSGRAM_BLOCK_ID || 'int-0000';
-      if (block === 'int-0000' || !window.Adsgram) {
-        return Promise.resolve({ done: true, test: true });
+      if (!window.Adsgram) {
+        return Promise.reject(new Error('Adsgram SDK not loaded'));
       }
       var ad = null;
       try {

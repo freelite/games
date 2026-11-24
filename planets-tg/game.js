@@ -5,8 +5,8 @@
 (function () {
   'use strict';
 
-const TG_BOT_USERNAME = 'your_bot_username';
-const ADSGRAM_BLOCK_ID = 'int-0000';
+const TG_BOT_USERNAME = 'planet_merge_game_bot';
+const ADSGRAM_BLOCK_ID = '61632';
 
   /* ------------------------------------------------------------
  Helpers
