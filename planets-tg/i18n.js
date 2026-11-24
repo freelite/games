@@ -40,6 +40,7 @@
     'Убрать мелкие планеты': 'Clear small planets',
     '+1 Бустер за рекламу': '+1 Booster for ad',
     '+1 Бустер за друга': '+1 Booster for friend',
+    'ОПАСНО •': 'DANGER •',
     'ОПАСНО': 'DANGER',
     'Настройки': 'Settings',
     'Язык / Language': 'Language',
