@@ -1375,3 +1375,61 @@ body, .app, main, #app {
   font-variant-numeric:tabular-nums !important;
 }
 .prep-btn .p-name svg {width:16px !important;height:16px !important;flex:0 0 auto !important}
+
+
+/* ---------- welcome: same sheet geometry and premium card as VIP ---------- */
+.modal-root.open.welcome-open {
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  padding: 0 !important;
+}
+.modal-root.open.welcome-open .modal {
+  margin-top: calc(var(--tg-top-inset, 52px) + 10px) !important;
+  max-height: calc(100dvh - var(--tg-top-inset, 52px) - 10px) !important;
+  border-radius: 22px 22px 0 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+}
+.modal-root.open .modal {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.modal-root .welcome-body {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 12px 16px calc(18px + env(safe-area-inset-bottom)) !important;
+  box-sizing: border-box;
+}
+.welcome-body .welcome-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 18px 14px 16px;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(251, 191, 36, 0.09), rgba(20, 25, 35, 0.92) 46%, rgba(12, 16, 23, 0.98));
+  box-shadow: 0 24px 56px -34px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+.welcome-body .welcome-list {
+  width: 100%;
+  margin: 10px 0 2px !important;
+}
+.welcome-body .welcome-actions {
+  width: 100%;
+  display: flex;
+  margin-top: 4px;
+}
+.welcome-body .welcome-actions .btn {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px;
+}

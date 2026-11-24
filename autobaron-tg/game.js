@@ -2016,6 +2016,7 @@ function welcomeModalHTML(){
   return '<div class="modal-grip"></div>' +
     '<button class="modal-close" data-action="close-welcome" aria-label="Закрыть">' + ic('close') + '</button>' +
     '<div class="modal-body welcome-body">' +
+      '<div class="welcome-card">' +
       '<div class="welcome-badge">' + ic('star') + '</div>' +
       '<div class="welcome-kicker">АВТОБАРОН</div>' +
       '<h2 class="welcome-title">Добро пожаловать в АВТОБАРОН!</h2>' +
@@ -2024,6 +2025,7 @@ function welcomeModalHTML(){
         '<div class="welcome-item"><span class="w-ico">01</span><span>Ищи лоты на рынке и проверяй скрытые дефекты</span></div>' +
         '<div class="welcome-item"><span class="w-ico">02</span><span>Торгуйся, ремонтируй и готовь авто к продаже</span></div>' +
         '<div class="welcome-item"><span class="w-ico">03</span><span>Развивай бизнес и открывай новые лиги</span></div>' +
+      '</div>' +
       '</div>' +
       '<div class="welcome-actions"><button class="btn ach-btn" data-action="close-welcome">' +
         ((state.stats.sold || 0) > 0 || (state.stats.bought || 0) > 0 || state.money !== START.money || upg('garage') > 0
@@ -2043,6 +2045,8 @@ function setupModalDrag(){
   const backdrop = root.querySelector('.modal-backdrop');
   let startY = null;
   let deltaY = 0;
+  let rafPending = false;
+  let rafId = 0;
   handle.addEventListener('touchstart', function(e){
     if(!e.touches || !e.touches.length) return;
     startY = e.touches[0].clientY;
@@ -2054,12 +2058,19 @@ function setupModalDrag(){
     if(startY === null || !e.touches || !e.touches.length) return;
     deltaY = Math.max(0, e.touches[0].clientY - startY);
     if(e.cancelable) e.preventDefault();
-    modalBox.style.setProperty('transform', 'translate3d(0, ' + deltaY + 'px, 0)', 'important');
-    if(backdrop) backdrop.style.opacity = String(Math.max(0, 1 - deltaY / 420));
+    if(rafPending) return;
+    rafPending = true;
+    rafId = requestAnimationFrame(function(){
+      rafPending = false;
+      modalBox.style.setProperty('transform', 'translate3d(0, ' + deltaY + 'px, 0)', 'important');
+      if(backdrop) backdrop.style.opacity = String(Math.max(0, 1 - deltaY / 420));
+    });
   }, { passive: false });
   function finish(){
     if(startY === null) return;
     startY = null;
+    if(rafPending){ cancelAnimationFrame(rafId); rafPending = false; }
+    modalBox.style.setProperty('transform', 'translate3d(0, ' + deltaY + 'px, 0)', 'important');
     modalBox.style.setProperty('transition', 'transform 0.25s cubic-bezier(0.22, 1, 0.36, 1)', 'important');
     if(deltaY > 85){
       modalBox.style.setProperty('transform', 'translate3d(0, 100%, 0)', 'important');
