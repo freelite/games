@@ -2700,6 +2700,7 @@ const ADSGRAM_BLOCK_ID = '61632';
       toastEl.classList.remove('show');
     }, 1700);
   }
+  window.showGameToast = showToast;
 
   function bump(el) {
     el.classList.remove('bump');

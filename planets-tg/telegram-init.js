@@ -80,6 +80,20 @@
     share: share
   };
 
+  function adErrorMessage() {
+    return (window.I18N && I18N.lang === 'en')
+      ? 'Ad is temporarily unavailable, please try again later'
+      : 'Реклама временно недоступна, попробуйте позже';
+  }
+
+  function notifyAdError() {
+    var msg = adErrorMessage();
+    try {
+      if (typeof window.showGameToast === 'function') { window.showGameToast(msg); return; }
+      if (typeof window.toast === 'function') { window.toast(msg, 'warn'); }
+    } catch (err) {}
+  }
+
   window.AdController = {
     show: function () {
       var block = window.ADSGRAM_BLOCK_ID || '61632';
@@ -88,7 +102,7 @@
       }
       var ad = null;
       try {
-        ad = window.Adsgram.init({ blockId: block });
+        ad = window.Adsgram.init({ blockId: block, debug: false });
       } catch (err) {
         return Promise.reject(err);
       }
@@ -112,6 +126,8 @@
     }).catch(function (err) {
       emit(kind + '_state_changed', 'failed');
       emit('pause_state_changed', false);
+      emit('audio_state_changed', true);
+      notifyAdError();
       return { done: false, error: String(err) };
     });
   }

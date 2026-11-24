@@ -1519,6 +1519,7 @@ function toast(text, kind){
   setTimeout(() => el.classList.add('out'), 3400);
   setTimeout(() => { if(el.parentNode) el.parentNode.removeChild(el); }, 3700);
 }
+window.showGameToast = toast;
 
 function updateHeader(){
   const rep = $('repValue'), gar = $('garageValue'), mute = $('muteBtn'), vip = $('vipBtn');
