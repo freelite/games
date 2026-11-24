@@ -49,7 +49,8 @@ const ADSGRAM_BLOCK_ID = '61632';
  ------------------------------------------------------------ */
   let WORLD_W = 400;
   let WORLD_H = 600;
-  const DANGER_Y = 120;
+  const DANGER_Y_RATIO = 0.11;
+let DANGER_Y = 120;
   const HOLD_Y = -36;
   const MAX_LEVEL = 10;
   const DROP_COOLDOWN = 0.42;
@@ -1074,7 +1075,11 @@ const ADSGRAM_BLOCK_ID = '61632';
 
   const scoreEl = $('score');
   const bestEl = $('best');
-  const soundBtn = $('soundBtn');
+  const settingsBtn = $('settingsBtn');
+const settingsOverlay = $('settingsOverlay');
+const settingsClose = $('settingsClose');
+const settingsSoundBtn = $('settingsSoundBtn');
+const settingsVibrationBtn = $('settingsVibrationBtn');
   const pauseBtn = $('pauseBtn');
   const startScreen = $('startScreen');
   const pauseScreen = $('pauseScreen');
@@ -2059,6 +2064,7 @@ const ADSGRAM_BLOCK_ID = '61632';
       Sound.pop();
     }
 
+    haptic(newLevel >= 7 ? 'medium' : 'light');
     Sound.merge(newLevel, S.combo);
     updateScore();
     syncControls();
@@ -2096,9 +2102,18 @@ const ADSGRAM_BLOCK_ID = '61632';
   }
 
   function syncControls() {
-    soundBtn.classList.toggle('muted', Sound.muted);
-    soundBtn.setAttribute('aria-pressed', String(!Sound.muted));
-    soundBtn.setAttribute('aria-label', Sound.muted ? 'Включить звук' : 'Выключить звук');
+    if (settingsSoundBtn) {
+      settingsSoundBtn.textContent = Sound.muted
+        ? (window.I18N && I18N.lang === 'en' ? 'Off' : 'Выкл')
+        : (window.I18N && I18N.lang === 'en' ? 'On' : 'Вкл');
+      settingsSoundBtn.classList.toggle('off', Sound.muted);
+    }
+    if (settingsVibrationBtn) {
+      settingsVibrationBtn.textContent = vibrationOn
+        ? (window.I18N && I18N.lang === 'en' ? 'On' : 'Вкл')
+        : (window.I18N && I18N.lang === 'en' ? 'Off' : 'Выкл');
+      settingsVibrationBtn.classList.toggle('off', !vibrationOn);
+    }
 
     const canPause = S.mode === 'playing' || S.mode === 'paused';
     pauseBtn.disabled = !canPause;
@@ -2297,6 +2312,7 @@ const ADSGRAM_BLOCK_ID = '61632';
     shakeT = 0.4;
     shakeDur = 0.4;
     shakeMag = 16;
+    haptic('medium');
     Sound.shake();
     showToast('Стакан встряхнут!');
   }
@@ -2317,6 +2333,7 @@ const ADSGRAM_BLOCK_ID = '61632';
       b.isPlanet = false;
       Composite.remove(engine.world, b);
     }
+    haptic('light');
     Sound.clean();
     flash(0.12);
     showToast('Убрано объектов: ' + small.length);
@@ -2326,6 +2343,17 @@ const ADSGRAM_BLOCK_ID = '61632';
     if (kind === 'shake') applyShake();
     else applyClean();
     updateBonusUI();
+  }
+
+  let vibrationOn = true;
+  try { vibrationOn = localStorage.getItem('mergeCosmos.vibration.v1') !== '0'; } catch (err) {}
+
+  function haptic(strength) {
+    if (!vibrationOn) return;
+    try {
+      const hf = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback;
+      if (hf && typeof hf.impactOccurred === 'function') hf.impactOccurred(strength);
+    } catch (err) {}
   }
 
   function requestBonus(kind) {
@@ -2524,10 +2552,10 @@ const ADSGRAM_BLOCK_ID = '61632';
     dangerBadgeEl.classList.toggle('show', on);
     if (view.scale > 0) {
       const lineY = view.jarTop + DANGER_Y * view.scale;
-      dangerBadgeEl.style.top = Math.max(0, Math.round(lineY - 35)) + 'px';
+      dangerBadgeEl.style.top = Math.max(0, Math.round(lineY - 78)) + 'px';
     }
     if (!on) return;
-    dangerTimeEl.textContent = Math.max(0, DANGER_TIME - S.danger).toFixed(1) + ' с';
+    dangerTimeEl.textContent = Math.max(0, DANGER_TIME - S.danger).toFixed(1) + (window.I18N && I18N.lang === 'en' ? 's' : 'с');
     dangerFillEl.style.width = Math.min(100, (S.danger / DANGER_TIME) * 100).toFixed(1) + '%';
   }
 
@@ -2678,6 +2706,8 @@ const ADSGRAM_BLOCK_ID = '61632';
   }
 
   function showCombo(n) {
+  const lineY = view.jarTop + DANGER_Y * view.scale;
+  comboEl.style.top = Math.max(0, Math.round(lineY + 46)) + 'px';
     comboEl.textContent = 'КОМБО ×' + n;
     comboEl.classList.remove('show');
     void comboEl.offsetWidth;
@@ -3121,6 +3151,7 @@ const ADSGRAM_BLOCK_ID = '61632';
 	const availH = Math.max(60, h - pad - aim);
 	WORLD_W = desktop ? 470 : 400;
 	WORLD_H = desktop ? 580 : clamp(Math.round(WORLD_W * (availH / availW)), 520, 780);
+	DANGER_Y = Math.max(96, Math.round(WORLD_H * DANGER_Y_RATIO));
 	const ratio = WORLD_W / WORLD_H;
 
 
@@ -3673,6 +3704,18 @@ const ADSGRAM_BLOCK_ID = '61632';
     e.preventDefault();
   }
 
+  function openSettings() {
+    if (S.mode === 'playing') pauseGame();
+    haptic('light');
+    settingsOverlay.classList.add('open');
+    syncControls();
+  }
+
+  function closeSettings() {
+    settingsOverlay.classList.remove('open');
+    if (S.mode === 'paused') resumeGame();
+  }
+
   function toggleSound() {
     Sound.unlock();
     Sound.setMuted(!Sound.muted);
@@ -3734,7 +3777,20 @@ const ADSGRAM_BLOCK_ID = '61632';
     menuBtn.addEventListener('click', function () {
       showInterstitialAd(goMenu);
     });
-    soundBtn.addEventListener('click', toggleSound);
+    settingsBtn.addEventListener('click', openSettings);
+    if (settingsClose) settingsClose.addEventListener('click', closeSettings);
+    if (settingsOverlay) {
+      settingsOverlay.addEventListener('click', function (e) {
+        if (e.target === settingsOverlay) closeSettings();
+      });
+    }
+    if (settingsSoundBtn) settingsSoundBtn.addEventListener('click', toggleSound);
+    if (settingsVibrationBtn) settingsVibrationBtn.addEventListener('click', function () {
+      vibrationOn = !vibrationOn;
+      try { localStorage.setItem('mergeCosmos.vibration.v1', vibrationOn ? '1' : '0'); } catch (err) {}
+      haptic('medium');
+      syncControls();
+    });
     vipBtn.addEventListener('click', openVip);
     const inviteBtn = $('inviteFriendBtn');
     if (inviteBtn) inviteBtn.addEventListener('click', inviteFriend);

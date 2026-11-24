@@ -41,6 +41,12 @@
     '+1 Бустер за рекламу': '+1 Booster for ad',
     '+1 Бустер за друга': '+1 Booster for friend',
     'ОПАСНО': 'DANGER',
+    'Настройки': 'Settings',
+    'Язык / Language': 'Language',
+    'Звуковые эффекты / Sound effects': 'Sound effects',
+    'Вибрация / Vibration': 'Vibration',
+    'Вкл': 'On',
+    'Выкл': 'Off',
     'Не удалось загрузить физический движок.': 'Failed to load the physics engine.',
     'Проверьте подключение к интернету и обновите страницу.':
       'Check your internet connection and reload the page.',
@@ -83,6 +89,7 @@
   var PATTERNS = [
     [/^Рекорд: (.+)$/, 'Best: $1'],
     [/^КОМБО ×(\d+)$/, 'COMBO ×$1'],
+    [/^ОПАСНО • ([\d.]+)с$/, 'DANGER • $1s'],
     [/^Убрано объектов: (\d+)$/, 'Objects removed: $1'],
     [/^\+1 заряд к каждому бустеру!$/, '+1 charge for every booster!'],
     [/^Активно: осталось (.+)$/, function (core, m) { return 'Active: left ' + vipLeft(m[1]); }],

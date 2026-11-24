@@ -6,14 +6,14 @@
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <script src="./matter.min.js"></script>
   <script>window.Matter || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"><\/script>')</script>
-  <script src="i18n.js?v=10"></script>
+  <script src="i18n.js?v=11"></script>
   <script src="telegram-init.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#090d16">
   <meta name="description" content="Merge Cosmos — космическая головоломка со слиянием планет и звёзд: от астероида до чёрной дыры.">
   <title>Merge Cosmos — космический мердж</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%237c5cff'/%3E%3Ccircle cx='11' cy='11' r='6' fill='%2343e7ff'/%3E%3Ccircle cx='22' cy='22' r='2.6' fill='%23ffd9a0'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <div class="app" id="app">
@@ -42,19 +42,10 @@
       </div>
 
       <div class="actions">
-        <div class="lang-switch" role="group" aria-label="Язык / Language">
-          <button class="lang-btn" type="button" data-lang="ru">RU</button>
-          <button class="lang-btn" type="button" data-lang="en">EN</button>
-        </div>
-        <button class="icon-btn" id="soundBtn" type="button" aria-label="Выключить звук" aria-pressed="true">
-          <svg class="icon when-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z"/>
-            <path d="M15.6 9a4.4 4.4 0 0 1 0 6"/>
-            <path d="M18.2 6.6a8 8 0 0 1 0 10.8"/>
-          </svg>
-          <svg class="icon when-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z"/>
-            <path d="M16 9.5l5 5M21 9.5l-5 5"/>
+        <button class="icon-btn" id="settingsBtn" type="button" aria-label="Настройки">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.2"/>
+            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.56-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.03z"/>
           </svg>
         </button>
         <button class="icon-btn" id="pauseBtn" type="button" aria-label="Пауза" disabled>
@@ -212,11 +203,35 @@
     </footer>
   </div>
 
+  <div class="settings-overlay" id="settingsOverlay" aria-hidden="true">
+    <div class="settings-modal" role="dialog" aria-modal="true">
+      <div class="settings-grip"></div>
+      <div class="settings-head">
+        <span class="settings-title">Настройки</span>
+        <button class="settings-close" id="settingsClose" type="button" aria-label="Закрыть">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="settings-line"><span class="settings-label">Язык / Language</span>
+        <div class="lang-switch settings-lang" role="group" aria-label="Language">
+          <button class="lang-btn" type="button" data-lang="ru">RU</button>
+          <button class="lang-btn" type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+      <div class="settings-line"><span class="settings-label">Звуковые эффекты / Sound effects</span>
+        <button class="settings-toggle" id="settingsSoundBtn" type="button">Вкл</button>
+      </div>
+      <div class="settings-line"><span class="settings-label">Вибрация / Vibration</span>
+        <button class="settings-toggle" id="settingsVibrationBtn" type="button">Вкл</button>
+      </div>
+    </div>
+  </div>
+
   <div class="fatal" id="fatal" role="alert">
     <strong>Не удалось загрузить физический движок.</strong>
     <span>Проверьте подключение к интернету и обновите страницу.</span>
   </div>
 
-  <script src="game.js?v=10"></script>
+  <script src="game.js?v=11"></script>
 </body>
 </html>
