@@ -23,9 +23,27 @@
     if (tg) {
       tg.ready();
       tg.expand();
+      if (typeof tg.requestFullscreen === 'function') tg.requestFullscreen();
       if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes();
       var code = tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code;
       if (code) lang = String(code).toLowerCase().indexOf('ru') === 0 ? 'ru' : 'en';
+    }
+  } catch (err) {}
+
+  function applyTopInset() {
+    var top = 0;
+    try {
+      top = ((tg && tg.safeAreaInset && tg.safeAreaInset.top) || 0) +
+        ((tg && tg.contentSafeAreaInset && tg.contentSafeAreaInset.top) || 0);
+    } catch (err) { top = 0; }
+    document.documentElement.style.setProperty('--tg-top-inset', top + 'px');
+  }
+  applyTopInset();
+  try {
+    if (tg && typeof tg.onEvent === 'function') {
+      tg.onEvent('fullscreenChanged', applyTopInset);
+      tg.onEvent('safeAreaChanged', applyTopInset);
+      tg.onEvent('contentSafeAreaChanged', applyTopInset);
     }
   } catch (err) {}
 

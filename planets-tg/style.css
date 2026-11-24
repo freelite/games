@@ -1270,3 +1270,8 @@
   border-radius: 14px !important;
   background-color: rgba(88, 52, 140, 0.55);
 }
+
+/* telegram fullscreen top inset */
+.hud {
+  padding-top: calc(var(--tg-top-inset, 0px) + 8px);
+}

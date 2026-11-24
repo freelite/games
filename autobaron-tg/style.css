@@ -1287,3 +1287,8 @@ body, .app, main, #app {
   height: 14px;
   flex: 0 0 auto;
 }
+
+/* telegram fullscreen top inset */
+.topbar {
+  padding-top: calc(var(--tg-top-inset, 0px) + 8px);
+}
