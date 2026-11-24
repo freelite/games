@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <script src="i18n.js"></script>
+  <script src="telegram-init.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#090d16">
+  <meta name="description" content="Merge Cosmos — космическая головоломка со слиянием планет и звёзд: от астероида до чёрной дыры.">
+  <title>Merge Cosmos — космический мердж</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%237c5cff'/%3E%3Ccircle cx='11' cy='11' r='6' fill='%2343e7ff'/%3E%3Ccircle cx='22' cy='22' r='2.6' fill='%23ffd9a0'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app" id="app">
+
+    <header class="hud">
+      <div class="brand" aria-hidden="true">
+        <span class="brand-mark"><span class="brand-core"></span></span>
+        <span class="brand-text">MERGE<span>COSMOS</span></span>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Счёт</span>
+          <span class="stat-value" id="score" aria-live="polite">0</span>
+        </div>
+        <div class="stat best">
+          <span class="stat-label">Рекорд</span>
+          <span class="stat-value" id="best">0</span>
+        </div>
+      </div>
+
+      <div class="next-card" id="nextCard" aria-hidden="true">
+        <span class="next-label">Далее</span>
+        <canvas id="nextPreview" width="120" height="120"></canvas>
+        <span class="next-name" id="nextName">—</span>
+      </div>
+
+      <div class="actions">
+        <div class="lang-switch" role="group" aria-label="Язык / Language">
+          <button class="lang-btn" type="button" data-lang="ru">RU</button>
+          <button class="lang-btn" type="button" data-lang="en">EN</button>
+        </div>
+        <button class="icon-btn" id="soundBtn" type="button" aria-label="Выключить звук" aria-pressed="true">
+          <svg class="icon when-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z"/>
+            <path d="M15.6 9a4.4 4.4 0 0 1 0 6"/>
+            <path d="M18.2 6.6a8 8 0 0 1 0 10.8"/>
+          </svg>
+          <svg class="icon when-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z"/>
+            <path d="M16 9.5l5 5M21 9.5l-5 5"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="pauseBtn" type="button" aria-label="Пауза" disabled>
+          <svg class="icon when-playing" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <rect x="6" y="5" width="4" height="14" rx="1.6"/>
+            <rect x="14" y="5" width="4" height="14" rx="1.6"/>
+          </svg>
+          <svg class="icon when-paused" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5.6v12.8a1 1 0 0 0 1.5.86l10-6.4a1 1 0 0 0 0-1.72l-10-6.4A1 1 0 0 0 8 5.6z"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="fullscreenBtn" type="button" aria-label="На весь экран">
+          <svg class="icon when-enter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9V5.8A1.8 1.8 0 0 1 5.8 4H9"/>
+            <path d="M15 4h3.2A1.8 1.8 0 0 1 20 5.8V9"/>
+            <path d="M20 15v3.2a1.8 1.8 0 0 1-1.8 1.8H15"/>
+            <path d="M9 20H5.8A1.8 1.8 0 0 1 4 18.2V15"/>
+          </svg>
+          <svg class="icon when-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 4v3.2A1.8 1.8 0 0 1 7.2 9H4"/>
+            <path d="M20 9h-3.2A1.8 1.8 0 0 1 15 7.2V4"/>
+            <path d="M15 20v-3.2a1.8 1.8 0 0 1 1.8-1.8H20"/>
+            <path d="M4 15h3.2A1.8 1.8 0 0 1 9 16.8V20"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="stage" id="stage">
+      <canvas id="game" aria-label="Игровое поле: двигайте прицел и отпускайте, чтобы сбросить объект"></canvas>
+      <div class="vignette" id="vignette" aria-hidden="true"></div>
+
+      <div class="combo" id="combo" aria-hidden="true">КОМБО ×2</div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <div class="danger-badge" id="dangerBadge" aria-hidden="true">
+        <div class="danger-head"><span>ОПАСНО</span><b id="dangerTime">2.5 с</b></div>
+        <div class="danger-meter"><span class="danger-fill" id="dangerFill"></span></div>
+      </div>
+
+      <aside class="rail rail-left" id="railLeft" aria-hidden="true">
+        <div class="rail-slot" id="slotEvo"></div>
+      </aside>
+
+      <aside class="rail rail-right" id="railRight" aria-hidden="true">
+        <div class="rail-slot rail-slot-next" id="slotNext"></div>
+        <div class="rail-slot rail-slot-bonus" id="slotBonus"></div>
+      </aside>
+
+      <div class="overlay show" id="startScreen">
+        <div class="panel start-panel">
+          <div class="hero" aria-hidden="true"></div>
+          <p class="kicker">Космическая головоломка</p>
+          <h1 class="title">MERGE<br><span>COSMOS</span></h1>
+          <p class="tagline">Соединяй астероиды, планеты и звёзды — доберись до чёрной дыры.</p>
+          <button class="btn primary" id="startBtn" type="button">Играть</button>
+          <p class="hint">Двигай прицел мышью или пальцем<br>и отпусти, чтобы сбросить объект</p>
+        </div>
+      </div>
+
+      <div class="overlay" id="pauseScreen">
+        <div class="panel">
+          <p class="kicker">Пауза</p>
+          <h2 class="panel-title">Вселенная подождёт</h2>
+          <p class="panel-text">Продолжи, когда будешь готов.</p>
+          <div class="btn-row">
+            <button class="btn primary" id="resumeBtn" type="button">Продолжить</button>
+            <button class="btn ghost" id="restartBtn" type="button">Заново</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay" id="overScreen">
+        <div class="panel">
+          <p class="kicker">Стакан переполнен</p>
+          <h2 class="panel-title">Игра окончена</h2>
+          <div class="final">
+            <span class="final-label">Итоговый счёт</span>
+            <span class="final-score" id="finalScore">0</span>
+          </div>
+          <div class="record-badge" id="recordBadge">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8L12 2.8z"/></svg>
+            <span>Новый рекорд</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8L12 2.8z"/></svg>
+          </div>
+          <div class="record" id="recordLine">Рекорд: 0</div>
+          <button class="btn ghost second-chance" id="secondChanceBtn" type="button">Второй шанс · Реклама</button>
+          <div class="btn-row">
+            <button class="btn primary" id="retryBtn" type="button">Заново</button>
+            <button class="btn ghost" id="menuBtn" type="button">В меню</button>
+          </div>
+          <button class="btn ghost share-btn" id="shareBtn" type="button">Поделиться рекордом</button>
+        </div>
+      </div>
+
+      <div class="overlay" id="vipScreen">
+        <div class="panel">
+          <p class="kicker">Закрытый клуб</p>
+          <h2 class="panel-title">VIP на 24 часа</h2>
+          <p class="vip-desc">Смотри 5 коротких роликов — и получи VIP на 24 часа: без рекламы и с безлимитными бустерами.</p>
+          <p class="vip-status" id="vipStatus"></p>
+          <button class="btn primary" id="vipBuyBtn" type="button">Активировать VIP на 24ч (0/5 рекламы)</button>
+          <button class="btn ghost vip-close" id="vipCloseBtn" type="button">Закрыть</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bottom">
+      <div class="evo-row">
+        <span class="evo-label">Эволюция</span>
+        <div class="evo" id="evo" aria-label="Цепочка эволюции: 10 уровней"></div>
+      </div>
+      <div class="bonus-row">
+        <button class="bonus-btn" id="shakeBtn" type="button" disabled>
+          <svg class="bonus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3"/>
+            <path d="M4.5 9.5c1.2 1 1.2 3 0 4M19.5 9.5c-1.2 1-1.2 3 0 4"/>
+          </svg>
+          <span class="bonus-text">Встряхнуть стакан</span>
+          <span class="bonus-charge" id="shakeCharges">×1</span>
+        </button>
+        <button class="bonus-btn" id="cleanBtn" type="button" disabled>
+          <svg class="bonus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 4l1.6 4.4L17 10l-4.4 1.6L11 16l-1.6-4.4L5 10l4.4-1.6L11 4z"/>
+            <path d="M18 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/>
+          </svg>
+          <span class="bonus-text">Убрать мелкие</span>
+          <span class="bonus-charge" id="cleanCharges">×1</span>
+        </button>
+      </div>
+      <div class="bottom-row">
+        <button class="invite-btn" id="adBoosterBtn" type="button">
+          <svg class="btn-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3l2 5.6 6 1.4-6 1.4L12 18l-2-6-6-1.4 6-1.4L12 3z"/>
+            <path d="M18.5 16.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/>
+          </svg>
+          <span>+1 Бустер за рекламу</span>
+        </button>
+        <button class="invite-btn" id="vipBtn" type="button">
+          <svg class="btn-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 8l4 3 4-6 4 6 4-3-2 10H6L4 8z"/>
+            <path d="M6 18h12"/>
+          </svg>
+          <span id="vipBtnLabel">VIP на 24 часа</span>
+        </button>
+      </div>
+      <div class="invite-row">
+        <button class="invite-btn invite-friend-btn" id="inviteFriendBtn" type="button">
+          <svg class="btn-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="8" r="3.2"/>
+            <path d="M3.5 19a5.5 5.5 0 0 1 11 0"/>
+            <path d="M17 8v6M14 11h6"/>
+          </svg>
+          <span>Пригласить друга (+1 Бустер)</span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <div class="fatal" id="fatal" role="alert">
+    <strong>Не удалось загрузить физический движок.</strong>
+    <span>Проверьте подключение к интернету и обновите страницу.</span>
+  </div>
+
+  <script src="./matter.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
