@@ -1332,3 +1332,35 @@ body, .app, main, #app {
     display: flex !important;
   }
 }
+
+
+/* ---------- welcome/vip fill height + drag handle only ---------- */
+.modal-root .welcome-body,
+.modal-root .vip-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  min-height: 76dvh;
+  padding: 20px 18px 28px;
+  box-sizing: border-box;
+}
+.modal-root .modal-grip {
+  width: 100%;
+  padding: 12px 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  cursor: grab;
+}
+.modal-root .modal-grip::before {
+  content: none;
+  display: none;
+}
+.modal-root .modal-grip::after {
+  content: '';
+  width: 44px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(148, 163, 184, 0.55);
+}

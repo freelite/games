@@ -2036,63 +2036,49 @@ function welcomeModalHTML(){
 function setupModalDrag(){
   const root = $('modalRoot');
   if(!root) return;
-  const modalEl = root.querySelector('.modal');
-  if(!modalEl) return;
-  modalEl.style.transform = '';
-  const handle = modalEl.querySelector('.modal-grip');
+  const modalBox = root.querySelector('.modal');
+  if(!modalBox) return;
+  const handle = modalBox.querySelector('.modal-grip');
+  if(!handle) return;
+  modalBox.style.transform = '';
+  modalBox.style.transition = '';
   let startY = null;
-  let delta = 0;
+  let deltaY = 0;
   let active = false;
-  const begin = function(y){
-    startY = y;
-    delta = 0;
+  handle.addEventListener('touchstart', function(e){
+    if(!e.touches || !e.touches.length) return;
+    startY = e.touches[0].clientY;
+    deltaY = 0;
     active = true;
-    modalEl.style.transition = 'none';
-  };
-  const move = function(y){
-    if(!active) return;
-    delta = Math.max(0, y - startY);
-    if(delta > 0) modalEl.style.transform = 'translateY(' + delta + 'px)';
-  };
+    modalBox.style.transition = 'none';
+  }, { passive: true });
+  handle.addEventListener('touchmove', function(e){
+    if(!active || !e.touches || !e.touches.length) return;
+    deltaY = Math.max(0, e.touches[0].clientY - startY);
+    if(deltaY > 0){
+      modalBox.style.transform = 'translateY(' + deltaY + 'px)';
+      if(e.cancelable) e.preventDefault();
+    }
+  }, { passive: false });
   const finish = function(){
     if(!active) return;
     active = false;
-    modalEl.style.transition = 'transform 0.22s ease';
-    if(delta > 65){
-      modalEl.style.transform = 'translateY(105%)';
-      setTimeout(function(){ closeModal(); }, 180);
+    modalBox.style.transition = 'transform 0.24s ease-out';
+    if(deltaY > 80){
+      modalBox.style.transform = 'translateY(100%)';
+      setTimeout(function(){
+        modalBox.style.transition = '';
+        modalBox.style.transform = '';
+        closeModal();
+      }, 220);
     }else{
-      modalEl.style.transform = '';
+      modalBox.style.transform = 'translateY(0)';
     }
     startY = null;
-    delta = 0;
+    deltaY = 0;
   };
-  const bind = function(el){
-    el.addEventListener('touchstart', function(e){
-      if(!e.touches || !e.touches.length) return;
-      begin(e.touches[0].clientY);
-    }, { passive: true });
-    el.addEventListener('touchmove', function(e){
-      if(!active || !e.touches || !e.touches.length) return;
-      move(e.touches[0].clientY);
-      if(delta > 0 && e.cancelable) e.preventDefault();
-    }, { passive: false });
-    el.addEventListener('touchend', finish, { passive: true });
-    el.addEventListener('touchcancel', finish, { passive: true });
-  };
-  if(handle) bind(handle);
-  modalEl.addEventListener('touchstart', function(e){
-    if(modalEl.scrollTop > 0) return;
-    if(!e.touches || !e.touches.length) return;
-    begin(e.touches[0].clientY);
-  }, { passive: true });
-  modalEl.addEventListener('touchmove', function(e){
-    if(!active || !e.touches || !e.touches.length) return;
-    move(e.touches[0].clientY);
-    if(delta > 0 && e.cancelable) e.preventDefault();
-  }, { passive: false });
-  modalEl.addEventListener('touchend', finish, { passive: true });
-  modalEl.addEventListener('touchcancel', finish, { passive: true });
+  handle.addEventListener('touchend', finish, { passive: true });
+  handle.addEventListener('touchcancel', finish, { passive: true });
 }
 
 function renderModal(){
