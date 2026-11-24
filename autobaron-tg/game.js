@@ -423,6 +423,7 @@ function defaultState(){
 
 /* ---------------- Утилиты ---------------- */
 const $ = id => document.getElementById(id);
+const TOASTS_EL = document.getElementById('toasts');
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rndInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const choice = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -1509,7 +1510,7 @@ function normalizeState(data){
 }
 /* ---------------- Рендер ---------------- */
 function toast(text, kind){
-  const box = $('toasts');
+  const box = TOASTS_EL;
   if(!box) return;
   while(box.children.length >= 4) box.removeChild(box.firstChild);
   const el = document.createElement('div');
@@ -2045,8 +2046,6 @@ function setupModalDrag(){
   const backdrop = root.querySelector('.modal-backdrop');
   let startY = null;
   let deltaY = 0;
-  let rafPending = false;
-  let rafId = 0;
   handle.addEventListener('touchstart', function(e){
     if(!e.touches || !e.touches.length) return;
     startY = e.touches[0].clientY;
@@ -2058,20 +2057,14 @@ function setupModalDrag(){
     if(startY === null || !e.touches || !e.touches.length) return;
     deltaY = Math.max(0, e.touches[0].clientY - startY);
     if(e.cancelable) e.preventDefault();
-    if(rafPending) return;
-    rafPending = true;
-    rafId = requestAnimationFrame(function(){
-      rafPending = false;
-      modalBox.style.setProperty('transform', 'translate3d(0, ' + deltaY + 'px, 0)', 'important');
-      if(backdrop) backdrop.style.opacity = String(Math.max(0, 1 - deltaY / 420));
-    });
+    modalBox.style.setProperty('transform', 'translate3d(0, ' + deltaY + 'px, 0)', 'important');
+    if(backdrop) backdrop.style.opacity = String(Math.max(0, 1 - deltaY / 420));
   }, { passive: false });
   function finish(){
     if(startY === null) return;
     startY = null;
-    if(rafPending){ cancelAnimationFrame(rafId); rafPending = false; }
     modalBox.style.setProperty('transform', 'translate3d(0, ' + deltaY + 'px, 0)', 'important');
-    modalBox.style.setProperty('transition', 'transform 0.25s cubic-bezier(0.22, 1, 0.36, 1)', 'important');
+    modalBox.style.setProperty('transition', 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)', 'important');
     if(deltaY > 85){
       modalBox.style.setProperty('transform', 'translate3d(0, 100%, 0)', 'important');
       if(backdrop) backdrop.style.opacity = '0';

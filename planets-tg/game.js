@@ -2892,15 +2892,6 @@ const ADSGRAM_BLOCK_ID = '61632';
     });
   }
 
-  function grantRandomBooster() {
-    const kind = Math.random() < 0.5 ? 'shake' : 'clean';
-    S.charges[kind] = Math.min(99, S.charges[kind] + 1);
-    saveCharges();
-    updateBonusUI();
-    Sound.clean();
-    showToast(kind === 'shake' ? '+1 «Встряхнуть стакан»' : '+1 «Убрать мелкие»');
-  }
-
   function updateBonusUI() {
     const vip = isVip();
     const now = Date.now();
