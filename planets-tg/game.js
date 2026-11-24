@@ -2552,7 +2552,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     dangerBadgeEl.classList.toggle('show', on);
     if (view.scale > 0) {
       const lineY = view.jarTop + DANGER_Y * view.scale;
-      dangerBadgeEl.style.top = Math.max(0, Math.round(lineY - 54)) + 'px';
+      dangerBadgeEl.style.top = Math.max(0, Math.round(lineY - 58)) + 'px';
     }
     if (!on) return;
     dangerTimeEl.textContent = Math.max(0, DANGER_TIME - S.danger).toFixed(1) + (window.I18N && I18N.lang === 'en' ? 's' : 'с');
@@ -2707,7 +2707,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   function showCombo(n) {
   const lineY = view.jarTop + DANGER_Y * view.scale;
-  comboEl.style.top = Math.max(0, Math.round(lineY + 32)) + 'px';
+  comboEl.style.top = Math.max(0, Math.round(lineY + 34)) + 'px';
     comboEl.textContent = 'КОМБО ×' + n;
     comboEl.classList.remove('show');
     void comboEl.offsetWidth;
@@ -3151,7 +3151,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 	const availH = Math.max(60, h - pad - aim);
 	WORLD_W = desktop ? 470 : 400;
 	WORLD_H = desktop ? 580 : clamp(Math.round(WORLD_W * (availH / availW)), 520, 780);
-	DANGER_Y = Math.max(96, Math.round(WORLD_H * DANGER_Y_RATIO));
 	const ratio = WORLD_W / WORLD_H;
 
 
@@ -3162,7 +3161,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       jarW = jarH * ratio;
     }
     view.scale = jarW / WORLD_W;
-    DANGER_Y = Math.max(20, Math.round(26 / view.scale));
+    DANGER_Y = Math.max(18, Math.round(28 / view.scale));
     view.jarW = jarW;
     view.jarH = jarH;
     view.jarLeft = (w - jarW) / 2;
