@@ -4132,8 +4132,8 @@ body[data-theme] .daily-ad-btn {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    width: 600px !important;
-    max-width: 600px !important;
+    width: clamp(660px, 64vh, 820px) !important;
+    max-width: calc(100vw - 520px) !important;
     min-width: 0;
     margin: 0 auto;
     z-index: 40;
@@ -4153,8 +4153,8 @@ body[data-theme] .daily-ad-btn {
     bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    width: 600px !important;
-    max-width: 600px !important;
+    width: clamp(660px, 64vh, 820px) !important;
+    max-width: calc(100vw - 520px) !important;
     min-width: 0;
     height: auto;
     min-height: 0;
@@ -4396,4 +4396,77 @@ body[data-theme] .daily-ad-btn {
     background-position: center center, center center !important;
     background-repeat: no-repeat, no-repeat !important;
   }
+}
+
+
+/* ============================================================
+   v50 — desktop only: true wide jar (560 logical units) and
+   spacious leaderboard / themes modals
+   (mobile <= 768px untouched)
+   ============================================================ */
+@media (min-width: 769px) {
+  #leaderboardOverlay .lb-modal,
+  #leaderboardOverlay .sheet-modal-wide {
+    width: 640px !important;
+    max-width: 90vw !important;
+    max-height: 88vh !important;
+    padding: 14px 20px 18px !important;
+    border-radius: 24px !important;
+  }
+  #leaderboardOverlay .lb-league {
+    padding: 14px 16px 12px !important;
+    border-radius: 18px !important;
+  }
+  #leaderboardOverlay .lb-list {
+    max-height: 52vh !important;
+  }
+  #leaderboardOverlay .lb-row {
+    grid-template-columns: 30px minmax(0, 1fr) auto !important;
+    gap: 12px !important;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    font-size: 13.5px !important;
+  }
+  #leaderboardOverlay .lb-row + .lb-row { margin-top: 4px !important; }
+  #leaderboardOverlay .lb-av-crest {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 11px !important;
+  }
+  #leaderboardOverlay .lb-av-crest svg { width: 34px !important; height: 34px !important; }
+  #leaderboardOverlay .lb-name { font-size: 13.5px !important; }
+  #leaderboardOverlay .lb-score { font-size: 13.5px !important; }
+  #leaderboardOverlay .lb-share {
+    width: 100% !important;
+    height: 52px !important;
+    border-radius: 16px !important;
+    font-size: 14px !important;
+  }
+
+  #themesOverlay .sheet-modal {
+    width: 560px !important;
+    max-width: 90vw !important;
+    padding: 16px 20px 20px !important;
+    border-radius: 24px !important;
+  }
+  #themesOverlay .theme-list { gap: 12px !important; }
+  #themesOverlay .theme-card {
+    gap: 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 18px !important;
+  }
+  #themesOverlay .theme-preview {
+    width: 64px !important;
+    height: 64px !important;
+  }
+  #themesOverlay .theme-name { font-size: 15px !important; }
+  #themesOverlay .theme-sub { font-size: 12.5px !important; }
+  #themesOverlay .theme-action {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 16px !important;
+    border-radius: 12px !important;
+    font-size: 12.5px !important;
+  }
+  #themesOverlay .sheet-note { margin-top: 14px !important; font-size: 12px !important; }
 }

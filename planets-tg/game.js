@@ -4719,15 +4719,18 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     });
   }
 
-  const DESKTOP_JAR_W = 600;
+  const DESKTOP_JAR_MIN_W = 660;
+  const DESKTOP_JAR_MAX_W = 820;
+  const DESKTOP_GAME_W = 560;
 
   function resize() {
     const desktop = window.innerWidth >= 769;
-    const desktopJarW = desktop ? DESKTOP_JAR_W : 0;
+    const targetDesktopJarW = Math.min(DESKTOP_JAR_MAX_W, Math.max(DESKTOP_JAR_MIN_W, Math.round(window.innerHeight * 0.64)));
+    const desktopJarW = desktop ? Math.max(320, Math.min(targetDesktopJarW, window.innerWidth - 520)) : 0;
     if (desktop) {
-      stage.style.width = DESKTOP_JAR_W + 'px';
+      stage.style.width = desktopJarW + 'px';
       stage.style.minWidth = '0';
-      stage.style.maxWidth = DESKTOP_JAR_W + 'px';
+      stage.style.maxWidth = desktopJarW + 'px';
     }
     const rect = stage.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
@@ -4774,10 +4777,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     let scale;
     let jarTopWorld;
     if (desktop) {
-      // desktop jar: fixed 600 px logical span so the Matter.js walls, the baked
-      // jar buffer and the visual walls align with the 600 px score/best row
-      scale = Math.max(0.05, (desktopJarW - 32) / 560);
-      WORLD_W = desktopJarW / scale;
+      // desktop jar: 560 logical units wide so the Matter.js walls, the baked
+      // jar buffer, the spawn aim bounds and the score/best row all line up
+      scale = Math.max(0.05, (w - 16) / DESKTOP_GAME_W);
+      WORLD_W = DESKTOP_GAME_W;
       jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
       WORLD_H = Math.max(minWorldH, (h - bottomGapPx) / scale - jarTopWorld);
     } else {
