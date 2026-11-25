@@ -3424,8 +3424,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     const crestEl = document.createElement('span');
     crestEl.className = 'lb-av-crest';
-    crestEl.setAttribute('data-league', String(leagueForScore(row.score).step));
-    crestEl.innerHTML = leagueCrestMarkup(leagueForScore(row.score).step, 'lb-crest');
+    const rowLeague = leagueForScore(row.score);
+    const rowLeagueColor = LB_LEAGUE_COLOR[rowLeague.step] || '#ffd76a';
+    crestEl.setAttribute('data-league', String(rowLeague.step));
+    crestEl.setAttribute('data-league-color', rowLeagueColor);
+    crestEl.style.setProperty('--league-color', rowLeagueColor);
+    crestEl.style.setProperty('--league-glow', rgbaOf(rowLeagueColor, 0.55));
+    crestEl.innerHTML = leagueCrestMarkup(rowLeague.step, 'lb-crest', rowLeagueColor);
     whoEl.appendChild(crestEl);
 
     const avatarEl = document.createElement('span');
@@ -4587,7 +4592,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     HOLD_Y = SPAWN_Y;
     WORLD_H = Math.max(minWorldH, Math.round((h - bottomGapPx) / scale) - jarTopWorld);
     view.scale = scale;
-    DANGER_Y = (mobile ? 24 : 60) / scale;
+    DANGER_Y = (mobile ? 36 : 72) / scale;
     view.jarW = WORLD_W * scale;
     view.jarH = WORLD_H * scale;
     view.jarLeft = Math.round((w - view.jarW) / 2);
