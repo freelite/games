@@ -3490,15 +3490,18 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (lbLeagueSub) lbLeagueSub.textContent = lbTr('Ваша лига');
     if (lbLeagueStep) lbLeagueStep.textContent = league.step + ' / 5';
     if (lbRank) lbRank.textContent = '#' + place;
+    const leagueColor = LB_LEAGUE_COLOR[league.step] || '#ffd76a';
+    const leagueGlow = rgbaOf(leagueColor, 0.55);
     if (lbLeagueIcon) {
-      const leagueColor = LB_LEAGUE_COLOR[league.step] || '#ffd76a';
       lbLeagueIcon.style.setProperty('--league-color', leagueColor);
+      lbLeagueIcon.style.setProperty('--league-glow', leagueGlow);
       lbLeagueIcon.setAttribute('data-league', String(league.step));
       lbLeagueIcon.innerHTML = leagueCrestMarkup(league.step, 'lb-league-crest', leagueColor);
     }
     if (lbLeagueCard) {
       lbLeagueCard.setAttribute('data-league', String(league.step));
-      lbLeagueCard.style.setProperty('--league-color', LB_LEAGUE_COLOR[league.step] || '#ffd76a');
+      lbLeagueCard.style.setProperty('--league-color', leagueColor);
+      lbLeagueCard.style.setProperty('--league-glow', leagueGlow);
     }
     renderLeagueShowcase(league);
 
@@ -4476,17 +4479,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     snapshotOrigin(controlGridEl);
     if (desktop === desktopLayout) return;
     desktopLayout = desktop;
-    if (desktop) {
-      slotEvo.appendChild(evoRowEl);
-      slotBonus.appendChild(controlGridEl);
-      railLeft.setAttribute('aria-hidden', 'false');
-      railRight.setAttribute('aria-hidden', 'false');
-    } else {
-      restoreNode(evoRowEl);
-      restoreNode(controlGridEl);
-      railLeft.setAttribute('aria-hidden', 'true');
-      railRight.setAttribute('aria-hidden', 'true');
-    }
+    restoreNode(evoRowEl);
+    restoreNode(controlGridEl);
+    railLeft.setAttribute('aria-hidden', 'true');
+    railRight.setAttribute('aria-hidden', 'true');
   }
 
   function fullscreenElement() {
@@ -4561,32 +4557,29 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
 
     const mobile = window.innerWidth < 769;
-    const padSide = 15;
-    const railW = desktop ? 250 : 0;
-    const availW = Math.max(80, w - padSide * 2 - railW * 2);
-    const jarTopPx = mobile ? 4 : 6;
-    const bottomPad = mobile ? 2 : 6;
-    const availH = Math.max(80, h - jarTopPx - bottomPad);
-    WORLD_W = desktop ? 470 : 400;
-    const minWorldH = 520;
-    let scale;
-    if (mobile) {
-      scale = Math.min(availW / WORLD_W, availH / 320);
-      WORLD_H = Math.max(320, Math.round(availH / scale));
-    } else {
-      scale = Math.min(availW / WORLD_W, availH / minWorldH);
-      WORLD_H = Math.max(minWorldH, Math.round(availH / scale));
-    }
-    view.scale = scale;
+    const padSide = 12;
+    const stageMaxW = 820 - padSide * 2;
+    const availW = Math.max(80, Math.min(w - padSide * 2, stageMaxW));
+    WORLD_W = desktop ? 560 : 400;
     const maxSpawnRadius = 26;
     SPAWN_Y = Math.max(22, maxSpawnRadius + 4);
     HOLD_Y = SPAWN_Y;
-    const topOffsetPx = mobile ? 48 : 82;
-    DANGER_Y = Math.max(SPAWN_Y + maxSpawnRadius + 6, Math.round(topOffsetPx / scale));
+    const jarTopWorld = SPAWN_Y + 26;
+    const bottomGapPx = 8;
+    const minWorldH = mobile ? 320 : 380;
+    const widthScale = availW / WORLD_W;
+    let scale = widthScale;
+    if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
+      const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
+      if (fit > 0 && fit < scale) scale = fit;
+    }
+    WORLD_H = Math.max(minWorldH, Math.round((h - bottomGapPx) / scale) - jarTopWorld);
+    view.scale = scale;
+    DANGER_Y = jarTopWorld + (mobile ? 30 : 72);
     view.jarW = WORLD_W * scale;
-    view.jarH = availH;
+    view.jarH = WORLD_H * scale;
     view.jarLeft = Math.round((w - view.jarW) / 2);
-    view.jarTop = jarTopPx;
+    view.jarTop = Math.round(jarTopWorld * scale);
     view.aimZone = view.jarTop;
 
     buildStars();
@@ -4730,25 +4723,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       jarRimPath(c, W, H, R_BOT);
     }
 
-    const skinA = themeId() === 'neon'
-      ? 'rgba(0,245,212,0.22)'
-      : themeId() === 'crystal'
-        ? 'rgba(251,191,36,0.26)'
-        : 'rgba(110,80,255,0.2)';
-    const skinB = themeId() === 'neon'
-      ? 'rgba(34,211,238,0.18)'
-      : themeId() === 'crystal'
-        ? 'rgba(245,158,11,0.22)'
-        : 'rgba(70,200,255,0.16)';
-    jarPath();
-    c.strokeStyle = skinA;
-    c.lineWidth = 14;
-    c.stroke();
-    jarPath();
-    c.strokeStyle = skinB;
-    c.lineWidth = 7;
-    c.stroke();
-
     const neon = c.createLinearGradient(0, H, 0, 0);
     if (skinTheme === 'neon') {
       neon.addColorStop(0, 'rgba(0,245,212,0.95)');
@@ -4763,16 +4737,26 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       neon.addColorStop(0.55, 'rgba(120,110,255,0.92)');
       neon.addColorStop(1, 'rgba(190,120,255,0.85)');
     }
-    jarPath();
-    c.strokeStyle = neon;
-    c.lineWidth = 2.4;
-    c.stroke();
-
     const tipColor = skinTheme === 'neon'
       ? '0,245,212'
       : skinTheme === 'crystal'
         ? '251,191,36'
         : '56,189,248';
+
+    c.save();
+    c.shadowColor = 'rgba(' + tipColor + ',0.5)';
+    c.shadowBlur = 12;
+    c.globalAlpha = 0.5;
+    jarPath();
+    c.strokeStyle = neon;
+    c.lineWidth = 2;
+    c.stroke();
+    c.restore();
+    c.globalAlpha = 1;
+    jarPath();
+    c.strokeStyle = neon;
+    c.lineWidth = 2;
+    c.stroke();
     c.save();
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.translate(view.jarLeft, view.jarTop);
@@ -4824,23 +4808,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.stroke();
     c.restore();
 
-    if (skinTheme === 'crystal') {
-      c.save();
-      c.translate(5.5, 5.5);
-      jarOutline(c, W - 11, H - 11, Math.max(6, R_TOP - 5.5), Math.max(4, R_BOT - 5.5));
-      c.strokeStyle = 'rgba(255,236,170,0.5)';
-      c.lineWidth = 1.3;
-      c.stroke();
-      c.restore();
-
-      c.save();
-      c.translate(10, 10);
-      jarOutline(c, W - 20, H - 20, Math.max(5, R_TOP - 10), Math.max(3, R_BOT - 10));
-      c.strokeStyle = 'rgba(251,191,36,0.3)';
-      c.lineWidth = 1;
-      c.stroke();
-      c.restore();
-    }
     c.restore();
 
     jarCanvas = cv;
@@ -5094,14 +5061,22 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       rim.addColorStop(0.5, 'rgba(165,145,255,0.85)');
       rim.addColorStop(1, 'rgba(120,225,255,0.7)');
     }
+    const rimTip = skin === 'neon'
+      ? '0,245,212'
+      : skin === 'crystal'
+        ? '251,191,36'
+        : '56,189,248';
+    ctx.save();
+    ctx.shadowColor = 'rgba(' + rimTip + ',0.5)';
+    ctx.shadowBlur = 12;
+    ctx.globalAlpha = 0.5;
     ctx.strokeStyle = rim;
-    ctx.lineWidth = skin === 'crystal' ? 3.4 : 2.6;
+    ctx.lineWidth = 2;
     ctx.stroke();
-    if (skin === 'crystal') {
-      ctx.strokeStyle = 'rgba(255,246,214,0.42)';
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
-    }
+    ctx.restore();
+    ctx.strokeStyle = rim;
+    ctx.lineWidth = 2;
+    ctx.stroke();
     ctx.strokeStyle = 'rgba(255,255,255,0.16)';
     ctx.lineWidth = 1;
     ctx.stroke();
