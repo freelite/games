@@ -7,7 +7,7 @@
 
 const TG_BOT_USERNAME = 'planet_merge_game_bot';
 const ADSGRAM_BLOCK_ID = '61632';
-const LEADERBOARD_DB_URL = "";
+const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.firebasedatabase.app/leaderboard";
 
   /* ------------------------------------------------------------
  Helpers
