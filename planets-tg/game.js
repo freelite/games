@@ -5,9 +5,9 @@
 (function () {
   'use strict';
 
-const TG_BOT_USERNAME = 'planet_merge_game_bot';
-const ADSGRAM_BLOCK_ID = '61632';
 const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.firebasedatabase.app/leaderboard";
+const PLATFORM_ID = 'tg';
+  const PLATFORM_IDS = ['tg', 'vk', 'ok', 'apk', 'pg'];
 
   /* ------------------------------------------------------------
  Helpers
@@ -1553,7 +1553,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   let evoItems = [];
   let lastFrame = 0;
   let acc = 0;
-  let loopHoldUntil = 0;
   let pointerActive = false;
   let resizeQueued = false;
 
@@ -2308,7 +2307,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     pointerActive = false;
     Sound.gameOver();
     syncMusic();
-    loopHoldUntil = performance.now() + 900;
     addShake(0.55, 10);
     flash(0.35);
     burst(WORLD_W / 2, DANGER_Y + 20, 8, true);
@@ -3058,6 +3056,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return (en ? 'Guest' : 'Гость') + ' #' + tail;
   }
 
+  function normalizePlatform(value) {
+    const id = String(value || '').trim().toLowerCase();
+    return PLATFORM_IDS.indexOf(id) >= 0 ? id : PLATFORM_ID;
+  }
+
   function currentPlayerProfile() {
     const user = telegramPlayer();
     let id = '';
@@ -3075,6 +3078,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       id: id,
       name: name,
       photoUrl: photoUrl,
+      platform: PLATFORM_ID,
       score: Math.max(0, Math.floor(Number(S.best) || 0)),
       updatedAt: Date.now()
     };
@@ -3091,6 +3095,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       id: id,
       name: name,
       photoUrl: typeof item.photoUrl === 'string' ? item.photoUrl : '',
+      platform: normalizePlatform(item.platform),
       score: score,
       updatedAt: Number(item.updatedAt) || 0
     };
@@ -3130,6 +3135,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
         id: player.id,
         name: player.name,
         photoUrl: String(player.photoUrl || '').slice(0, 300),
+        platform: player.platform,
         score: player.score,
         updatedAt: player.updatedAt
       };
@@ -3159,6 +3165,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       next.score = Math.max(next.score, prev.score);
       if (!next.photoUrl && prev.photoUrl) next.photoUrl = prev.photoUrl;
       if (!next.name && prev.name) next.name = prev.name;
+      if (!next.platform && prev.platform) next.platform = prev.platform;
       next.updatedAt = Math.max(next.updatedAt, prev.updatedAt);
     }
     map[next.id] = next;
@@ -3175,6 +3182,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
           id: player.id,
           name: player.name,
           photoUrl: player.photoUrl,
+          platform: normalizePlatform(player.platform),
           score: player.score,
           updatedAt: player.updatedAt
         })
@@ -3365,6 +3373,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
         id: id,
         name: playerName,
         photoUrl: player.photoUrl,
+        platform: player.platform,
         score: player.score,
         you: false
       });
@@ -3373,6 +3382,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       id: self.id,
       name: self.name,
       photoUrl: self.photoUrl,
+      platform: self.platform,
       score: self.score,
       you: true
     });
@@ -3492,6 +3502,33 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     }
   }
 
+  function getPlatformBadgeSvg(platform) {
+    const id = normalizePlatform(platform);
+    const head = '<svg class="lb-platform" viewBox="0 0 24 24" width="15" height="15" role="img" aria-hidden="true" focusable="false">';
+    if (id === 'vk') {
+      return head + '<circle cx="12" cy="12" r="12" fill="#0077FF"/>' +
+        '<text x="12" y="15.9" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="8.6" font-weight="700" fill="#FFFFFF">VK</text></svg>';
+    }
+    if (id === 'ok') {
+      return head + '<circle cx="12" cy="12" r="12" fill="#EE8208"/>' +
+        '<text x="12" y="15.9" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="8.4" font-weight="700" fill="#FFFFFF">OK</text></svg>';
+    }
+    if (id === 'apk') {
+      return head + '<circle cx="12" cy="12" r="12" fill="#22C55E"/>' +
+        '<path d="M12 3.6l6.4 2.3v5.3c0 4.3-2.7 7.3-6.4 8.9-3.7-1.6-6.4-4.6-6.4-8.9V5.9L12 3.6z" fill="#FFFFFF"/>' +
+        '<path d="M12 10.8l-1.4-1.9M12 10.8l1.4-1.9" stroke="#22C55E" stroke-width="1.1" stroke-linecap="round"/>' +
+        '<circle cx="10.5" cy="11.7" r="0.75" fill="#22C55E"/><circle cx="13.5" cy="11.7" r="0.75" fill="#22C55E"/>' +
+        '<path d="M9.6 13.5h4.8" stroke="#22C55E" stroke-width="1.2" stroke-linecap="round"/></svg>';
+    }
+    if (id === 'pg') {
+      return head + '<circle cx="12" cy="12" r="12" fill="#8B5CF6"/>' +
+        '<rect x="5.7" y="8.6" width="12.6" height="7" rx="2.5" fill="#FFFFFF"/>' +
+        '<circle cx="9.3" cy="12.1" r="1.05" fill="#8B5CF6"/><circle cx="14.7" cy="12.1" r="1.05" fill="#8B5CF6"/></svg>';
+    }
+    return head + '<circle cx="12" cy="12" r="12" fill="#26A5E4"/>' +
+      '<path d="M9.1 15.3l.36 3.2c.05.46.39.58.75.26l1.98-1.84 3.8 2.77c.7.38 1.2.18 1.37-.64l2.47-11.55c.22-1-.38-1.46-1.04-1.2L3.7 10.1c-1 .38-.99.94-.18 1.18l3.9 1.22 9.03-5.7c.42-.27.81-.12.5.17L9.1 15.3z" fill="#FFFFFF"/></svg>';
+  }
+
   function buildLbRow(row, place) {
     const el = document.createElement('div');
     el.className = 'lb-row' + (row.you ? ' is-you' : '') + (place <= 3 ? ' is-top' : '');
@@ -3542,6 +3579,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     nameEl.className = 'lb-name';
     nameEl.textContent = row.name;
     whoEl.appendChild(nameEl);
+
+    const platformEl = document.createElement('span');
+    platformEl.className = 'lb-platform';
+    platformEl.innerHTML = getPlatformBadgeSvg(row.platform);
+    whoEl.appendChild(platformEl);
 
     if (row.you) {
       const badge = document.createElement('span');
@@ -4677,13 +4719,15 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     });
   }
 
+  const DESKTOP_JAR_W = 600;
+
   function resize() {
     const desktop = window.innerWidth >= 769;
-    const desktopJarW = Math.max(200, Math.min(600, window.innerWidth - 520));
+    const desktopJarW = desktop ? DESKTOP_JAR_W : 0;
     if (desktop) {
-      stage.style.width = desktopJarW + 'px';
+      stage.style.width = DESKTOP_JAR_W + 'px';
       stage.style.minWidth = '0';
-      stage.style.maxWidth = 'none';
+      stage.style.maxWidth = DESKTOP_JAR_W + 'px';
     }
     const rect = stage.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
@@ -4730,9 +4774,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     let scale;
     let jarTopWorld;
     if (desktop) {
-      // desktop jar: the logical width is derived from the screen width so the
-      // physical Matter.js walls, the baked jar buffer and the visual walls all
-      // span exactly min(600, innerWidth - 520) px while planets keep pixel size
+      // desktop jar: fixed 600 px logical span so the Matter.js walls, the baked
+      // jar buffer and the visual walls align with the 600 px score/best row
       scale = Math.max(0.05, (desktopJarW - 32) / 560);
       WORLD_W = desktopJarW / scale;
       jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
