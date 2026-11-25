@@ -12,6 +12,58 @@
   --pink: #ff5ea8;
   --danger: #ff4d6d;
   --font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+
+  --bg-page: #090d16;
+  --bg-page-2: #111827;
+  --bg-image: radial-gradient(1100px 760px at 12% -12%, rgba(108, 74, 255, 0.26), transparent 62%),
+    radial-gradient(900px 700px at 92% 112%, rgba(0, 186, 255, 0.16), transparent 62%),
+    radial-gradient(680px 520px at 50% 46%, rgba(255, 86, 170, 0.06), transparent 72%),
+    linear-gradient(180deg, #090d16 0%, #111827 100%);
+  --bg-jar: #0b1029;
+  --jar-border: #d9b45c;
+  --surface-card: rgba(16, 18, 44, 0.62);
+  --surface-card-2: rgba(18, 22, 50, 0.88);
+  --surface-modal: #141a34;
+  --surface-modal-2: #0b1024;
+  --modal-border: rgba(150, 175, 255, 0.26);
+  --modal-hi: rgba(255, 255, 255, 0.06);
+  --btn-bg: rgba(26, 30, 68, 0.92);
+  --btn-bg-hover: rgba(44, 52, 110, 0.94);
+  --btn-border: rgba(130, 160, 255, 0.28);
+  --btn-text: #eaf0ff;
+  --btn-alt-bg: rgba(86, 60, 16, 0.55);
+  --btn-alt-border: rgba(255, 210, 110, 0.5);
+  --btn-alt-text: #ffe6a3;
+  --primary-grad: linear-gradient(135deg, #7bf0ff 0%, #7c8bff 45%, #c04cff 100%);
+  --primary-text: #070818;
+  --primary-shadow: 0 12px 30px rgba(100, 110, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --ghost-bg: rgba(255, 255, 255, 0.05);
+  --vip-bg: linear-gradient(135deg, #1d1438, #2c1b54);
+  --vip-border: rgba(168, 85, 247, 0.55);
+  --vip-text: #f3e8ff;
+  --vip-active-bg: linear-gradient(135deg, #3b280c, #5c3e12);
+  --vip-active-border: #fbbf24;
+  --vip-active-text: #fde68a;
+  --daily-bg: rgba(70, 44, 120, 0.62);
+  --daily-bg-hover: rgba(92, 60, 150, 0.7);
+  --daily-border: rgba(251, 191, 36, 0.42);
+  --daily-border-hover: rgba(252, 211, 77, 0.8);
+  --daily-text: #fde68a;
+  --daily-ad-grad: linear-gradient(135deg, #4c1d95, #7c2d12 55%, #b45309);
+  --accent-primary: #7c5cff;
+  --accent-secondary: #43e7ff;
+  --accent-on: #05121f;
+  --accent-ok: rgba(52, 211, 153, 0.6);
+  --accent-ok-soft: rgba(10, 60, 48, 0.55);
+  --title-grad: linear-gradient(180deg, #ffffff 10%, #b9ecff 48%, #9a7bff 100%);
+  --score-grad: linear-gradient(180deg, #ffffff, #bfe6ff);
+  --best-grad: linear-gradient(180deg, #fff3ce, #ffc96b);
+  --orb-grad: radial-gradient(circle at 32% 28%, #9ff7ff 0%, #4aa8ff 30%, #6c4cff 62%, #1c0f4d 100%);
+  --orb-ring: rgba(160, 225, 255, 0.55);
+  --overlay-bg: radial-gradient(ellipse at 50% 35%, rgba(30, 24, 80, 0.5), rgba(4, 5, 16, 0.82) 72%);
+  --scrim: rgba(4, 6, 16, 0.78);
+  --grip: rgba(148, 163, 184, 0.4);
+  --muted-2: #7d88b8;
 }* {
   box-sizing: border-box;
 }html, body, body * {
@@ -215,6 +267,10 @@
   height: 100%;
   touch-action: none;
   cursor: crosshair;
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }.vignette {
   position: absolute;
   inset: 0;
@@ -1686,18 +1742,177 @@
 .daily-ad-btn:disabled { opacity: 0.45; }
 .daily-claim:disabled { opacity: 0.45; }
 
-/* ---------- page background per theme ---------- */
-body.theme-neon {
-  background:
-    radial-gradient(1000px 720px at 12% -10%, rgba(0, 245, 212, 0.16), transparent 60%),
-    radial-gradient(900px 700px at 92% 114%, rgba(70, 90, 255, 0.22), transparent 62%),
-    #060a1f !important;
+/* ---------- palette per theme (body[data-theme]) ---------- */
+body[data-theme="cosmos"] {
+  --bg-page: #090d16;
+  --bg-page-2: #111827;
+  --bg-image: radial-gradient(1100px 760px at 12% -12%, rgba(108, 74, 255, 0.26), transparent 62%),
+    radial-gradient(900px 700px at 92% 112%, rgba(0, 186, 255, 0.16), transparent 62%),
+    radial-gradient(680px 520px at 50% 46%, rgba(255, 86, 170, 0.06), transparent 72%),
+    linear-gradient(180deg, #090d16 0%, #111827 100%);
+  --bg-jar: #0b1029;
+  --jar-border: #d9b45c;
+  --surface-card: rgba(16, 18, 44, 0.62);
+  --surface-card-2: rgba(18, 22, 50, 0.88);
+  --surface-modal: #141a34;
+  --surface-modal-2: #0b1024;
+  --modal-border: rgba(150, 175, 255, 0.26);
+  --modal-hi: rgba(255, 255, 255, 0.06);
+  --btn-bg: rgba(26, 30, 68, 0.92);
+  --btn-bg-hover: rgba(44, 52, 110, 0.94);
+  --btn-border: rgba(130, 160, 255, 0.28);
+  --btn-text: #eaf0ff;
+  --btn-alt-bg: rgba(86, 60, 16, 0.55);
+  --btn-alt-border: rgba(255, 210, 110, 0.5);
+  --btn-alt-text: #ffe6a3;
+  --primary-grad: linear-gradient(135deg, #7bf0ff 0%, #7c8bff 45%, #c04cff 100%);
+  --primary-text: #070818;
+  --primary-shadow: 0 12px 30px rgba(100, 110, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --ghost-bg: rgba(255, 255, 255, 0.05);
+  --vip-bg: linear-gradient(135deg, #1d1438, #2c1b54);
+  --vip-border: rgba(168, 85, 247, 0.55);
+  --vip-text: #f3e8ff;
+  --vip-active-bg: linear-gradient(135deg, #3b280c, #5c3e12);
+  --vip-active-border: #fbbf24;
+  --vip-active-text: #fde68a;
+  --daily-bg: rgba(70, 44, 120, 0.62);
+  --daily-bg-hover: rgba(92, 60, 150, 0.7);
+  --daily-border: rgba(251, 191, 36, 0.42);
+  --daily-border-hover: rgba(252, 211, 77, 0.8);
+  --daily-text: #fde68a;
+  --daily-ad-grad: linear-gradient(135deg, #4c1d95, #7c2d12 55%, #b45309);
+  --accent-primary: #7c5cff;
+  --accent-secondary: #43e7ff;
+  --accent-on: #05121f;
+  --accent-ok: rgba(52, 211, 153, 0.6);
+  --accent-ok-soft: rgba(10, 60, 48, 0.55);
+  --title-grad: linear-gradient(180deg, #ffffff 10%, #b9ecff 48%, #9a7bff 100%);
+  --score-grad: linear-gradient(180deg, #ffffff, #bfe6ff);
+  --best-grad: linear-gradient(180deg, #fff3ce, #ffc96b);
+  --orb-grad: radial-gradient(circle at 32% 28%, #9ff7ff 0%, #4aa8ff 30%, #6c4cff 62%, #1c0f4d 100%);
+  --orb-ring: rgba(160, 225, 255, 0.55);
+  --overlay-bg: radial-gradient(ellipse at 50% 35%, rgba(30, 24, 80, 0.5), rgba(4, 5, 16, 0.82) 72%);
+  --scrim: rgba(4, 6, 16, 0.78);
+  --grip: rgba(148, 163, 184, 0.4);
+  --text: #eef2ff;
+  --muted: #94a0d2;
+  --muted-2: #7d88b8;
+  --line: rgba(130, 160, 255, 0.18);
+  --panel: rgba(16, 18, 44, 0.62);
 }
-body.theme-crystal {
-  background:
-    radial-gradient(1000px 720px at 12% -10%, rgba(16, 185, 129, 0.18), transparent 60%),
-    radial-gradient(900px 700px at 92% 114%, rgba(139, 92, 246, 0.22), transparent 62%),
-    #081120 !important;
+
+body[data-theme="neon"] {
+  --bg-page: #0b061d;
+  --bg-page-2: #170c38;
+  --bg-image: radial-gradient(1000px 720px at 12% -10%, rgba(0, 245, 212, 0.18), transparent 60%),
+    radial-gradient(900px 700px at 92% 114%, rgba(192, 132, 252, 0.24), transparent 62%),
+    linear-gradient(180deg, #0b061d 0%, #170c38 100%);
+  --bg-jar: #120a2e;
+  --jar-border: #00f5d4;
+  --surface-card: rgba(24, 14, 58, 0.66);
+  --surface-card-2: rgba(28, 18, 66, 0.9);
+  --surface-modal: #1a1040;
+  --surface-modal-2: #0d0724;
+  --modal-border: rgba(192, 132, 252, 0.42);
+  --modal-hi: rgba(0, 245, 212, 0.16);
+  --btn-bg: rgba(30, 18, 72, 0.92);
+  --btn-bg-hover: rgba(44, 28, 100, 0.95);
+  --btn-border: rgba(192, 132, 252, 0.38);
+  --btn-text: #eafcff;
+  --btn-alt-bg: rgba(0, 245, 212, 0.12);
+  --btn-alt-border: rgba(0, 245, 212, 0.55);
+  --btn-alt-text: #a7fff4;
+  --primary-grad: linear-gradient(135deg, #00f5d4 0%, #38bdf8 45%, #c084fc 100%);
+  --primary-text: #0a0420;
+  --primary-shadow: 0 12px 30px rgba(0, 245, 212, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  --ghost-bg: rgba(192, 132, 252, 0.1);
+  --vip-bg: linear-gradient(135deg, #140a33, #2a1458);
+  --vip-border: rgba(192, 132, 252, 0.6);
+  --vip-text: #f0e6ff;
+  --vip-active-bg: linear-gradient(135deg, #06373a, #0e5a5c);
+  --vip-active-border: #00f5d4;
+  --vip-active-text: #b6fff2;
+  --daily-bg: rgba(24, 18, 70, 0.78);
+  --daily-bg-hover: rgba(38, 26, 100, 0.85);
+  --daily-border: rgba(0, 245, 212, 0.5);
+  --daily-border-hover: rgba(0, 245, 212, 0.85);
+  --daily-text: #b6fff2;
+  --daily-ad-grad: linear-gradient(135deg, #063b3a, #4c1d95 60%, #00a3a3);
+  --accent-primary: #c084fc;
+  --accent-secondary: #00f5d4;
+  --accent-on: #05121f;
+  --accent-ok: rgba(0, 245, 212, 0.65);
+  --accent-ok-soft: rgba(6, 55, 58, 0.6);
+  --title-grad: linear-gradient(180deg, #ffffff 10%, #b6fff2 48%, #c084fc 100%);
+  --score-grad: linear-gradient(180deg, #ffffff, #a7fff4);
+  --best-grad: linear-gradient(180deg, #f0e6ff, #c084fc);
+  --orb-grad: radial-gradient(circle at 32% 28%, #d8fff9 0%, #00f5d4 30%, #7c3aed 62%, #1b0740 100%);
+  --orb-ring: rgba(0, 245, 212, 0.6);
+  --overlay-bg: radial-gradient(ellipse at 50% 35%, rgba(40, 12, 92, 0.62), rgba(5, 2, 18, 0.86) 72%);
+  --scrim: rgba(7, 3, 20, 0.8);
+  --grip: rgba(160, 140, 255, 0.42);
+  --text: #eef6ff;
+  --muted: #9fb0e0;
+  --muted-2: #8b7fd0;
+  --line: rgba(160, 140, 255, 0.22);
+  --panel: rgba(24, 14, 58, 0.66);
+}
+
+body[data-theme="crystals"] {
+  --bg-page: #041714;
+  --bg-page-2: #0a2923;
+  --bg-image: radial-gradient(1000px 720px at 12% -10%, rgba(16, 185, 129, 0.2), transparent 60%),
+    radial-gradient(900px 700px at 92% 114%, rgba(251, 191, 36, 0.16), transparent 62%),
+    linear-gradient(180deg, #041714 0%, #0a2923 100%);
+  --bg-jar: #06231d;
+  --jar-border: #fbbf24;
+  --surface-card: rgba(8, 42, 36, 0.68);
+  --surface-card-2: rgba(10, 48, 40, 0.9);
+  --surface-modal: #0b342c;
+  --surface-modal-2: #041b17;
+  --modal-border: rgba(251, 191, 36, 0.34);
+  --modal-hi: rgba(16, 185, 129, 0.18);
+  --btn-bg: rgba(12, 58, 48, 0.92);
+  --btn-bg-hover: rgba(16, 74, 60, 0.95);
+  --btn-border: rgba(16, 185, 129, 0.4);
+  --btn-text: #e8fff6;
+  --btn-alt-bg: rgba(251, 191, 36, 0.14);
+  --btn-alt-border: rgba(251, 191, 36, 0.55);
+  --btn-alt-text: #ffe9b0;
+  --primary-grad: linear-gradient(135deg, #34d399 0%, #10b981 50%, #fbbf24 100%);
+  --primary-text: #04140f;
+  --primary-shadow: 0 12px 30px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --ghost-bg: rgba(16, 185, 129, 0.1);
+  --vip-bg: linear-gradient(135deg, #06302a, #0a4a3c);
+  --vip-border: rgba(251, 191, 36, 0.6);
+  --vip-text: #f0fff9;
+  --vip-active-bg: linear-gradient(135deg, #3b280c, #5c3e12);
+  --vip-active-border: #fbbf24;
+  --vip-active-text: #fde68a;
+  --daily-bg: rgba(10, 58, 46, 0.8);
+  --daily-bg-hover: rgba(14, 74, 58, 0.88);
+  --daily-border: rgba(251, 191, 36, 0.5);
+  --daily-border-hover: rgba(251, 191, 36, 0.85);
+  --daily-text: #ffe9b0;
+  --daily-ad-grad: linear-gradient(135deg, #064e3b, #0f766e 55%, #b45309);
+  --accent-primary: #10b981;
+  --accent-secondary: #fbbf24;
+  --accent-on: #041714;
+  --accent-ok: rgba(52, 211, 153, 0.65);
+  --accent-ok-soft: rgba(6, 60, 48, 0.6);
+  --title-grad: linear-gradient(180deg, #ffffff 10%, #a7f3d0 48%, #fbbf24 100%);
+  --score-grad: linear-gradient(180deg, #ffffff, #c7f9e5);
+  --best-grad: linear-gradient(180deg, #fff4c9, #fbbf24);
+  --orb-grad: radial-gradient(circle at 32% 28%, #d1fae5 0%, #10b981 34%, #065f46 68%, #03211b 100%);
+  --orb-ring: rgba(251, 191, 36, 0.55);
+  --overlay-bg: radial-gradient(ellipse at 50% 35%, rgba(6, 58, 48, 0.62), rgba(2, 12, 10, 0.86) 72%);
+  --scrim: rgba(2, 12, 10, 0.8);
+  --grip: rgba(148, 220, 190, 0.42);
+  --text: #eafff7;
+  --muted: #9fd8c4;
+  --muted-2: #79b7a2;
+  --line: rgba(16, 185, 129, 0.22);
+  --panel: rgba(8, 42, 36, 0.68);
 }
 
 @media (max-width: 380px) {
@@ -1736,4 +1951,248 @@ body.theme-crystal {
   .icon-btn { width: 28px !important; height: 28px !important; }
   .icon-btn.theme-btn .theme-ico,
   .icon-btn.settings-btn svg { width: 16px !important; height: 16px !important; }
+}
+
+
+/* ============================================================
+   v1.6 — full themed skin for every surface and control
+   ============================================================ */
+html { background-color: var(--bg-page) !important; }
+body[data-theme] {
+  background: var(--bg-image) !important;
+  background-color: var(--bg-page) !important;
+  color: var(--text);
+}
+
+body[data-theme] .stat,
+body[data-theme] .icon-btn,
+body[data-theme] .next-card,
+body[data-theme] .rail .evo-row,
+body[data-theme] .rail .next-card {
+  background: var(--surface-card) !important;
+  border-color: var(--line) !important;
+  color: var(--btn-text) !important;
+}
+body[data-theme] .icon-btn:hover:not(:disabled) { background: var(--btn-bg-hover) !important; border-color: var(--btn-border) !important; }
+body[data-theme] .icon-btn.settings-btn { color: var(--btn-text) !important; }
+body[data-theme] .icon-btn.theme-btn { color: var(--accent-secondary) !important; }
+body[data-theme] .stat-label,
+body[data-theme] .next-label,
+body[data-theme] .evo-label,
+body[data-theme] .kicker,
+body[data-theme] .final-label { color: var(--muted) !important; }
+body[data-theme] .stat-value { background: var(--score-grad) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+body[data-theme] .stat.best .stat-value { background: var(--best-grad) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+body[data-theme] .brand-text { color: var(--text) !important; }
+body[data-theme] .brand-text span { color: var(--muted) !important; }
+body[data-theme] .next-name { color: var(--text) !important; }
+
+body[data-theme] .brand-mark,
+body[data-theme] .hero::before {
+  background: var(--orb-grad) !important;
+  box-shadow: 0 0 34px var(--accent-primary), inset -6px -8px 16px rgba(0, 0, 0, 0.45), inset 4px 5px 12px rgba(255, 255, 255, 0.18) !important;
+}
+body[data-theme] .brand-mark::after,
+body[data-theme] .hero::after { border-color: var(--orb-ring) !important; }
+
+body[data-theme] .tagline,
+body[data-theme] .hint,
+body[data-theme] .panel-text,
+body[data-theme] .vip-desc,
+body[data-theme] .record,
+body[data-theme] .sheet-note,
+body[data-theme] .theme-sub,
+body[data-theme] .settings-label,
+body[data-theme] .daily-day,
+body[data-theme] .daily-text { color: var(--muted) !important; }
+body[data-theme] .title { background: var(--title-grad) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+body[data-theme] .title span { background: var(--title-grad) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+body[data-theme] .panel-title { background: var(--title-grad) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+body[data-theme] .final-score { background: var(--title-grad) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+body[data-theme] .record-badge { color: var(--daily-text) !important; text-shadow: none !important; }
+body[data-theme] .vip-status { color: var(--accent-secondary) !important; }
+
+body[data-theme] .overlay { background: var(--overlay-bg) !important; }
+body[data-theme] .panel,
+body[data-theme] .settings-modal,
+body[data-theme] .sheet-modal {
+  background: linear-gradient(165deg, var(--surface-modal), var(--surface-modal-2)) !important;
+  border-color: var(--modal-border) !important;
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.92), inset 0 1px 0 var(--modal-hi) !important;
+}
+body[data-theme] .settings-overlay,
+body[data-theme] .sheet-overlay { background: var(--scrim) !important; }
+body[data-theme] .sheet-title,
+body[data-theme] .settings-title { color: var(--text) !important; }
+body[data-theme] .settings-close {
+  background: var(--btn-bg) !important;
+  border-color: var(--btn-border) !important;
+  color: var(--btn-text) !important;
+}
+body[data-theme] .settings-line { border-bottom-color: var(--line) !important; }
+
+body[data-theme] .btn.primary {
+  background: var(--primary-grad) !important;
+  color: var(--primary-text) !important;
+  box-shadow: var(--primary-shadow) !important;
+}
+body[data-theme] .btn.ghost {
+  background: var(--ghost-bg) !important;
+  border-color: var(--btn-border) !important;
+  color: var(--btn-text) !important;
+}
+body[data-theme] .second-chance {
+  background: var(--daily-bg) !important;
+  border-color: var(--daily-border) !important;
+  color: var(--daily-text) !important;
+}
+body[data-theme] .final {
+  background: var(--surface-card-2) !important;
+  border-color: var(--line) !important;
+}
+
+body[data-theme] .bonus-btn {
+  background-color: var(--btn-bg) !important;
+  border-color: var(--btn-border) !important;
+  color: var(--btn-text) !important;
+}
+body[data-theme] .bonus-btn:hover:not(:disabled) { background-color: var(--btn-bg-hover) !important; }
+body[data-theme] .bonus-icon { color: var(--accent-secondary) !important; }
+body[data-theme] .bonus-charge {
+  border-color: var(--btn-border) !important;
+  background: var(--surface-card) !important;
+  color: var(--accent-secondary) !important;
+}
+body[data-theme] .bonus-btn.vip .bonus-charge {
+  border-color: var(--daily-border) !important;
+  background: var(--daily-bg) !important;
+  color: var(--daily-text) !important;
+}
+body[data-theme] .invite-btn {
+  background-color: var(--btn-alt-bg) !important;
+  border-color: var(--btn-alt-border) !important;
+  color: var(--btn-alt-text) !important;
+  box-shadow: none !important;
+}
+body[data-theme] .invite-btn:hover {
+  background-color: var(--btn-bg-hover) !important;
+  border-color: var(--btn-alt-border) !important;
+}
+body[data-theme] .invite-btn .btn-ico { color: var(--btn-alt-text) !important; }
+body[data-theme] .invite-friend-btn { background-color: var(--btn-alt-bg) !important; }
+body[data-theme] #vipBtn {
+  background: var(--vip-bg) !important;
+  border-color: var(--vip-border) !important;
+  color: var(--vip-text) !important;
+}
+body[data-theme] #vipBtn.vip-active {
+  background: var(--vip-active-bg) !important;
+  border-color: var(--vip-active-border) !important;
+  color: var(--vip-active-text) !important;
+}
+body[data-theme] .daily-btn {
+  background-color: var(--daily-bg) !important;
+  border-color: var(--daily-border) !important;
+  color: var(--daily-text) !important;
+  box-shadow: none !important;
+}
+body[data-theme] .daily-btn:hover {
+  background-color: var(--daily-bg-hover) !important;
+  border-color: var(--daily-border-hover) !important;
+}
+body[data-theme] .daily-btn .btn-ico { color: var(--daily-text) !important; }
+body[data-theme] .daily-ad-btn {
+  background: var(--daily-ad-grad) !important;
+  border-color: var(--daily-border) !important;
+  color: var(--daily-text) !important;
+}
+body[data-theme] .daily-claim:not(:disabled) {
+  background: var(--primary-grad) !important;
+  color: var(--primary-text) !important;
+}
+
+body[data-theme] .toast {
+  background: var(--surface-modal-2) !important;
+  border-color: var(--modal-border) !important;
+  color: var(--text) !important;
+}
+body[data-theme] .lang-switch,
+body[data-theme] .settings-lang {
+  background: var(--surface-card) !important;
+  border-color: var(--btn-border) !important;
+}
+body[data-theme] .lang-btn { color: var(--muted) !important; }
+body[data-theme] .lang-btn.is-active,
+body[data-theme] .settings-lang .lang-btn.is-active {
+  background: var(--accent-secondary) !important;
+  color: var(--accent-on) !important;
+}
+body[data-theme] .settings-toggle {
+  background: var(--btn-bg) !important;
+  border-color: var(--btn-border) !important;
+  color: var(--btn-text) !important;
+}
+body[data-theme] .settings-toggle.off { color: var(--muted) !important; }
+body[data-theme] .sheet-grip,
+body[data-theme] .settings-grip { background: var(--grip) !important; }
+
+body[data-theme] .theme-card {
+  background: var(--surface-card-2) !important;
+  border-color: var(--line) !important;
+}
+body[data-theme] .theme-card.is-active {
+  border-color: var(--accent-secondary) !important;
+  box-shadow: inset 0 0 0 1px var(--accent-ok-soft) !important;
+}
+body[data-theme] .theme-preview { background: var(--surface-modal-2) !important; border-color: var(--line) !important; }
+body[data-theme] .theme-name { color: var(--text) !important; }
+body[data-theme] .theme-action {
+  background: var(--btn-bg) !important;
+  border-color: var(--btn-border) !important;
+  color: var(--btn-text) !important;
+}
+body[data-theme] .theme-action.done {
+  background: var(--accent-ok-soft) !important;
+  border-color: var(--accent-ok) !important;
+  color: var(--accent-secondary) !important;
+}
+body[data-theme] .daily-cell {
+  background: var(--surface-card-2) !important;
+  border-color: var(--line) !important;
+}
+body[data-theme] .daily-cell.is-today {
+  background: var(--daily-bg) !important;
+  border-color: var(--daily-border) !important;
+  box-shadow: none !important;
+}
+body[data-theme] .daily-cell.is-claimed {
+  background: var(--accent-ok-soft) !important;
+  border-color: var(--accent-ok) !important;
+}
+body[data-theme] .daily-icon { color: var(--accent-secondary) !important; }
+body[data-theme] .daily-cell.super .daily-icon { color: var(--daily-text) !important; }
+body[data-theme] .daily-badge {
+  background: var(--daily-bg) !important;
+  border-color: var(--daily-border) !important;
+  color: var(--daily-text) !important;
+}
+body[data-theme] .fatal { background: var(--bg-page) !important; }
+body[data-theme] .evo-num { color: var(--muted-2) !important; }
+body[data-theme] .evo-item.reached .evo-num { color: var(--accent-secondary) !important; }
+
+/* ---------- reward border pulse (no glow, no transform) ---------- */
+.daily-btn { box-shadow: none !important; }
+@property --reward-border {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: rgba(251, 191, 36, 0.42);
+}
+body[data-theme] .daily-btn.has-reward {
+  border-color: var(--reward-border, var(--daily-border-hover)) !important;
+  box-shadow: none !important;
+  animation: rewardBorderPulse 2.4s ease-in-out infinite;
+}
+@keyframes rewardBorderPulse {
+  0%, 100% { --reward-border: var(--daily-border); }
+  50% { --reward-border: var(--daily-border-hover); }
 }

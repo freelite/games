@@ -54,7 +54,9 @@ const ADSGRAM_BLOCK_ID = '61632';
   const MAX_LEVEL = 10;
   const DROP_COOLDOWN = 0.42;
   const DANGER_TIME = 5.0;
-  const STEP = 1 / 60;
+  const FIXED_STEP = 1000 / 240;
+  const MAX_SUBSTEPS = 4;
+  const MAX_FRAME_MS = 33.3;
   const BEST_KEY = 'merge_cosmos_best_v2';
   const MUTE_KEY = 'mergeCosmos.muted.v1';
   const VIP_KEY = 'vipExpiresAt';
@@ -877,21 +879,21 @@ const ADSGRAM_BLOCK_ID = '61632';
   /* ------------------------------------------------------------
  Sprite cache
  ------------------------------------------------------------ */
-  const spriteCache = {};
+  const planetSpriteCache = {};
   let spriteScale = 2;
 
   function setSpriteScale(s) {
     const next = clamp(s, 2, 3);
     if (Math.abs(next - spriteScale) < 0.01) return false;
     spriteScale = next;
-    for (const key in spriteCache) delete spriteCache[key];
+    for (const key in planetSpriteCache) delete planetSpriteCache[key];
     return true;
   }
 
   function getSprite(level) {
     const skin = themeId();
     const key = skin + ':' + level;
-    if (spriteCache[key]) return spriteCache[key];
+    if (planetSpriteCache[key]) return planetSpriteCache[key];
     const cfg = LEVELS[level - 1];
     const r = cfg.radius;
     const pad = r * cfg.pad;
@@ -945,7 +947,7 @@ const ADSGRAM_BLOCK_ID = '61632';
     c.restore();
 
     const sprite = { canvas: cv, half: half };
-    spriteCache[key] = sprite;
+    planetSpriteCache[key] = sprite;
     return sprite;
   }
 
@@ -981,8 +983,12 @@ const ADSGRAM_BLOCK_ID = '61632';
     for (let s = -1; s <= 1; s += 2) {
       c.save();
       if (cfg.eyeGlow) {
-        c.shadowColor = cfg.eyeColorGlow || cfg.face;
-        c.shadowBlur = r * 0.2;
+        c.fillStyle = cfg.eyeColorGlow || cfg.face;
+        c.globalAlpha = 0.35;
+        c.beginPath();
+        c.ellipse(s * eyeX, eyeY, eyeR * 1.45, eyeH * 1.45, 0, 0, TAU);
+        c.fill();
+        c.globalAlpha = 1;
       }
       c.fillStyle = cfg.face;
       c.beginPath();
@@ -1072,7 +1078,8 @@ const ADSGRAM_BLOCK_ID = '61632';
   const stage = $('stage');
   const canvas = $('game');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  let ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+  if (!ctx) ctx = canvas.getContext('2d');
   if (!ctx) {
     const el = $('fatal');
     if (el) el.classList.add('show');
@@ -1514,6 +1521,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   let evoItems = [];
   let lastFrame = 0;
   let acc = 0;
+  let loopHoldUntil = 0;
   let pointerActive = false;
   let resizeQueued = false;
 
@@ -2246,6 +2254,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     pointerActive = false;
     Sound.gameOver();
     syncMusic();
+    loopHoldUntil = performance.now() + 900;
     addShake(0.55, 10);
     flash(0.35);
     burst(WORLD_W / 2, DANGER_Y + 20, 8, true);
@@ -3102,8 +3111,36 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
   }
 
+  const THEME_PALETTES = {
+    cosmos: {
+      jarTop: 'rgba(24,28,72,0.56)',
+      jarMid: 'rgba(12,16,46,0.52)',
+      jarBottom: 'rgba(8,10,30,0.74)',
+      jarTopGlow: 'rgba(90,120,255,0.18)',
+      jarLeftGlow: 'rgba(80,220,255,0.1)',
+    },
+    neon: {
+      jarTop: 'rgba(28,12,64,0.6)',
+      jarMid: 'rgba(16,8,42,0.56)',
+      jarBottom: 'rgba(8,4,26,0.8)',
+      jarTopGlow: 'rgba(0,245,212,0.16)',
+      jarLeftGlow: 'rgba(192,132,252,0.14)',
+    },
+    crystal: {
+      jarTop: 'rgba(8,48,40,0.62)',
+      jarMid: 'rgba(4,32,27,0.58)',
+      jarBottom: 'rgba(2,20,17,0.82)',
+      jarTopGlow: 'rgba(16,185,129,0.2)',
+      jarLeftGlow: 'rgba(251,191,36,0.14)',
+    },
+  };
+
   function themeId() {
     return S.theme === 'neon' || S.theme === 'crystal' ? S.theme : 'cosmos';
+  }
+
+  function themePalette() {
+    return THEME_PALETTES[themeId()] || THEME_PALETTES.cosmos;
   }
 
   function themeById(id) {
@@ -3286,14 +3323,19 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const def = themeById(id);
     S.theme = def.id;
     saveThemeState();
-    document.body.classList.toggle('theme-neon', def.id === 'neon');
-    document.body.classList.toggle('theme-crystal', def.id === 'crystal');
-    for (const key in spriteCache) delete spriteCache[key];
+    document.body.setAttribute('data-theme', def.id === 'crystal' ? 'crystals' : def.id);
+    const metaColor = document.querySelector('meta[name="theme-color"]');
+    if (metaColor) {
+      metaColor.setAttribute('content',
+        def.id === 'neon' ? '#0b061d' : def.id === 'crystal' ? '#041714' : '#090d16');
+    }
+    for (const key in planetSpriteCache) delete planetSpriteCache[key];
     buildStars();
     buildJar();
     buildEvo();
     updatePreview();
     renderThemeList();
+    if (loopSuspended()) render(performance.now());
     if (!silent) showToast('Тема выбрана');
   }
 
@@ -3434,7 +3476,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   function updateDailyBadge() {
     const claimed = dailyClaimedToday();
     if (dailyDot) dailyDot.classList.toggle('hidden', claimed);
-    if (dailyBtn) dailyBtn.classList.toggle('is-ready', !claimed);
+    if (dailyBtn) dailyBtn.classList.toggle('has-reward', !claimed);
     if (dailyClaimBtn) {
       dailyClaimBtn.disabled = claimed;
       dailyClaimBtn.textContent = claimed ? 'Награда получена' : 'Забрать';
@@ -3671,8 +3713,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const rect = stage.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
     const h = Math.max(1, Math.round(rect.height));
-    const dpr = clamp(window.devicePixelRatio || 1, 1, 3);
-    const uiDpr = clamp(window.devicePixelRatio || 1, 1, 3);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    const uiDpr = Math.min(window.devicePixelRatio || 1, 1.75);
     const desktop = w >= 900;
     const spriteChanged = setSpriteScale(Math.max(2, uiDpr));
 
@@ -3730,6 +3772,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       updatePreview();
     }
     clampAim();
+    if (loopSuspended()) render(performance.now());
   }
 
   function buildStars() {
@@ -3814,10 +3857,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const R_BOT = 12;
 
     jarOutline(c, W, H, R_TOP, R_BOT);
+    const pal = themePalette();
     const fill = c.createLinearGradient(0, 0, 0, H);
-    fill.addColorStop(0, 'rgba(24,28,72,0.56)');
-    fill.addColorStop(0.55, 'rgba(12,16,46,0.52)');
-    fill.addColorStop(1, 'rgba(8,10,30,0.74)');
+    fill.addColorStop(0, pal.jarTop);
+    fill.addColorStop(0.55, pal.jarMid);
+    fill.addColorStop(1, pal.jarBottom);
     c.fillStyle = fill;
     c.fill();
 
@@ -3826,13 +3870,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.clip();
 
     const topGlow = c.createLinearGradient(0, 0, 0, H * 0.55);
-    topGlow.addColorStop(0, 'rgba(90,120,255,0.18)');
+    topGlow.addColorStop(0, pal.jarTopGlow);
     topGlow.addColorStop(1, 'rgba(90,120,255,0)');
     c.fillStyle = topGlow;
     c.fillRect(0, 0, W, H * 0.55);
 
     const leftGlow = c.createLinearGradient(0, 0, W * 0.18, 0);
-    leftGlow.addColorStop(0, 'rgba(80,220,255,0.1)');
+    leftGlow.addColorStop(0, pal.jarLeftGlow);
     leftGlow.addColorStop(1, 'rgba(80,220,255,0)');
     c.fillStyle = leftGlow;
     c.fillRect(0, 0, W * 0.18, H);
@@ -4209,8 +4253,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     ctx.lineTo(shoot.x - shoot.vx * 0.14, shoot.y - shoot.vy * 0.14);
     ctx.stroke();
     ctx.fillStyle = 'rgba(235,250,255,' + alpha.toFixed(3) + ')';
-    ctx.shadowColor = 'rgba(160,220,255,0.9)';
-    ctx.shadowBlur = 9;
     ctx.beginPath();
     ctx.arc(shoot.x, shoot.y, 1.7, 0, TAU);
     ctx.fill();
@@ -4507,25 +4549,41 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   /* ------------------------------------------------------------
  Main loop
  ------------------------------------------------------------ */
+  function loopSuspended() {
+    if (performance.now() < loopHoldUntil) return false;
+    return !!document.hidden || (S.mode !== 'playing' && anySheetOpen());
+  }
+
   function loop(now) {
     requestAnimationFrame(loop);
 
     if (!lastFrame) lastFrame = now;
-    let dt = (now - lastFrame) / 1000;
+    let frameTime = now - lastFrame;
     lastFrame = now;
-    if (!Number.isFinite(dt) || dt < 0) dt = 0;
-    dt = Math.min(dt, 0.05);
+    if (!Number.isFinite(frameTime) || frameTime < 0) frameTime = 0;
+    frameTime = Math.min(frameTime, MAX_FRAME_MS);
+
+    if (loopSuspended()) {
+      acc = 0;
+      return;
+    }
+
+    const dt = frameTime / 1000;
 
     if (S.mode === 'playing') {
-      acc += dt;
+      acc += frameTime;
       let steps = 0;
-      while (acc >= STEP && steps < 5) {
-        Engine.update(engine, STEP * 1000);
-        processMerges();
-        acc -= STEP;
+      while (acc >= FIXED_STEP && steps < MAX_SUBSTEPS) {
+        Engine.update(engine, FIXED_STEP);
+        acc -= FIXED_STEP;
         steps++;
       }
-      if (steps === 5) acc = 0;
+      if (steps === MAX_SUBSTEPS && acc >= FIXED_STEP) {
+        const tailStep = Math.min(FIXED_STEP * 2, acc / MAX_SUBSTEPS);
+        for (let k = 0; k < MAX_SUBSTEPS; k++) Engine.update(engine, tailStep);
+        acc = 0;
+      }
+      processMerges();
       updateGame(dt);
     } else {
       acc = 0;
