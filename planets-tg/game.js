@@ -2163,10 +2163,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       settingsVibrationBtn.classList.toggle('off', !vibrationOn);
     }
 
-    const canPause = S.mode === 'playing' || S.mode === 'paused';
-    pauseBtn.disabled = !canPause;
-    pauseBtn.classList.toggle('is-paused', S.mode === 'paused');
-    pauseBtn.setAttribute('aria-label', S.mode === 'paused' ? 'Продолжить' : 'Пауза');
+    if (pauseBtn) {
+      const canPause = S.mode === 'playing' || S.mode === 'paused';
+      pauseBtn.disabled = !canPause;
+      pauseBtn.classList.toggle('is-paused', S.mode === 'paused');
+      pauseBtn.setAttribute('aria-label', S.mode === 'paused' ? 'Продолжить' : 'Пауза');
+    }
 
     shakeBtn.disabled = S.mode !== 'playing' || (isVip() && S.bonusReadyAt.shake > Date.now());
     cleanBtn.disabled = S.mode !== 'playing' || (isVip() && S.bonusReadyAt.clean > Date.now());
@@ -3666,7 +3668,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   function updatePreview() {
     const d = clamp(window.devicePixelRatio || 1, 1, 3);
-    const base = 120;
+    const base = 64;
     const size = Math.round(base * d);
     if (nextPreview.width !== size || nextPreview.height !== size) {
       nextPreview.width = size;
@@ -3684,9 +3686,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     previewCtx.imageSmoothingEnabled = true;
     if ('imageSmoothingQuality' in previewCtx) previewCtx.imageSmoothingQuality = 'high';
     previewCtx.save();
-    previewCtx.translate(60, 60);
-    drawSpritePx(previewCtx, S.next, 0, 0, 44);
-    drawFacePx(previewCtx, 44, cfg, 0.9);
+    previewCtx.translate(32, 32);
+    drawSpritePx(previewCtx, S.next, 0, 0, 26);
+    drawFacePx(previewCtx, 26, cfg, 0.9);
     previewCtx.restore();
     nextNameEl.textContent = cfg.name;
     nextCardEl.title = 'Следующий объект: ' + cfg.name;
@@ -4451,19 +4453,16 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function applyResponsiveLayout(desktop) {
-    snapshotOrigin(nextCardEl);
     snapshotOrigin(evoRowEl);
     snapshotOrigin(controlGridEl);
     if (desktop === desktopLayout) return;
     desktopLayout = desktop;
     if (desktop) {
-      slotNext.appendChild(nextCardEl);
       slotEvo.appendChild(evoRowEl);
       slotBonus.appendChild(controlGridEl);
       railLeft.setAttribute('aria-hidden', 'false');
       railRight.setAttribute('aria-hidden', 'false');
     } else {
-      restoreNode(nextCardEl);
       restoreNode(evoRowEl);
       restoreNode(controlGridEl);
       railLeft.setAttribute('aria-hidden', 'true');
@@ -4481,6 +4480,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function syncFullscreenBtn() {
+    if (!fullscreenBtn) return;
     fullscreenBtn.classList.toggle('is-fs', !!fullscreenElement());
     fullscreenBtn.setAttribute('aria-label', fullscreenElement() ? 'Выйти из полноэкранного режима' : 'На весь экран');
   }
@@ -5346,10 +5346,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       });
     }
 
-    pauseBtn.addEventListener('click', function () {
-      if (S.mode === 'playing') pauseGame();
-      else if (S.mode === 'paused') resumeGame();
-    });
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', function () {
+        if (S.mode === 'playing') pauseGame();
+        else if (S.mode === 'paused') resumeGame();
+      });
+    }
 
     shakeBtn.addEventListener('click', function () {
       requestBonus('shake');
@@ -5415,7 +5417,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       setTimeout(scheduleResize, 150);
     });
 
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
     document.addEventListener('fullscreenchange', function () {
       syncFullscreenBtn();
       setTimeout(scheduleResize, 120);
