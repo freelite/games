@@ -4674,10 +4674,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
 
     const mobile = window.innerWidth < 769;
-    const padSide = 12;
-    const stageMaxW = 820 - padSide * 2;
+    const padSide = desktop ? 16 : 12;
+    const stageMaxW = desktop ? 520 : 820 - padSide * 2;
     const availW = Math.max(80, Math.min(w - padSide * 2, stageMaxW));
-    WORLD_W = desktop ? 560 : 400;
+    WORLD_W = desktop ? 520 : 400;
     const spawnLevels = 3;
     let maxSpawnRadius = 0;
     for (let i = 0; i < spawnLevels; i++) {
