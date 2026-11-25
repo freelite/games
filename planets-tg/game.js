@@ -2607,8 +2607,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     dangerBadgeEl.classList.toggle('show', on);
     if (view.scale > 0) {
       const lineY = view.jarTop + DANGER_Y * view.scale;
-      const badgeTop = lineY - 58 >= 0 ? lineY - 58 : lineY + 10;
-      dangerBadgeEl.style.top = Math.max(0, Math.round(badgeTop)) + 'px';
+      const badgeH = dangerBadgeEl.offsetHeight || 44;
+      dangerBadgeEl.style.top = Math.max(0, Math.round(lineY + 8 + badgeH)) + 'px';
     }
     if (!on) return;
     dangerTimeEl.textContent = Math.max(0, DANGER_TIME - S.danger).toFixed(1) + (window.I18N && I18N.lang === 'en' ? 's' : 'с');
@@ -4561,21 +4561,33 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const stageMaxW = 820 - padSide * 2;
     const availW = Math.max(80, Math.min(w - padSide * 2, stageMaxW));
     WORLD_W = desktop ? 560 : 400;
-    const maxSpawnRadius = 26;
-    SPAWN_Y = Math.max(22, maxSpawnRadius + 4);
-    HOLD_Y = SPAWN_Y;
-    const jarTopWorld = SPAWN_Y + 26;
+    const spawnLevels = 3;
+    let maxSpawnRadius = 0;
+    for (let i = 0; i < spawnLevels; i++) {
+      maxSpawnRadius = Math.max(maxSpawnRadius, LEVELS[i].radius);
+    }
+    const spawnPadPx = 4;
+    const jarDropFactor = 0.55;
     const bottomGapPx = 8;
     const minWorldH = mobile ? 320 : 380;
     const widthScale = availW / WORLD_W;
     let scale = widthScale;
+    let jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
     if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
       const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
       if (fit > 0 && fit < scale) scale = fit;
     }
+    jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+    if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
+      const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
+      if (fit > 0 && fit < scale) scale = fit;
+      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+    }
+    SPAWN_Y = -maxSpawnRadius * jarDropFactor;
+    HOLD_Y = SPAWN_Y;
     WORLD_H = Math.max(minWorldH, Math.round((h - bottomGapPx) / scale) - jarTopWorld);
     view.scale = scale;
-    DANGER_Y = jarTopWorld + (mobile ? 30 : 72);
+    DANGER_Y = (mobile ? 24 : 60) / scale;
     view.jarW = WORLD_W * scale;
     view.jarH = WORLD_H * scale;
     view.jarLeft = Math.round((w - view.jarW) / 2);
@@ -4900,7 +4912,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const cfg = LEVELS[S.current - 1];
     const rad = cfg.radius;
     const x = clamp(S.aimX, rad + 2, WORLD_W - rad - 2);
-    const bob = Math.sin(t * 2.4) * 2.2;
+    const bob = Math.abs(Math.sin(t * 2.4)) * 2.2;
     const y = HOLD_Y + bob;
     const scale = 0.76 + 0.24 * easeOutCubic(clamp(S.holdIn, 0, 1));
 

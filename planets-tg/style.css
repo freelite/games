@@ -3380,3 +3380,83 @@ body[data-theme] .lb-league-crest {
   color: var(--league-color, #ffd76a) !important;
   filter: drop-shadow(0 0 6px var(--league-glow, rgba(255, 201, 107, 0.55)));
 }
+
+/* ============================================================
+   v40 - evolution strip without title, crests aligned edge to edge
+   ============================================================ */
+.bottom { padding-top: 6px !important; }
+.evo-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+}
+.evo-center {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  height: 100%;
+  min-width: 0 !important;
+}
+.evo-row .evo {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box;
+  padding: 0 10px !important;
+}
+.evo-row .evo-item {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  align-items: center;
+}
+.evo-row .evo-canvas {
+  width: 18px !important;
+  height: 18px !important;
+}
+.evo-row .evo-num { margin-top: 0; }
+@media (max-width: 359px) {
+  .evo-row .evo-canvas {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+/* ============================================================
+   v40 - one glowing league medallion style (3 themes)
+   ============================================================ */
+.lb-league-icon,
+body[data-theme] .lb-league-icon,
+.lb-av-crest,
+body[data-theme] .lb-av-crest {
+  --crest-rgb: 255, 215, 106;
+  --crest-color: #ffd76a;
+  border: 1.5px solid rgba(var(--crest-rgb), 0.78) !important;
+  background: rgba(var(--crest-rgb), 0.16) !important;
+  background-image: none !important;
+  color: var(--crest-color) !important;
+  box-shadow:
+    inset 0 0 14px rgba(var(--crest-rgb), 0.35),
+    0 0 16px -4px rgba(var(--crest-rgb), 0.7) !important;
+}
+.lb-league-icon[data-league="1"],
+.lb-av-crest[data-league="1"] { --crest-rgb: 255, 190, 134; --crest-color: #ffbe86; }
+.lb-league-icon[data-league="2"],
+.lb-av-crest[data-league="2"] { --crest-rgb: 232, 239, 255; --crest-color: #e8efff; }
+.lb-league-icon[data-league="3"],
+.lb-av-crest[data-league="3"] { --crest-rgb: 255, 215, 106; --crest-color: #ffd76a; }
+.lb-league-icon[data-league="4"],
+.lb-av-crest[data-league="4"] { --crest-rgb: 168, 236, 255; --crest-color: #a8ecff; }
+.lb-league-icon[data-league="5"],
+.lb-av-crest[data-league="5"] { --crest-rgb: 226, 208, 255; --crest-color: #e2d0ff; }
+.lb-league-icon .lb-league-crest,
+.lb-av-crest svg {
+  filter: drop-shadow(0 0 6px rgba(var(--crest-rgb), 0.85)) !important;
+}
