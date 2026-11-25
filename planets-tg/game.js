@@ -56,9 +56,10 @@ const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.fi
   const MAX_LEVEL = 10;
   const DROP_COOLDOWN = 0.42;
   const DANGER_TIME = 5.0;
-  const FIXED_STEP = 1000 / 240;
-  const MAX_SUBSTEPS = 4;
-  const MAX_FRAME_MS = 33.3;
+  const FIXED_DT = 1000 / 60;
+  const MAX_STEPS_PER_FRAME = 3;
+  const MAX_FRAME_MS = 50;
+  const MAX_PARTICLES = 35;
   const BEST_KEY = 'merge_cosmos_best_v2';
   const MUTE_KEY = 'mergeCosmos.muted.v1';
   const VIP_KEY = 'vipExpiresAt';
@@ -878,6 +879,20 @@ const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.fi
   /* ------------------------------------------------------------
  Sprite cache
  ------------------------------------------------------------ */
+  function makeBufferCanvas(w, h) {
+    const width = Math.max(1, Math.ceil(w));
+    const height = Math.max(1, Math.ceil(h));
+    if (typeof OffscreenCanvas !== 'undefined') {
+      try {
+        return new OffscreenCanvas(width, height);
+      } catch (err) {}
+    }
+    const cv = document.createElement('canvas');
+    cv.width = width;
+    cv.height = height;
+    return cv;
+  }
+
   const planetSpriteCache = {};
   let spriteScale = 2;
 
@@ -898,9 +913,7 @@ const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.fi
     const pad = r * cfg.pad;
     const half = r + pad;
     const size = Math.max(8, Math.ceil(half * 2 * spriteScale));
-    const cv = document.createElement('canvas');
-    cv.width = size;
-    cv.height = size;
+    const cv = makeBufferCanvas(size, size);
     const c = cv.getContext('2d');
     if (!c) return { canvas: cv, half: half };
     c.imageSmoothingEnabled = true;
@@ -1004,19 +1017,12 @@ const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.fi
       c.beginPath();
       c.ellipse(s * eyeX, eyeY, eyeR * 0.86, eyeH, 0, 0, TAU);
       c.clip();
-      const iris = c.createRadialGradient(
-        s * eyeX - eyeR * 0.18,
-        eyeY - eyeH * 0.35,
-        eyeR * 0.05,
-        s * eyeX,
-        eyeY,
-        eyeH * 1.15,
-      );
-      iris.addColorStop(0, 'rgba(255,255,255,0.32)');
-      iris.addColorStop(0.6, 'rgba(255,255,255,0.05)');
-      iris.addColorStop(1, 'rgba(0,0,0,0.28)');
-      c.fillStyle = iris;
+      c.fillStyle = 'rgba(255,255,255,0.14)';
       c.fillRect(s * eyeX - eyeR, eyeY - eyeH, eyeR * 2, eyeH * 2);
+      c.fillStyle = 'rgba(0,0,0,0.16)';
+      c.beginPath();
+      c.ellipse(s * eyeX + eyeR * 0.16, eyeY + eyeH * 0.3, eyeR * 0.55, eyeH * 0.52, 0, 0, TAU);
+      c.fill();
       c.restore();
 
       c.fillStyle = cfg.highlight || 'rgba(255,255,255,0.9)';
@@ -1526,7 +1532,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   let engine = null;
   let jarCanvas = null;
+  let jarFrontCanvas = null;
   let starCanvas = null;
+  let aimGlowCanvas = null;
+  let dangerCanvas = null;
+  let flashCanvas = null;
   let twinkles = [];
   let pendingMerges = [];
   let particles = [];
@@ -1674,6 +1684,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   function refreshAdState() {
     adShowing = (rewardedOpen ? 1 : 0) + (interstitialOpen ? 1 : 0);
     updateAudioSuppression();
+    syncLoop();
   }
 
   function grantRewarded() {
@@ -1965,10 +1976,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function setupEngine() {
-    engine = Engine.create({ enableSleeping: false });
+    engine = Engine.create({ enableSleeping: true });
     engine.gravity.y = 1.2;
-    engine.positionIterations = 8;
-    engine.velocityIterations = 6;
+    engine.positionIterations = 5;
+    engine.velocityIterations = 4;
     engine.constraintIterations = 3;
     addWalls();
     Events.on(engine, 'collisionStart', onCollisionStart);
@@ -2156,6 +2167,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     pauseScreen.classList.toggle('show', name === 'pause');
     overScreen.classList.toggle('show', name === 'over');
     vipScreen.classList.toggle('show', name === 'vip');
+    syncLoop();
   }
 
   function syncControls() {
@@ -2529,9 +2541,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   /* ------------------------------------------------------------
  Per-frame updates
  ------------------------------------------------------------ */
-  function updateGame(dt) {
+  function updateAim(dt) {
     S.aimX += (S.aimTarget - S.aimX) * Math.min(1, dt * 22);
+  }
 
+  function updateGame(dt) {
     if (S.cooldown > 0) {
       S.cooldown = Math.max(0, S.cooldown - dt);
       if (S.cooldown === 0) {
@@ -2637,6 +2651,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function updateEffects(dt) {
+    if (particles.length > MAX_PARTICLES) {
+      particles.splice(0, particles.length - MAX_PARTICLES);
+    }
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
       p.life -= dt;
@@ -3595,6 +3612,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       leaderboardOverlay.classList.add('open');
       leaderboardOverlay.setAttribute('aria-hidden', 'false');
     }
+    syncLoop();
   }
 
   function closeLeaderboard() {
@@ -3605,6 +3623,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const back = lbReturnMode;
     lbReturnMode = null;
     if (back === 'playing' && S.mode === 'paused') resumeGame();
+    syncLoop();
   }
 
   function leaderboardShare() {
@@ -4205,12 +4224,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
         def.id === 'neon' ? '#090418' : def.id === 'crystal' ? '#120618' : '#070b14');
     }
     for (const key in planetSpriteCache) delete planetSpriteCache[key];
+    warmPlanetSprites();
     buildStars();
     buildJar();
     buildEvo();
     updatePreview();
     renderThemeList();
-    if (loopSuspended()) render(performance.now());
+    if (!loopRunning) render(performance.now());
     if (!silent) showToast('Тема выбрана');
   }
 
@@ -4537,9 +4557,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function anySheetOpen() {
+    if (adShowing > 0) return true;
     return sheetIsOpen(themesOverlay) ||
       sheetIsOpen(dailyOverlay) ||
       sheetIsOpen(settingsOverlay) ||
+      sheetIsOpen(leaderboardOverlay) ||
       (vipScreen && vipScreen.classList.contains('show')) ||
       (pauseScreen && pauseScreen.classList.contains('show')) ||
       (overScreen && overScreen.classList.contains('show'));
@@ -4558,6 +4580,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     }
     el.classList.add('open');
     el.setAttribute('aria-hidden', 'false');
+    syncLoop();
   }
 
   function closeSheet(el) {
@@ -4571,6 +4594,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       syncControls();
       syncMusic();
     }
+    syncLoop();
   }
 
   /* ------------------------------------------------------------
@@ -4646,8 +4670,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const rect = stage.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
     const h = Math.max(1, Math.round(rect.height));
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
-    const uiDpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 769 ? 1.5 : 2);
+    const uiDpr = dpr;
     const desktop = window.innerWidth >= 769;
     const spriteChanged = setSpriteScale(Math.max(2, uiDpr));
 
@@ -4713,13 +4737,14 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     buildStars();
     buildJar();
+    buildGradients();
     syncWalls();
     if (spriteChanged || uiChanged) {
       buildEvo();
       updatePreview();
     }
     clampAim();
-    if (loopSuspended()) render(performance.now());
+    if (!loopRunning) render(performance.now());
   }
 
   function buildStars() {
@@ -4727,9 +4752,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const w = view.w;
     const h = view.h;
     const dpr = view.dpr;
-    const cv = document.createElement('canvas');
-    cv.width = Math.max(1, Math.round(w * dpr));
-    cv.height = Math.max(1, Math.round(h * dpr));
+    const cv = makeBufferCanvas(w * dpr, h * dpr);
     const c = cv.getContext('2d');
     if (!c) return;
     c.scale(dpr, dpr);
@@ -4788,9 +4811,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const w = view.w;
     const h = view.h;
     const dpr = view.dpr;
-    const cv = document.createElement('canvas');
-    cv.width = Math.max(1, Math.round(w * dpr));
-    cv.height = Math.max(1, Math.round(h * dpr));
+    const cv = makeBufferCanvas(w * dpr, h * dpr);
     const c = cv.getContext('2d');
     if (!c) return;
     c.scale(dpr, dpr);
@@ -4940,6 +4961,51 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.restore();
 
     jarCanvas = cv;
+    buildJarFront();
+  }
+
+  function buildGradients() {
+    if (view.w < 2 || view.h < 2) return;
+
+    const dg = makeBufferCanvas(4, 64);
+    const dc = dg.getContext('2d');
+    if (dc) {
+      const g = dc.createLinearGradient(0, 0, 0, 64);
+      g.addColorStop(0, 'rgba(255,40,80,0.16)');
+      g.addColorStop(1, 'rgba(255,40,80,0)');
+      dc.fillStyle = g;
+      dc.fillRect(0, 0, 4, 64);
+    }
+    dangerCanvas = dg;
+
+    const fs = 128;
+    const fc = makeBufferCanvas(fs, fs);
+    const fctx = fc.getContext('2d');
+    if (fctx) {
+      const g = fctx.createRadialGradient(fs / 2, fs / 2, 4, fs / 2, fs / 2, fs / 2);
+      g.addColorStop(0, 'rgba(255,255,255,0.95)');
+      g.addColorStop(0.45, 'rgba(160,205,255,0.35)');
+      g.addColorStop(1, 'rgba(120,80,255,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(0, 0, fs, fs);
+    }
+    flashCanvas = fc;
+
+    const size = 128;
+    const glow = makeBufferCanvas(size, size);
+    const gc = glow.getContext('2d');
+    if (gc) {
+      const rg = gc.createRadialGradient(size / 2, size / 2, size * 0.11, size / 2, size / 2, size / 2);
+      rg.addColorStop(0, 'rgba(120,200,255,0.16)');
+      rg.addColorStop(1, 'rgba(120,200,255,0)');
+      gc.fillStyle = rg;
+      gc.fillRect(0, 0, size, size);
+    }
+    aimGlowCanvas = glow;
+  }
+
+  function warmPlanetSprites() {
+    for (let i = 1; i <= LEVELS.length; i++) getSprite(i);
   }
 
   /* ------------------------------------------------------------
@@ -5033,11 +5099,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const y = HOLD_Y + bob;
     const scale = 0.76 + 0.24 * easeOutCubic(clamp(S.holdIn, 0, 1));
 
-    const glow = ctx.createRadialGradient(x, y, rad * 0.4, x, y, rad * 1.9);
-    glow.addColorStop(0, 'rgba(120,200,255,0.16)');
-    glow.addColorStop(1, 'rgba(120,200,255,0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(x - rad * 2, y - rad * 2, rad * 4, rad * 4);
+    if (aimGlowCanvas) {
+      const gl = rad * 1.9;
+      ctx.drawImage(aimGlowCanvas, x - gl, y - gl, gl * 2, gl * 2);
+    }
 
     ctx.save();
     ctx.setLineDash([5, 9]);
@@ -5136,11 +5201,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   function drawDangerZone() {
     if (S.danger <= 0) return;
-    const g = ctx.createLinearGradient(0, 0, 0, DANGER_Y);
-    g.addColorStop(0, 'rgba(255,40,80,0.16)');
-    g.addColorStop(1, 'rgba(255,40,80,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, WORLD_W, DANGER_Y);
+    if (!dangerCanvas) return;
+    ctx.drawImage(dangerCanvas, 0, 0, WORLD_W, DANGER_Y);
   }
 
   function drawDangerUI(t) {
@@ -5159,23 +5221,31 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     ctx.restore();
   }
 
-  function drawJarFront() {
+  function buildJarFront() {
+    if (view.w < 2 || view.h < 2) return;
+    const cv = makeBufferCanvas(view.w * view.dpr, view.h * view.dpr);
+    const c = cv.getContext('2d');
+    if (!c) return;
+    c.scale(view.dpr, view.dpr);
+    c.translate(view.jarLeft, view.jarTop);
+    c.scale(view.scale, view.scale);
+
     const W = WORLD_W;
     const H = WORLD_H;
     const RB = 12;
-    ctx.save();
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(0, H - 170);
-    ctx.lineTo(0, H - RB);
-    ctx.quadraticCurveTo(0, H, RB, H);
-    ctx.lineTo(W - RB, H);
-    ctx.quadraticCurveTo(W, H, W, H - RB);
-    ctx.lineTo(W, H - 170);
+    c.save();
+    c.lineCap = 'round';
+    c.lineJoin = 'round';
+    c.beginPath();
+    c.moveTo(0, H - 170);
+    c.lineTo(0, H - RB);
+    c.quadraticCurveTo(0, H, RB, H);
+    c.lineTo(W - RB, H);
+    c.quadraticCurveTo(W, H, W, H - RB);
+    c.lineTo(W, H - 170);
 
     const skin = themeId();
-    const rim = ctx.createLinearGradient(0, 0, W, 0);
+    const rim = c.createLinearGradient(0, 0, W, 0);
     if (skin === 'neon') {
       rim.addColorStop(0, 'rgba(0,245,212,0.85)');
       rim.addColorStop(0.5, 'rgba(34,211,238,0.95)');
@@ -5195,53 +5265,40 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       : skin === 'crystal'
         ? '251,191,36'
         : '56,189,248';
-    ctx.save();
-    ctx.shadowColor = 'rgba(' + rimTip + ',0.5)';
-    ctx.shadowBlur = 12;
-    ctx.globalAlpha = 0.5;
-    ctx.strokeStyle = rim;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.restore();
-    ctx.strokeStyle = rim;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
+    c.save();
+    c.shadowColor = 'rgba(' + rimTip + ',0.5)';
+    c.shadowBlur = 12;
+    c.globalAlpha = 0.5;
+    c.strokeStyle = rim;
+    c.lineWidth = 2;
+    c.stroke();
+    c.restore();
+    c.strokeStyle = rim;
+    c.lineWidth = 2;
+    c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,0.16)';
+    c.lineWidth = 1;
+    c.stroke();
+    c.restore();
+    jarFrontCanvas = cv;
   }
 
   function drawFlash() {
     if (flashA <= 0) return;
-    const g = ctx.createRadialGradient(
-      view.w / 2,
-      view.h * 0.55,
-      10,
-      view.w / 2,
-      view.h * 0.55,
-      Math.max(view.w, view.h) * 0.72,
-    );
-    g.addColorStop(0, 'rgba(255,255,255,0.95)');
-    g.addColorStop(0.45, 'rgba(160,205,255,0.35)');
-    g.addColorStop(1, 'rgba(120,80,255,0)');
+    if (!flashCanvas) return;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = clamp(flashA, 0, 1);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, view.w, view.h);
+    ctx.drawImage(flashCanvas, 0, 0, view.w, view.h);
     ctx.restore();
   }
 
   function drawShooting() {
     if (!shoot) return;
     const alpha = Math.min(1, shoot.life / 0.5);
-    const g = ctx.createLinearGradient(shoot.x, shoot.y, shoot.x - shoot.vx * 0.14, shoot.y - shoot.vy * 0.14);
-    g.addColorStop(0, 'rgba(225,245,255,' + alpha.toFixed(3) + ')');
-    g.addColorStop(1, 'rgba(120,180,255,0)');
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.strokeStyle = g;
+    ctx.strokeStyle = 'rgba(200,230,255,' + (alpha * 0.55).toFixed(3) + ')';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(shoot.x, shoot.y);
@@ -5282,9 +5339,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     drawEffects(t);
     drawDangerUI(t);
-    drawJarFront();
     ctx.restore();
 
+    if (jarFrontCanvas) ctx.drawImage(jarFrontCanvas, sh.x, sh.y, view.w, view.h);
     drawFlash();
     drawShooting();
   }
@@ -5341,11 +5398,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     haptic('light');
     settingsOverlay.classList.add('open');
     syncControls();
+    syncLoop();
   }
 
   function closeSettings() {
     settingsOverlay.classList.remove('open');
     if (S.mode === 'paused') resumeGame();
+    syncLoop();
   }
 
   function toggleSound() {
@@ -5540,7 +5599,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     document.addEventListener('visibilitychange', function () {
       updateAudioSuppression();
-      if (document.hidden && S.mode === 'playing') pauseGame();
+      if (document.hidden) {
+        if (S.mode === 'playing') pauseGame();
+        stopLoop();
+        return;
+      }
+      syncLoop();
     });
 
     if (window.ResizeObserver) {
@@ -5567,13 +5631,39 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   /* ------------------------------------------------------------
  Main loop
  ------------------------------------------------------------ */
-  function loopSuspended() {
-    if (performance.now() < loopHoldUntil) return false;
-    return !!document.hidden || (S.mode !== 'playing' && anySheetOpen());
+  let rafId = 0;
+  let loopRunning = false;
+
+  function stopLoop() {
+    loopRunning = false;
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+    acc = 0;
+    lastFrame = 0;
+  }
+
+  function startLoop() {
+    if (loopRunning || document.hidden) return;
+    loopRunning = true;
+    lastFrame = 0;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function syncLoop() {
+    if (document.hidden || anySheetOpen()) stopLoop();
+    else startLoop();
   }
 
   function loop(now) {
-    requestAnimationFrame(loop);
+    if (!loopRunning) return;
+    rafId = requestAnimationFrame(loop);
+
+    if (document.hidden || anySheetOpen()) {
+      stopLoop();
+      return;
+    }
 
     if (!lastFrame) lastFrame = now;
     let frameTime = now - lastFrame;
@@ -5581,35 +5671,25 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (!Number.isFinite(frameTime) || frameTime < 0) frameTime = 0;
     frameTime = Math.min(frameTime, MAX_FRAME_MS);
 
-    if (loopSuspended()) {
-      acc = 0;
-      return;
-    }
-
-    const dt = frameTime / 1000;
-
     if (S.mode === 'playing') {
       acc += frameTime;
       let steps = 0;
-      while (acc >= FIXED_STEP && steps < MAX_SUBSTEPS) {
-        Engine.update(engine, FIXED_STEP);
-        acc -= FIXED_STEP;
+      while (acc >= FIXED_DT && steps < MAX_STEPS_PER_FRAME) {
+        Engine.update(engine, FIXED_DT);
+        processMerges();
+        updateGame(FIXED_DT / 1000);
+        acc -= FIXED_DT;
         steps++;
       }
-      if (steps === MAX_SUBSTEPS && acc >= FIXED_STEP) {
-        const tailStep = Math.min(FIXED_STEP * 2, acc / MAX_SUBSTEPS);
-        for (let k = 0; k < MAX_SUBSTEPS; k++) Engine.update(engine, tailStep);
-        acc = 0;
-      }
-      processMerges();
-      updateGame(dt);
+      if (acc > FIXED_DT) acc = 0;
+      updateAim(frameTime / 1000);
     } else {
       acc = 0;
     }
 
     if (S.mode !== 'paused') {
-      updateBodyVisuals(dt);
-      updateEffects(dt);
+      updateBodyVisuals(frameTime / 1000);
+      updateEffects(frameTime / 1000);
     }
 
     render(now);
@@ -5674,6 +5754,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     buildEvo();
     setupEngine();
     resize();
+    warmPlanetSprites();
     bindEvents();
 
     updateBest();
@@ -5718,7 +5799,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       requestAnimationFrame(scheduleResize);
     }
 
-    requestAnimationFrame(loop);
+    startLoop();
   }
 
   window.__mergeCosmos = {
