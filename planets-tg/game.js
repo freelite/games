@@ -3113,27 +3113,44 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   const THEME_PALETTES = {
     cosmos: {
-      jarTop: 'rgba(24,28,72,0.56)',
-      jarMid: 'rgba(12,16,46,0.52)',
-      jarBottom: 'rgba(8,10,30,0.74)',
-      jarTopGlow: 'rgba(90,120,255,0.18)',
-      jarLeftGlow: 'rgba(80,220,255,0.1)',
+      jarTop: 'rgba(8,12,24,0.58)',
+      jarMid: 'rgba(8,12,24,0.68)',
+      jarBottom: 'rgba(6,9,18,0.80)',
+      jarTopGlow: 'rgba(90,120,255,0.16)',
+      jarLeftGlow: 'rgba(80,220,255,0.09)',
     },
     neon: {
-      jarTop: 'rgba(28,12,64,0.6)',
-      jarMid: 'rgba(16,8,42,0.56)',
-      jarBottom: 'rgba(8,4,26,0.8)',
-      jarTopGlow: 'rgba(0,245,212,0.16)',
-      jarLeftGlow: 'rgba(192,132,252,0.14)',
+      jarTop: 'rgba(14,6,30,0.58)',
+      jarMid: 'rgba(14,6,30,0.70)',
+      jarBottom: 'rgba(7,3,16,0.82)',
+      jarTopGlow: 'rgba(0,245,212,0.14)',
+      jarLeftGlow: 'rgba(192,132,252,0.12)',
     },
     crystal: {
-      jarTop: 'rgba(26,10,32,0.82)',
-      jarMid: 'rgba(19,7,26,0.88)',
-      jarBottom: 'rgba(10,3,16,0.94)',
-      jarTopGlow: 'rgba(251,191,36,0.16)',
-      jarLeftGlow: 'rgba(245,158,11,0.12)',
+      jarTop: 'rgba(18,7,26,0.60)',
+      jarMid: 'rgba(18,7,26,0.74)',
+      jarBottom: 'rgba(9,3,14,0.86)',
+      jarTopGlow: 'rgba(251,191,36,0.14)',
+      jarLeftGlow: 'rgba(245,158,11,0.10)',
     },
   };
+
+  const THEME_WALLPAPERS = {
+    cosmos: 'assets/bg_cosmos.jpg?v=18',
+    neon: 'assets/bg_neon.jpg?v=18',
+    crystal: 'assets/bg_crystals.jpg?v=18',
+  };
+  const wallpaperCache = {};
+
+  function preloadWallpaper(id) {
+    const key = THEME_WALLPAPERS[id] ? id : 'cosmos';
+    if (wallpaperCache[key]) return wallpaperCache[key];
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = THEME_WALLPAPERS[key];
+    wallpaperCache[key] = img;
+    return img;
+  }
 
   function themeId() {
     return S.theme === 'neon' || S.theme === 'crystal' ? S.theme : 'cosmos';
@@ -3404,6 +3421,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const def = themeById(id);
     S.theme = def.id;
     saveThemeState();
+    preloadWallpaper(def.id);
     document.body.setAttribute('data-theme', def.id === 'crystal' ? 'crystals' : def.id);
     const metaColor = document.querySelector('meta[name="theme-color"]');
     if (metaColor) {
@@ -3874,19 +3892,19 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       : skin === 'crystal'
         ? ['16,185,129', '139,92,246', '52,211,153', '245,208,120']
         : ['130,90,255', '0,180,255', '255,90,170', '90,120,255'];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 4; i++) {
       const x = rand(0, w);
       const y = rand(0, h);
       const rad = rand(Math.max(80, w * 0.25), Math.max(160, w * 0.7));
       const col = pick(nebulaColors);
       const g = c.createRadialGradient(x, y, 0, x, y, rad);
-      g.addColorStop(0, 'rgba(' + col + ',0.1)');
+      g.addColorStop(0, 'rgba(' + col + ',0.055)');
       g.addColorStop(1, 'rgba(' + col + ',0)');
       c.fillStyle = g;
       c.fillRect(0, 0, w, h);
     }
 
-    for (let i = 0; i < 170; i++) {
+    for (let i = 0; i < 110; i++) {
       const x = rand(0, w);
       const y = rand(0, h);
       const big = Math.random() > 0.9;
