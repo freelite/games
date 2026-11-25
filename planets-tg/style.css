@@ -2337,3 +2337,264 @@ body[data-theme="crystals"] {
   background-color: var(--bg-page) !important;
   background-attachment: scroll, scroll !important;
 }
+
+/* ---------- v22: reward button — border pulse only, no inner stripe ---------- */
+.daily-btn,
+#dailyBtn,
+.daily-btn.has-reward,
+#dailyBtn.has-reward {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+#dailyBtn::before,
+#dailyBtn::after,
+.daily-btn::before,
+.daily-btn::after,
+#dailyBtn.has-reward::before,
+#dailyBtn.has-reward::after,
+.daily-btn.has-reward::before,
+.daily-btn.has-reward::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+.daily-btn.has-reward,
+#dailyBtn.has-reward,
+body[data-theme] .daily-btn.has-reward,
+body[data-theme] #dailyBtn.has-reward {
+  border: 1.5px solid rgba(251, 191, 36, 0.4) !important;
+  box-shadow: none !important;
+  animation: rewardBorderPulseV22 2s ease-in-out infinite !important;
+}
+@keyframes rewardBorderPulseV22 {
+  0%, 100% { border-color: rgba(251, 191, 36, 0.4); }
+  50% { border-color: rgba(251, 191, 36, 0.95); }
+}
+
+@media (min-width: 769px) and (pointer: fine) { .setting-row-vibration { display: none !important; } }
+
+/* ============================================================
+   v24 — space leaderboard (Best plate, leagues, Top-25, share)
+   ============================================================ */
+.stat.best {
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease;
+}
+.stat.best:hover { border-color: rgba(255, 201, 107, 0.55); }
+.stat.best:active { transform: scale(0.95); }
+.stat.best:focus-visible { outline: 2px solid rgba(255, 201, 107, 0.7); outline-offset: 2px; }
+body[data-theme] .stat.best { cursor: pointer !important; }
+body[data-theme] .stat.best:hover { border-color: rgba(255, 201, 107, 0.55) !important; }
+.stat-value-row { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.best-cup {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  color: #ffc96b;
+  filter: drop-shadow(0 0 5px rgba(255, 201, 107, 0.6));
+  transition: transform 0.12s ease;
+}
+.stat.best:hover .best-cup { transform: translateY(-1px); }
+.stat.best:active .best-cup { transform: translateY(-1px) scale(1.12); }
+
+:root {
+  --lb-gold: #ffc96b;
+  --lb-gold-2: #ffe6a3;
+  --lb-gold-line: rgba(255, 201, 107, 0.55);
+  --lb-glow: rgba(255, 201, 107, 0.28);
+}
+body[data-theme="cosmos"] { --lb-glow: rgba(124, 148, 255, 0.4); }
+body[data-theme="neon"] { --lb-glow: rgba(0, 245, 212, 0.35); }
+body[data-theme="crystals"] { --lb-glow: rgba(167, 139, 250, 0.4); }
+
+.lb-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 88%;
+  overflow: hidden;
+}
+.lb-head-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.lb-kicker {
+  font-size: 8.8px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+.lb-league {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 9px 10px 8px;
+  border: 1px solid var(--lb-gold-line);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(86, 60, 16, 0.55), rgba(20, 18, 42, 0.8));
+  box-shadow: 0 0 22px -12px var(--lb-glow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.lb-league-top { display: flex; align-items: center; gap: 8px; }
+.lb-league-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--lb-gold-line);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 214, 130, 0.35), rgba(18, 14, 38, 0.85));
+  color: var(--lb-gold);
+}
+.lb-league-icon svg { width: 18px; height: 18px; }
+.lb-league-text { display: flex; flex: 1 1 auto; flex-direction: column; gap: 1px; min-width: 0; }
+.lb-league-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.6px;
+  font-weight: 800;
+  color: var(--lb-gold-2);
+}
+.lb-league-sub { font-size: 9.6px; color: var(--muted); }
+.lb-rank { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 1px; }
+.lb-rank b {
+  font-size: 15px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--lb-gold);
+}
+.lb-rank span {
+  font-size: 8.4px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lb-bar {
+  position: relative;
+  height: 6px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(8, 10, 26, 0.7);
+}
+.lb-bar-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, rgba(255, 179, 71, 0.9), var(--lb-gold));
+  box-shadow: 0 0 10px rgba(255, 201, 107, 0.55);
+  transition: width 0.4s ease;
+}
+.lb-league-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 9.6px;
+  color: var(--muted);
+}
+.lb-league-bottom span:last-child { font-weight: 800; color: var(--lb-gold-2); }
+.lb-list {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 96px;
+  max-height: 46vh;
+  padding: 3px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(6, 8, 22, 0.55);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+.lb-list::-webkit-scrollbar { width: 0; }
+.lb-row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 7px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 11.4px;
+}
+.lb-row + .lb-row { margin-top: 2px; }
+.lb-row.is-top { background: rgba(255, 201, 107, 0.06); }
+.lb-row.is-you {
+  border-color: var(--lb-gold);
+  background: linear-gradient(135deg, rgba(96, 68, 18, 0.55), rgba(20, 18, 42, 0.85));
+  box-shadow: 0 0 16px -8px var(--lb-gold);
+}
+.lb-place {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.6px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-2);
+}
+.lb-row.is-you .lb-place { color: var(--lb-gold); }
+.lb-who { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.lb-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--text);
+}
+.lb-you {
+  flex: 0 0 auto;
+  padding: 1px 5px;
+  border: 1px solid var(--lb-gold-line);
+  border-radius: 99px;
+  background: rgba(96, 68, 18, 0.5);
+  font-size: 7.6px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--lb-gold-2);
+}
+.lb-score {
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.lb-row.is-you .lb-score { color: var(--lb-gold-2); }
+.lb-medal { filter: drop-shadow(0 0 4px rgba(255, 201, 107, 0.35)); }
+.lb-share {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 14px;
+  font-size: 13.5px;
+}
+.lb-share-ico { flex: 0 0 auto; width: 16px; height: 16px; }
+
+body[data-theme="neon"] .lb-league-top .lb-league-icon { color: #7ffbe4; border-color: rgba(0, 245, 212, 0.5); }
+body[data-theme="neon"] .lb-row.is-you { border-color: #5eead4; box-shadow: 0 0 16px -6px rgba(94, 234, 212, 0.55); }
+body[data-theme="neon"] .lb-bar-fill { background: linear-gradient(90deg, rgba(0, 245, 212, 0.85), #a7f3d0); box-shadow: 0 0 10px rgba(0, 245, 212, 0.45); }
+body[data-theme="neon"] .lb-you { border-color: rgba(94, 234, 212, 0.65); background: rgba(6, 62, 56, 0.6); color: #b8fff0; }
+
+body[data-theme="crystals"] .lb-league { border-color: rgba(196, 181, 253, 0.6); }
+body[data-theme="crystals"] .lb-league-icon { color: #ddd6fe; border-color: rgba(196, 181, 253, 0.6); }
+body[data-theme="crystals"] .lb-row.is-you { border-color: #c4b5fd; box-shadow: 0 0 16px -6px rgba(196, 181, 253, 0.6); }
+body[data-theme="crystals"] .lb-bar-fill { background: linear-gradient(90deg, rgba(167, 139, 250, 0.9), #ddd6fe); box-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+body[data-theme="crystals"] .lb-you { border-color: rgba(196, 181, 253, 0.65); background: rgba(45, 30, 82, 0.6); color: #ede9fe; }
+
+@media (max-height: 720px) {
+  .lb-modal { gap: 6px; }
+  .lb-list { max-height: 40vh; }
+}
+@media (max-width: 380px) {
+  .stat.best { padding-left: 6px; padding-right: 6px; }
+  .stat-value-row { gap: 3px; }
+  .lb-row { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 6px; padding: 5px 6px; font-size: 10.8px; }
+}

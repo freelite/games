@@ -1148,6 +1148,18 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const dailyGridEl = $('dailyGrid');
   const dailyClaimBtn = $('dailyClaimBtn');
   const dailyAdBtn = $('dailyAdBtn');
+  const bestStat = $('bestStat');
+  const leaderboardOverlay = $('leaderboardOverlay');
+  const leaderboardClose = $('leaderboardClose');
+  const lbListEl = $('lbList');
+  const lbLeagueName = $('lbLeagueName');
+  const lbLeagueSub = $('lbLeagueSub');
+  const lbLeagueStep = $('lbLeagueStep');
+  const lbLeagueIcon = $('lbLeagueIcon');
+  const lbRank = $('lbRank');
+  const lbProgressFill = $('lbProgressFill');
+  const lbProgressText = $('lbProgressText');
+  const lbShareBtn = $('lbShareBtn');
 
   /* ------------------------------------------------------------
  Audio (Web Audio API, fully procedural)
@@ -1626,6 +1638,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   function writeBest(v) {
     saveValue(BEST_KEY, v);
+    cloudSaveBest(v);
   }
 
   function readMuted() {
@@ -2797,6 +2810,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     try { renderThemeList(); } catch (err) { /* noop */ }
     try { renderDailyGrid(); } catch (err) { /* noop */ }
     try { updateDailyBadge(); } catch (err) { /* noop */ }
+    try { renderLeaderboard(); } catch (err) { /* noop */ }
   });
 
   function updateVipUI() {
@@ -2897,6 +2911,270 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       .catch(function () {
         showToast('Не удалось поделиться');
       });
+  }
+
+  /* ------------------------------------------------------------
+   Cloud best score (Telegram.WebApp.CloudStorage)
+   ------------------------------------------------------------ */
+  const CLOUD_BEST_KEY = 'planet_merge_best';
+
+  function cloudStorageApi() {
+    try {
+      const tg = window.Telegram && window.Telegram.WebApp;
+      return (tg && tg.CloudStorage) || null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function cloudSaveBest(value) {
+    const api = cloudStorageApi();
+    if (!api || typeof api.setItem !== 'function') return;
+    try {
+      api.setItem(CLOUD_BEST_KEY, String(value), function () {});
+    } catch (err) {}
+  }
+
+  function cloudLoadBest() {
+    const api = cloudStorageApi();
+    if (!api || typeof api.getItem !== 'function') return;
+    try {
+      api.getItem(CLOUD_BEST_KEY, function (err, value) {
+        if (err) return;
+        if (value === null || value === undefined || value === '') {
+          if (S.best > 0) cloudSaveBest(S.best);
+          return;
+        }
+        const cloud = parseInt(String(value), 10);
+        if (!Number.isFinite(cloud)) return;
+        if (cloud <= S.best) {
+          if (S.best > 0) cloudSaveBest(S.best);
+          return;
+        }
+        S.best = cloud;
+        localSet(BEST_KEY, cloud);
+        updateBest();
+        renderLeaderboard();
+      });
+    } catch (err) {}
+  }
+
+  /* ------------------------------------------------------------
+   Space leaderboard
+   ------------------------------------------------------------ */
+  const LB_OPPONENTS = [
+    { name: 'NOVA-9', score: 250000 },
+    { name: 'ORION', score: 218500 },
+    { name: 'VEGA-7', score: 187400 },
+    { name: 'CYGNUS', score: 162000 },
+    { name: 'PULSAR', score: 141800 },
+    { name: 'ANDROMEDA', score: 124500 },
+    { name: 'SIRIUS-X', score: 104200 },
+    { name: 'SOLARIS', score: 92000 },
+    { name: 'KEPLER-16', score: 78500 },
+    { name: 'ZENITH', score: 66300 },
+    { name: 'AURORA', score: 55000 },
+    { name: 'HELIOS', score: 45200 },
+    { name: 'LYRA-4', score: 38100 },
+    { name: 'DRACO', score: 31400 },
+    { name: 'TAURUS-2', score: 26800 },
+    { name: 'QUASAR', score: 22100 },
+    { name: 'NEBULA-5', score: 18500 },
+    { name: 'COMET', score: 15200 },
+    { name: 'ATLAS-6', score: 12400 },
+    { name: 'RIGEL', score: 9700 },
+    { name: 'PHOENIX', score: 7100 },
+    { name: 'METEOR', score: 5200 },
+    { name: 'ECLIPSE', score: 3100 },
+    { name: 'PIONEER', score: 1200 }
+  ];
+
+  const LB_LEAGUES = [
+    { step: 1, min: 0, max: 5000, name: 'Бронзовая орбита' },
+    { step: 2, min: 5000, max: 20000, name: 'Серебряный пояс' },
+    { step: 3, min: 20000, max: 60000, name: 'Золотая туманность' },
+    { step: 4, min: 60000, max: 175000, name: 'Платиновый квазар' },
+    { step: 5, min: 175000, max: 0, name: 'Легенда Чёрной дыры' }
+  ];
+
+  const LB_MEDAL = {
+    1: '#ffd15c',
+    2: '#d8e3ff',
+    3: '#ffab6b'
+  };
+
+  let lbReturnMode = null;
+
+  function lbTr(text) {
+    try {
+      if (window.I18N && typeof I18N.t === 'function') return I18N.t(text);
+    } catch (err) {}
+    return text;
+  }
+
+  function playerDisplayName() {
+    let name = '';
+    try {
+      const webApp = window.Telegram && window.Telegram.WebApp;
+      const user = webApp && webApp.initDataUnsafe ? webApp.initDataUnsafe.user : null;
+      if (user && typeof user.first_name === 'string') name = user.first_name.trim();
+    } catch (err) {
+      name = '';
+    }
+    if (!name) return 'Игрок / Player';
+    return name.slice(0, 18);
+  }
+
+  function leagueForScore(score) {
+    let found = LB_LEAGUES[0];
+    for (let i = 0; i < LB_LEAGUES.length; i++) {
+      if (score >= LB_LEAGUES[i].min) found = LB_LEAGUES[i];
+    }
+    return found;
+  }
+
+  function leaderboardRows() {
+    const rows = LB_OPPONENTS.map(function (item) {
+      return { name: item.name, score: item.score, you: false };
+    });
+    rows.push({ name: playerDisplayName(), score: Math.max(0, S.best), you: true });
+    rows.sort(function (a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.you === b.you) return 0;
+      return a.you ? 1 : -1;
+    });
+    return rows;
+  }
+
+  function medalMarkup(place) {
+    const color = LB_MEDAL[place];
+    return '<svg class="lb-medal" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">' +
+      '<circle cx="12" cy="13.6" r="6.4" fill="none" stroke="' + color + '" stroke-width="1.9"/>' +
+      '<path d="M12 10.3l1.2 2.4 2.6.4-1.9 1.9.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.9 2.6-.4 1.2-2.4z" fill="' + color + '"/>' +
+      '<path d="M9.4 3.2h5.2l-1.3 4.1h-2.6L9.4 3.2z" fill="' + color + '" opacity="0.5"/>' +
+      '</svg>';
+  }
+
+  function buildLbRow(row, place) {
+    const el = document.createElement('div');
+    el.className = 'lb-row' + (row.you ? ' is-you' : '') + (place <= 3 ? ' is-top' : '');
+
+    const placeEl = document.createElement('span');
+    placeEl.className = 'lb-place';
+    if (LB_MEDAL[place]) placeEl.innerHTML = medalMarkup(place);
+    else placeEl.textContent = String(place);
+    el.appendChild(placeEl);
+
+    const whoEl = document.createElement('span');
+    whoEl.className = 'lb-who';
+    const nameEl = document.createElement('span');
+    nameEl.className = 'lb-name';
+    nameEl.textContent = row.name;
+    whoEl.appendChild(nameEl);
+    if (row.you) {
+      const badge = document.createElement('span');
+      badge.className = 'lb-you';
+      badge.textContent = 'ВЫ / YOU';
+      whoEl.appendChild(badge);
+    }
+    el.appendChild(whoEl);
+
+    const scoreEl = document.createElement('span');
+    scoreEl.className = 'lb-score';
+    scoreEl.textContent = fmt(row.score);
+    el.appendChild(scoreEl);
+
+    return el;
+  }
+
+  function renderLeaderboard() {
+    if (!lbListEl) return;
+    const rows = leaderboardRows();
+    const league = leagueForScore(S.best);
+    const place = rows.findIndex(function (row) { return row.you; }) + 1;
+
+    if (lbLeagueName) lbLeagueName.textContent = lbTr(league.name);
+    if (lbLeagueSub) lbLeagueSub.textContent = lbTr('Ваша лига');
+    if (lbLeagueStep) lbLeagueStep.textContent = league.step + ' / 5';
+    if (lbRank) lbRank.textContent = '#' + place;
+    if (lbLeagueIcon) lbLeagueIcon.setAttribute('data-league', String(league.step));
+
+    let percent = 100;
+    let progressText = lbTr('Максимальная лига');
+    if (league.max > league.min) {
+      percent = clamp(((S.best - league.min) / (league.max - league.min)) * 100, 0, 100);
+      progressText = lbTr('До следующей лиги: ' + fmt(Math.max(0, league.max - S.best)));
+    }
+    if (lbProgressFill) lbProgressFill.style.width = percent.toFixed(1) + '%';
+    if (lbProgressText) lbProgressText.textContent = progressText;
+
+    lbListEl.innerHTML = '';
+    for (let i = 0; i < rows.length; i++) {
+      lbListEl.appendChild(buildLbRow(rows[i], i + 1));
+    }
+
+    requestAnimationFrame(function () {
+      if (!lbListEl) return;
+      const youRow = lbListEl.querySelector('.lb-row.is-you');
+      if (!youRow) return;
+      const target = Math.max(0, youRow.offsetTop - lbListEl.clientHeight / 2 + youRow.offsetHeight / 2);
+      try {
+        lbListEl.scrollTo({ top: target, behavior: 'smooth' });
+      } catch (err) {
+        lbListEl.scrollTop = target;
+      }
+    });
+  }
+
+  function openLeaderboard() {
+    Sound.unlock();
+    haptic('light');
+    lbReturnMode = S.mode;
+    if (S.mode === 'playing') pauseGame();
+    renderLeaderboard();
+    if (leaderboardOverlay) {
+      leaderboardOverlay.classList.add('open');
+      leaderboardOverlay.setAttribute('aria-hidden', 'false');
+    }
+  }
+
+  function closeLeaderboard() {
+    if (leaderboardOverlay) {
+      leaderboardOverlay.classList.remove('open');
+      leaderboardOverlay.setAttribute('aria-hidden', 'true');
+    }
+    const back = lbReturnMode;
+    lbReturnMode = null;
+    if (back === 'playing' && S.mode === 'paused') resumeGame();
+  }
+
+  function leaderboardShare() {
+    Sound.unlock();
+    haptic('light');
+    const en = !!(window.I18N && I18N.lang === 'en');
+    const score = fmt(Math.max(0, S.best));
+    const text = en
+      ? 'My Merge Cosmos record is ' + score + ' points. Can you beat it?'
+      : 'Мой рекорд в Merge Cosmos — ' + score + ' очков. Сможешь побить?';
+    let gameUrl = 'https://t.me/planet_merge_game_bot/game';
+    try {
+      if (window.TGRef && typeof TGRef.inviteUrl === 'function') gameUrl = TGRef.inviteUrl();
+    } catch (err) {}
+    const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(gameUrl) +
+      '&text=' + encodeURIComponent(text);
+    let opened = false;
+    try {
+      const tg = window.Telegram && window.Telegram.WebApp;
+      if (tg && typeof tg.openTelegramLink === 'function') {
+        tg.openTelegramLink(shareUrl);
+        opened = true;
+      }
+    } catch (err) {}
+    if (!opened) {
+      try {
+        window.open(shareUrl, '_blank');
+      } catch (err) {}
+    }
   }
 
   function adBooster() {
@@ -3895,7 +4173,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       jarW = jarH * ratio;
     }
     view.scale = jarW / WORLD_W;
-    DANGER_Y = Math.max(18, Math.round(28 / view.scale));
+    const topOffsetPx = window.innerWidth >= 769 ? 75 : 28;
+    DANGER_Y = Math.max(18, Math.round(topOffsetPx / view.scale));
     view.jarW = jarW;
     view.jarH = jarH;
     view.jarLeft = (w - jarW) / 2;
@@ -4630,6 +4909,22 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     vipCloseBtn.addEventListener('click', closeVip);
     vipBuyBtn.addEventListener('click', buyVip);
     shareBtn.addEventListener('click', shareRecord);
+    if (bestStat) {
+      bestStat.addEventListener('click', openLeaderboard);
+      bestStat.addEventListener('keydown', function (e) {
+        if (e.code === 'Enter' || e.code === 'Space') {
+          e.preventDefault();
+          openLeaderboard();
+        }
+      });
+    }
+    if (leaderboardClose) leaderboardClose.addEventListener('click', closeLeaderboard);
+    if (leaderboardOverlay) {
+      leaderboardOverlay.addEventListener('click', function (e) {
+        if (e.target === leaderboardOverlay) closeLeaderboard();
+      });
+    }
+    if (lbShareBtn) lbShareBtn.addEventListener('click', leaderboardShare);
     adBoosterBtn.addEventListener('click', adBooster);
     secondChanceBtn.addEventListener('click', secondChance);
 
@@ -4691,6 +4986,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       }
       if (e.code === 'Escape' && sheetIsOpen(dailyOverlay)) {
         closeDaily();
+        e.preventDefault();
+        return;
+      }
+      if (e.code === 'Escape' && sheetIsOpen(leaderboardOverlay)) {
+        closeLeaderboard();
         e.preventDefault();
         return;
       }
@@ -4866,6 +5166,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     updateVipUI();
     syncControls();
     showScreen('start');
+    cloudLoadBest();
 
     if (
       bridgeOnline &&
@@ -4930,6 +5231,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
         requestAnimationFrame(function () {
           notifyGameReady();
           loadCloudProgress();
+          cloudLoadBest();
         });
       })
       .catch(function () {});

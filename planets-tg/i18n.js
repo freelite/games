@@ -115,7 +115,20 @@
     '+1 бустер каждого вида': '+1 booster of each kind',
     '+3 бустера «Встряхнуть»': '+3 Shake boosters',
     'VIP на 12 часов + по 2 бустера': 'VIP for 12h + 2 boosters of each',
-    'Меню': 'Menu'
+    'Меню': 'Menu',
+    'Космический рейтинг': 'Space Leaderboard',
+    'Космический рейтинг / Space Leaderboard': 'Space Leaderboard',
+    'Ваша лига': 'Your league',
+    'Место': 'Rank',
+    'Бронзовая орбита': 'Bronze Orbit',
+    'Серебряный пояс': 'Silver Belt',
+    'Золотая туманность': 'Gold Nebula',
+    'Платиновый квазар': 'Platinum Quasar',
+    'Легенда Чёрной дыры': 'Black Hole Legend',
+    'Бросить вызов друзьям': 'Challenge Friends',
+    'Максимальная лига': 'Top league',
+    'До следующей лиги': 'To next league',
+    'Игрок / Player': 'Player'
   };
 
   var PATTERNS = [
@@ -138,7 +151,8 @@
     [/^(\d+)\s*из\s*(\d+)$/, '$1 of $2'],
     [/^Открыть за рекламу \((\d+)\/(\d+)\)$/, 'Unlock via Ad ($1/$2)'],
     [/^Просмотр (\d+)\/(\d+)$/, 'Viewed $1/$2'],
-    [/^День (\d+)$/, 'Day $1']
+    [/^День (\d+)$/, 'Day $1'],
+    [/^До следующей лиги: (.+)$/, 'To next league: $1']
   ];
 
   function normalize(value) {
