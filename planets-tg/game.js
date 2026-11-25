@@ -63,6 +63,9 @@ const ADSGRAM_BLOCK_ID = '61632';
   const SHAKE_KEY = 'merge_cosmos_shake_charges_v2';
   const CLEAN_KEY = 'merge_cosmos_clean_charges_v2';
   const DAILY_KEY = 'lastDailyBonusDate_v2';
+  const THEME_KEY = 'merge_cosmos_theme_v1';
+  const THEME_ADS_KEY = 'merge_cosmos_theme_ads_v1';
+  const DAILY7_KEY = 'merge_cosmos_daily7_v1';
   const START_CHARGES = 1;
   const VIP_HOURS = 24;
   const VIP_ADS_REQUIRED = 5;
@@ -886,7 +889,9 @@ const ADSGRAM_BLOCK_ID = '61632';
   }
 
   function getSprite(level) {
-    if (spriteCache[level]) return spriteCache[level];
+    const skin = themeId();
+    const key = skin + ':' + level;
+    if (spriteCache[key]) return spriteCache[key];
     const cfg = LEVELS[level - 1];
     const r = cfg.radius;
     const pad = r * cfg.pad;
@@ -920,7 +925,9 @@ const ADSGRAM_BLOCK_ID = '61632';
     c.ellipse(0, r * 0.96, r * 1.02, r * 0.42, 0, 0, TAU);
     c.fill();
 
-    cfg.draw(c, r);
+    if (skin === 'neon') paintNeon(c, r, cfg);
+    else if (skin === 'crystal') paintCrystal(c, r, cfg);
+    else cfg.draw(c, r);
 
     c.save();
     c.beginPath();
@@ -938,7 +945,7 @@ const ADSGRAM_BLOCK_ID = '61632';
     c.restore();
 
     const sprite = { canvas: cv, half: half };
-    spriteCache[level] = sprite;
+    spriteCache[key] = sprite;
     return sprite;
   }
 
@@ -1120,7 +1127,18 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const slotNext = $('slotNext');
   const slotBonus = $('slotBonus');
   const evoRowEl = document.querySelector('.evo-row');
-  const bonusRowEl = document.querySelector('.bonus-row');
+  const controlGridEl = $('controlGrid');
+  const themeBtn = $('themeBtn');
+  const themesOverlay = $('themesOverlay');
+  const themesClose = $('themesClose');
+  const themeListEl = $('themeList');
+  const dailyBtn = $('dailyBtn');
+  const dailyDot = $('dailyDot');
+  const dailyOverlay = $('dailyOverlay');
+  const dailyClose = $('dailyClose');
+  const dailyGridEl = $('dailyGrid');
+  const dailyClaimBtn = $('dailyClaimBtn');
+  const dailyAdBtn = $('dailyAdBtn');
 
   /* ------------------------------------------------------------
  Audio (Web Audio API, fully procedural)
@@ -1448,6 +1466,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     dailyDate: '',
     vipUntil: 0,
     vipAds: 0,
+    theme: 'cosmos',
+    themeAds: { neon: 0, crystal: 0 },
+    daily7: { streak: 0, last: '' },
     secondChanceUsed: false,
     bonusReadyAt: { shake: 0, clean: 0 },
     current: null,
@@ -2760,6 +2781,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   document.addEventListener('i18n:change', function () {
     try { updateVipUI(); } catch (err) { /* noop */ }
+    try { renderThemeList(); } catch (err) { /* noop */ }
+    try { renderDailyGrid(); } catch (err) { /* noop */ }
+    try { updateDailyBadge(); } catch (err) { /* noop */ }
   });
 
   function updateVipUI() {
@@ -3029,6 +3053,543 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   /* ------------------------------------------------------------
+   Themes collection (3 skins) — v1.3.0
+   ------------------------------------------------------------ */
+  const THEMES = [
+    {
+      id: 'cosmos',
+      name: 'Классический космос',
+      sub: 'Стандартный дизайн планет и фона',
+      cost: 0,
+      swatch: ['#7c5cff', '#43e7ff', '#ff5ea8'],
+    },
+    {
+      id: 'neon',
+      name: 'Неоновые сферы',
+      sub: 'Глубокий кибер-индиго и светящиеся сферы',
+      cost: 2,
+      swatch: ['#00f5d4', '#22d3ee', '#6d5bff'],
+    },
+    {
+      id: 'crystal',
+      name: 'Драгоценные кристаллы',
+      sub: 'Изумрудно-фиолетовая туманность и гранёные кристаллы',
+      cost: 3,
+      swatch: ['#10b981', '#8b5cf6', '#fbbf24'],
+    },
+  ];
+
+  const DAILY_REWARDS = [
+    { day: 1, shake: 1, clean: 0, icon: 'shake', text: '+1 бустер «Встряхнуть»' },
+    { day: 2, shake: 0, clean: 1, icon: 'clean', text: '+1 бустер «Убрать мелкие»' },
+    { day: 3, shake: 2, clean: 0, icon: 'shake', text: '+2 бустера «Встряхнуть»' },
+    { day: 4, shake: 0, clean: 2, icon: 'clean', text: '+2 бустера «Убрать мелкие»' },
+    { day: 5, shake: 1, clean: 1, icon: 'both', text: '+1 бустер каждого вида' },
+    { day: 6, shake: 3, clean: 0, icon: 'shake', text: '+3 бустера «Встряхнуть»' },
+    { day: 7, shake: 2, clean: 2, vipHours: 12, super: true, icon: 'crown', text: 'VIP на 12 часов + по 2 бустера' },
+  ];
+
+  const ICON_SHAKE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3"/><path d="M4.5 9.5c1.2 1 1.2 3 0 4M19.5 9.5c-1.2 1-1.2 3 0 4"/></svg>';
+  const ICON_CLEAN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M11 4l1.6 4.4L17 10l-4.4 1.6L11 16l-1.6-4.4L5 10l4.4-1.6L11 4z"/><path d="M18 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/></svg>';
+  const ICON_CROWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 3 4-6 4 6 4-3-2 10H6L4 8z"/><path d="M6 18h12"/></svg>';
+
+  function rgbaOf(hex, alpha) {
+    const h = String(hex || '').replace('#', '');
+    if (h.length !== 6) return 'rgba(255,255,255,' + alpha + ')';
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
+
+  function themeId() {
+    return S.theme === 'neon' || S.theme === 'crystal' ? S.theme : 'cosmos';
+  }
+
+  function themeById(id) {
+    for (let i = 0; i < THEMES.length; i++) {
+      if (THEMES[i].id === id) return THEMES[i];
+    }
+    return THEMES[0];
+  }
+
+  function paintNeon(c, r, cfg) {
+    const mid = (cfg.spark && cfg.spark[1]) || '#00f5d4';
+    const hot = (cfg.spark && cfg.spark[0]) || '#eafffb';
+
+    c.save();
+    c.shadowColor = mid;
+    c.shadowBlur = r * 0.6;
+    const core = c.createRadialGradient(-r * 0.32, -r * 0.34, r * 0.04, 0, 0, r * 1.02);
+    core.addColorStop(0, hot);
+    core.addColorStop(0.34, rgbaOf(mid, 0.95));
+    core.addColorStop(0.72, rgbaOf(mid, 0.35));
+    core.addColorStop(1, '#050a1e');
+    c.fillStyle = core;
+    c.beginPath();
+    c.arc(0, 0, r, 0, TAU);
+    c.fill();
+    c.restore();
+
+    const inner = c.createRadialGradient(0, 0, 0, 0, 0, r * 0.86);
+    inner.addColorStop(0, rgbaOf(hot, 0.55));
+    inner.addColorStop(0.5, rgbaOf(mid, 0.18));
+    inner.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = inner;
+    c.beginPath();
+    c.arc(0, 0, r, 0, TAU);
+    c.fill();
+
+    c.save();
+    c.beginPath();
+    c.arc(0, 0, r, 0, TAU);
+    c.clip();
+    c.strokeStyle = rgbaOf(mid, 0.5);
+    c.lineWidth = Math.max(0.8, r * 0.03);
+    for (let i = 0; i < 3; i++) {
+      const yy = -r * 0.42 + i * r * 0.42;
+      c.beginPath();
+      c.ellipse(0, yy, r * 0.92, r * 0.22, 0, 0, TAU);
+      c.stroke();
+    }
+    c.restore();
+
+    c.strokeStyle = rgbaOf(mid, 0.95);
+    c.lineWidth = Math.max(1.2, r * 0.055);
+    c.beginPath();
+    c.arc(0, 0, r * 0.985, 0, TAU);
+    c.stroke();
+
+    c.strokeStyle = rgbaOf(hot, 0.6);
+    c.lineWidth = Math.max(0.7, r * 0.024);
+    c.beginPath();
+    c.arc(0, 0, r * 0.82, 0, TAU);
+    c.stroke();
+
+    c.strokeStyle = rgbaOf(hot, 0.85);
+    c.lineWidth = Math.max(0.8, r * 0.03);
+    c.beginPath();
+    c.arc(0, 0, r * 0.9, Math.PI * 1.05, Math.PI * 1.5);
+    c.stroke();
+
+    gloss(c, r, 0.26);
+  }
+
+  function paintCrystal(c, r, cfg) {
+    const hot = (cfg.spark && cfg.spark[0]) || '#ecfdf5';
+    const mid = (cfg.spark && cfg.spark[1]) || '#10b981';
+    const deep = (cfg.spark && cfg.spark[2]) || '#065f46';
+
+    c.save();
+    c.beginPath();
+    c.arc(0, 0, r, 0, TAU);
+    c.clip();
+
+    const base = c.createLinearGradient(-r, -r, r, r);
+    base.addColorStop(0, rgbaOf(hot, 0.96));
+    base.addColorStop(0.45, rgbaOf(mid, 0.94));
+    base.addColorStop(1, rgbaOf(deep, 0.98));
+    c.fillStyle = base;
+    c.fillRect(-r, -r, r * 2, r * 2);
+
+    const facets = 7;
+    for (let i = 0; i < facets; i++) {
+      const a0 = (i / facets) * TAU - 0.35;
+      const a1 = ((i + 1) / facets) * TAU - 0.35;
+      const rr = r * 1.02;
+      c.beginPath();
+      c.moveTo(0, 0);
+      c.lineTo(Math.cos(a0) * rr, Math.sin(a0) * rr);
+      c.lineTo(Math.cos(a1) * rr, Math.sin(a1) * rr);
+      c.closePath();
+      c.fillStyle = i % 2 ? 'rgba(255,255,255,0.1)' : 'rgba(2,20,28,0.16)';
+      c.fill();
+      c.strokeStyle = rgbaOf(hot, i % 2 ? 0.34 : 0.16);
+      c.lineWidth = Math.max(0.5, r * 0.022);
+      c.stroke();
+    }
+
+    c.strokeStyle = rgbaOf(hot, 0.5);
+    c.lineWidth = Math.max(0.8, r * 0.028);
+    c.beginPath();
+    c.moveTo(-r * 0.62, -r * 0.5);
+    c.lineTo(r * 0.12, 0);
+    c.lineTo(-r * 0.3, r * 0.62);
+    c.stroke();
+
+    c.fillStyle = rgbaOf(hot, 0.9);
+    for (let i = 0; i < 3; i++) {
+      const a = -0.9 + i * 1.1;
+      const d = r * (0.42 + i * 0.16);
+      c.beginPath();
+      c.moveTo(Math.cos(a) * d, Math.sin(a) * d);
+      c.lineTo(Math.cos(a) * d + r * 0.05, Math.sin(a) * d - r * 0.03);
+      c.lineTo(Math.cos(a) * d + r * 0.02, Math.sin(a) * d + r * 0.05);
+      c.closePath();
+      c.fill();
+    }
+    c.restore();
+
+    c.strokeStyle = rgbaOf(mid, 0.95);
+    c.lineWidth = Math.max(1.2, r * 0.055);
+    c.beginPath();
+    c.arc(0, 0, r * 0.985, 0, TAU);
+    c.stroke();
+
+    c.strokeStyle = rgbaOf(hot, 0.7);
+    c.lineWidth = Math.max(0.7, r * 0.024);
+    c.beginPath();
+    c.arc(0, 0, r * 0.88, 0, TAU);
+    c.stroke();
+
+    gloss(c, r, 0.3);
+  }
+
+  function themeAdsCount(id) {
+    return S.themeAds[id] || 0;
+  }
+
+  function themeUnlocked(id) {
+    const def = themeById(id);
+    if (!def.cost) return true;
+    if (isVip()) return true;
+    return themeAdsCount(def.id) >= def.cost;
+  }
+
+  function saveThemeState() {
+    localSet(THEME_KEY, S.theme);
+    localSet(THEME_ADS_KEY, JSON.stringify({ neon: themeAdsCount('neon'), crystal: themeAdsCount('crystal') }));
+  }
+
+  function loadThemeState() {
+    let id = 'cosmos';
+    try {
+      id = localStorage.getItem(THEME_KEY) || 'cosmos';
+    } catch (err) {
+      id = 'cosmos';
+    }
+    S.theme = themeById(id).id;
+    let saved = null;
+    try {
+      saved = JSON.parse(localStorage.getItem(THEME_ADS_KEY) || 'null');
+    } catch (err) {
+      saved = null;
+    }
+    if (saved && typeof saved === 'object') {
+      S.themeAds.neon = clamp(parseInt(saved.neon, 10) || 0, 0, 99);
+      S.themeAds.crystal = clamp(parseInt(saved.crystal, 10) || 0, 0, 99);
+    }
+    if (!themeUnlocked(S.theme)) S.theme = 'cosmos';
+  }
+
+  function applyTheme(id, silent) {
+    const def = themeById(id);
+    S.theme = def.id;
+    saveThemeState();
+    document.body.classList.toggle('theme-neon', def.id === 'neon');
+    document.body.classList.toggle('theme-crystal', def.id === 'crystal');
+    for (const key in spriteCache) delete spriteCache[key];
+    buildStars();
+    buildJar();
+    buildEvo();
+    updatePreview();
+    renderThemeList();
+    if (!silent) showToast('Тема выбрана');
+  }
+
+  function openThemes() {
+    if (adShowing > 0) return;
+    Sound.unlock();
+    Sound.ui();
+    haptic('light');
+    renderThemeList();
+    openSheet(themesOverlay);
+  }
+
+  function closeThemes() {
+    closeSheet(themesOverlay);
+    renderThemeList();
+  }
+
+  function onThemeAction(id) {
+    const def = themeById(id);
+    if (S.theme === def.id) return;
+    if (themeUnlocked(def.id)) {
+      Sound.ui();
+      applyTheme(def.id);
+      return;
+    }
+    if (adShowing > 0) return;
+    showRewardedAd(function () {
+      if (themeUnlocked(def.id)) {
+        applyTheme(def.id);
+        return;
+      }
+      S.themeAds[def.id] = clamp(themeAdsCount(def.id) + 1, 0, def.cost);
+      saveThemeState();
+      if (themeUnlocked(def.id)) {
+        applyTheme(def.id);
+      } else {
+        renderThemeList();
+        showToast('Просмотр ' + S.themeAds[def.id] + '/' + def.cost);
+      }
+    });
+  }
+
+  function renderThemeList() {
+    if (!themeListEl) return;
+    themeListEl.innerHTML = '';
+    for (let i = 0; i < THEMES.length; i++) {
+      const def = THEMES[i];
+      const active = S.theme === def.id;
+      const unlocked = themeUnlocked(def.id);
+
+      const card = document.createElement('div');
+      card.className = 'theme-card' + (active ? ' is-active' : '');
+
+      const preview = document.createElement('div');
+      preview.className = 'theme-preview theme-preview-' + def.id;
+      for (let k = 0; k < def.swatch.length; k++) {
+        const dot = document.createElement('span');
+        dot.className = 'theme-dot';
+        const size = 32 - k * 7;
+        dot.style.width = size + 'px';
+        dot.style.height = size + 'px';
+        dot.style.background = def.swatch[k];
+        preview.appendChild(dot);
+      }
+      card.appendChild(preview);
+
+      const meta = document.createElement('div');
+      meta.className = 'theme-meta';
+      const nm = document.createElement('span');
+      nm.className = 'theme-name';
+      nm.textContent = def.name;
+      const sub = document.createElement('span');
+      sub.className = 'theme-sub';
+      sub.textContent = def.sub;
+      meta.appendChild(nm);
+      meta.appendChild(sub);
+      card.appendChild(meta);
+
+      const act = document.createElement('button');
+      act.type = 'button';
+      act.className = 'theme-action';
+      act.setAttribute('data-theme-action', def.id);
+      if (active) {
+        act.textContent = 'Активна';
+        act.disabled = true;
+        act.classList.add('done');
+      } else if (unlocked) {
+        act.textContent = 'Выбрать';
+      } else {
+        act.textContent = 'Открыть за рекламу (' + themeAdsCount(def.id) + '/' + def.cost + ')';
+      }
+      card.appendChild(act);
+      themeListEl.appendChild(card);
+    }
+  }
+
+  /* ------------------------------------------------------------
+   Daily rewards calendar (7 days) — v1.3.0
+   ------------------------------------------------------------ */
+  function dayKey(offset) {
+    const d = new Date();
+    if (offset) d.setDate(d.getDate() + offset);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  function saveDaily7() {
+    localSet(DAILY7_KEY, JSON.stringify({ streak: S.daily7.streak, last: S.daily7.last }));
+  }
+
+  function loadDaily7() {
+    let saved = null;
+    try {
+      saved = JSON.parse(localStorage.getItem(DAILY7_KEY) || 'null');
+    } catch (err) {
+      saved = null;
+    }
+    if (saved && typeof saved === 'object') {
+      S.daily7.streak = clamp(parseInt(saved.streak, 10) || 0, 0, DAILY_REWARDS.length - 1);
+      S.daily7.last = typeof saved.last === 'string' ? saved.last : '';
+    }
+    const today = dayKey(0);
+    if (!S.daily7.last || (S.daily7.last !== today && S.daily7.last !== dayKey(-1))) {
+      S.daily7.streak = 0;
+    }
+    saveDaily7();
+  }
+
+  function dailyClaimedToday() {
+    return S.daily7.last === dayKey(0);
+  }
+
+  function currentDailyReward() {
+    return DAILY_REWARDS[clamp(S.daily7.streak, 0, DAILY_REWARDS.length - 1)];
+  }
+
+  function updateDailyBadge() {
+    const claimed = dailyClaimedToday();
+    if (dailyDot) dailyDot.classList.toggle('hidden', claimed);
+    if (dailyBtn) dailyBtn.classList.toggle('is-ready', !claimed);
+    if (dailyClaimBtn) {
+      dailyClaimBtn.disabled = claimed;
+      dailyClaimBtn.textContent = claimed ? 'Награда получена' : 'Забрать';
+    }
+    if (dailyAdBtn) dailyAdBtn.disabled = claimed;
+  }
+
+  function renderDailyGrid() {
+    if (!dailyGridEl) return;
+    const claimed = dailyClaimedToday();
+    const next = clamp(S.daily7.streak, 0, DAILY_REWARDS.length - 1);
+    const claimedIdx = claimed ? (next + DAILY_REWARDS.length - 1) % DAILY_REWARDS.length : -1;
+    dailyGridEl.innerHTML = '';
+    for (let i = 0; i < DAILY_REWARDS.length; i++) {
+      const rew = DAILY_REWARDS[i];
+      const cell = document.createElement('div');
+      cell.className = 'daily-cell' + (rew.super ? ' super' : '');
+      if (i === claimedIdx) cell.classList.add('is-claimed');
+      else if (i === next) cell.classList.add('is-today');
+      else if (i < next) cell.classList.add('is-done');
+
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'daily-icon';
+      iconWrap.innerHTML = rew.icon === 'clean'
+        ? ICON_CLEAN
+        : rew.icon === 'crown'
+          ? ICON_CROWN
+          : rew.icon === 'both'
+            ? ICON_SHAKE + ICON_CLEAN
+            : ICON_SHAKE;
+      cell.appendChild(iconWrap);
+
+      const day = document.createElement('span');
+      day.className = 'daily-day';
+      day.textContent = 'День ' + rew.day;
+      cell.appendChild(day);
+
+      if (rew.super) {
+        const badge = document.createElement('span');
+        badge.className = 'daily-badge';
+        badge.textContent = 'Суперприз';
+        cell.appendChild(badge);
+      }
+
+      const txt = document.createElement('span');
+      txt.className = 'daily-text';
+      txt.textContent = rew.text;
+      cell.appendChild(txt);
+      dailyGridEl.appendChild(cell);
+    }
+  }
+
+  function grantDailyReward(mult) {
+    const rew = currentDailyReward();
+    const k = mult === 2 ? 2 : 1;
+    S.charges.shake = Math.min(99, S.charges.shake + (rew.shake || 0) * k);
+    S.charges.clean = Math.min(99, S.charges.clean + (rew.clean || 0) * k);
+    saveCharges();
+    if (rew.vipHours) {
+      const hours = rew.vipHours * k;
+      S.vipUntil = Math.max(Date.now(), S.vipUntil || 0) + hours * 3600000;
+      saveValue(VIP_KEY, S.vipUntil);
+      updateVipUI();
+    }
+    S.daily7.last = dayKey(0);
+    S.daily7.streak = rew.day >= DAILY_REWARDS.length ? 0 : rew.day;
+    saveDaily7();
+    updateBonusUI();
+    updateCharges();
+    updateDailyBadge();
+    renderDailyGrid();
+    Sound.clean();
+    if (mult === 2) showToast('Награда удвоена!');
+    else showToast('Награда получена!');
+  }
+
+  function claimDaily(doubled) {
+    Sound.unlock();
+    if (dailyClaimedToday()) {
+      showToast('Сегодня уже получено');
+      return;
+    }
+    if (!doubled) {
+      Sound.ui();
+      grantDailyReward(1);
+      return;
+    }
+    if (adShowing > 0) return;
+    showRewardedAd(function () {
+      if (dailyClaimedToday()) return;
+      grantDailyReward(2);
+    });
+  }
+
+  function openDaily() {
+    if (adShowing > 0) return;
+    Sound.unlock();
+    Sound.ui();
+    haptic('light');
+    renderDailyGrid();
+    updateDailyBadge();
+    openSheet(dailyOverlay);
+  }
+
+  function closeDaily() {
+    closeSheet(dailyOverlay);
+  }
+
+  /* ------------------------------------------------------------
+   Modal sheets
+   ------------------------------------------------------------ */
+  let sheetReturnMode = null;
+
+  function sheetIsOpen(el) {
+    return !!(el && el.classList.contains('open'));
+  }
+
+  function anySheetOpen() {
+    return sheetIsOpen(themesOverlay) ||
+      sheetIsOpen(dailyOverlay) ||
+      sheetIsOpen(settingsOverlay) ||
+      (vipScreen && vipScreen.classList.contains('show')) ||
+      (pauseScreen && pauseScreen.classList.contains('show')) ||
+      (overScreen && overScreen.classList.contains('show'));
+  }
+
+  function openSheet(el) {
+    if (!el) return;
+    if (sheetReturnMode === null) {
+      sheetReturnMode = S.mode === 'playing' ? 'playing' : (S.mode === 'paused' ? 'paused' : 'menu');
+    }
+    if (S.mode === 'playing') {
+      S.mode = 'paused';
+      pointerActive = false;
+      syncControls();
+      syncMusic();
+    }
+    el.classList.add('open');
+    el.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeSheet(el) {
+    if (!el) return;
+    el.classList.remove('open');
+    el.setAttribute('aria-hidden', 'true');
+    const back = sheetReturnMode;
+    sheetReturnMode = null;
+    if (back === 'playing' && S.mode === 'paused') {
+      S.mode = 'playing';
+      syncControls();
+      syncMusic();
+    }
+  }
+
+  /* ------------------------------------------------------------
  Layout & background layers
  ------------------------------------------------------------ */
   let desktopLayout = null;
@@ -3049,25 +3610,19 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   function applyResponsiveLayout(desktop) {
     snapshotOrigin(nextCardEl);
     snapshotOrigin(evoRowEl);
-    snapshotOrigin(bonusRowEl);
-    snapshotOrigin(adBoosterBtn);
-    snapshotOrigin(vipBtn);
+    snapshotOrigin(controlGridEl);
     if (desktop === desktopLayout) return;
     desktopLayout = desktop;
     if (desktop) {
       slotNext.appendChild(nextCardEl);
       slotEvo.appendChild(evoRowEl);
-      slotBonus.appendChild(bonusRowEl);
-      slotBonus.appendChild(adBoosterBtn);
-      slotBonus.appendChild(vipBtn);
+      slotBonus.appendChild(controlGridEl);
       railLeft.setAttribute('aria-hidden', 'false');
       railRight.setAttribute('aria-hidden', 'false');
     } else {
       restoreNode(nextCardEl);
       restoreNode(evoRowEl);
-      restoreNode(bonusRowEl);
-      restoreNode(adBoosterBtn);
-      restoreNode(vipBtn);
+      restoreNode(controlGridEl);
       railLeft.setAttribute('aria-hidden', 'true');
       railRight.setAttribute('aria-hidden', 'true');
     }
@@ -3189,7 +3744,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (!c) return;
     c.scale(dpr, dpr);
 
-    const nebulaColors = ['130,90,255', '0,180,255', '255,90,170', '90,120,255'];
+    const skin = themeId();
+    const nebulaColors = skin === 'neon'
+      ? ['0,245,212', '0,150,255', '90,80,255', '0,200,230']
+      : skin === 'crystal'
+        ? ['16,185,129', '139,92,246', '52,211,153', '245,208,120']
+        : ['130,90,255', '0,180,255', '255,90,170', '90,120,255'];
     for (let i = 0; i < 5; i++) {
       const x = rand(0, w);
       const y = rand(0, h);
@@ -3247,6 +3807,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.translate(view.jarLeft, view.jarTop);
     c.scale(view.scale, view.scale);
 
+    const skinTheme = themeId();
     const W = WORLD_W;
     const H = WORLD_H;
     const R_TOP = 34;
@@ -3291,25 +3852,49 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       jarRimPath(c, W, H, R_BOT);
     }
 
+    const skinA = themeId() === 'neon'
+      ? 'rgba(0,245,212,0.22)'
+      : themeId() === 'crystal'
+        ? 'rgba(16,185,129,0.24)'
+        : 'rgba(110,80,255,0.2)';
+    const skinB = themeId() === 'neon'
+      ? 'rgba(34,211,238,0.18)'
+      : themeId() === 'crystal'
+        ? 'rgba(251,191,36,0.16)'
+        : 'rgba(70,200,255,0.16)';
     jarPath();
-    c.strokeStyle = 'rgba(110,80,255,0.2)';
+    c.strokeStyle = skinA;
     c.lineWidth = 14;
     c.stroke();
     jarPath();
-    c.strokeStyle = 'rgba(70,200,255,0.16)';
+    c.strokeStyle = skinB;
     c.lineWidth = 7;
     c.stroke();
 
     const neon = c.createLinearGradient(0, H, 0, 0);
-    neon.addColorStop(0, 'rgba(120,220,255,0.85)');
-    neon.addColorStop(0.55, 'rgba(120,110,255,0.92)');
-    neon.addColorStop(1, 'rgba(190,120,255,0.85)');
+    if (skinTheme === 'neon') {
+      neon.addColorStop(0, 'rgba(0,245,212,0.95)');
+      neon.addColorStop(0.55, 'rgba(34,211,238,0.95)');
+      neon.addColorStop(1, 'rgba(0,245,212,0.9)');
+    } else if (skinTheme === 'crystal') {
+      neon.addColorStop(0, 'rgba(16,185,129,0.95)');
+      neon.addColorStop(0.55, 'rgba(251,191,36,0.92)');
+      neon.addColorStop(1, 'rgba(16,185,129,0.9)');
+    } else {
+      neon.addColorStop(0, 'rgba(120,220,255,0.85)');
+      neon.addColorStop(0.55, 'rgba(120,110,255,0.92)');
+      neon.addColorStop(1, 'rgba(190,120,255,0.85)');
+    }
     jarPath();
     c.strokeStyle = neon;
     c.lineWidth = 2.4;
     c.stroke();
 
-    c.strokeStyle = 'rgba(150,235,255,0.8)';
+    c.strokeStyle = skinTheme === 'neon'
+      ? 'rgba(0,245,212,0.9)'
+      : skinTheme === 'crystal'
+        ? 'rgba(251,191,36,0.75)'
+        : 'rgba(150,235,255,0.8)';
     c.lineWidth = 2.4;
     c.beginPath();
     c.moveTo(0, 0);
@@ -3564,10 +4149,21 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     ctx.quadraticCurveTo(W, H, W, H - RB);
     ctx.lineTo(W, H - 170);
 
+    const skin = themeId();
     const rim = ctx.createLinearGradient(0, 0, W, 0);
-    rim.addColorStop(0, 'rgba(120,225,255,0.7)');
-    rim.addColorStop(0.5, 'rgba(165,145,255,0.85)');
-    rim.addColorStop(1, 'rgba(120,225,255,0.7)');
+    if (skin === 'neon') {
+      rim.addColorStop(0, 'rgba(0,245,212,0.85)');
+      rim.addColorStop(0.5, 'rgba(34,211,238,0.95)');
+      rim.addColorStop(1, 'rgba(0,245,212,0.85)');
+    } else if (skin === 'crystal') {
+      rim.addColorStop(0, 'rgba(16,185,129,0.85)');
+      rim.addColorStop(0.5, 'rgba(251,191,36,0.9)');
+      rim.addColorStop(1, 'rgba(16,185,129,0.85)');
+    } else {
+      rim.addColorStop(0, 'rgba(120,225,255,0.7)');
+      rim.addColorStop(0.5, 'rgba(165,145,255,0.85)');
+      rim.addColorStop(1, 'rgba(120,225,255,0.7)');
+    }
     ctx.strokeStyle = rim;
     ctx.lineWidth = 2.6;
     ctx.stroke();
@@ -3799,6 +4395,39 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     adBoosterBtn.addEventListener('click', adBooster);
     secondChanceBtn.addEventListener('click', secondChance);
 
+    if (themeBtn) themeBtn.addEventListener('click', openThemes);
+    if (themesClose) themesClose.addEventListener('click', closeThemes);
+    if (themesOverlay) {
+      themesOverlay.addEventListener('click', function (e) {
+        if (e.target === themesOverlay) closeThemes();
+      });
+    }
+    if (themeListEl) {
+      themeListEl.addEventListener('click', function (e) {
+        const btn = e.target && e.target.closest ? e.target.closest('[data-theme-action]') : null;
+        if (!btn) return;
+        e.preventDefault();
+        onThemeAction(btn.getAttribute('data-theme-action'));
+      });
+    }
+    if (dailyBtn) dailyBtn.addEventListener('click', openDaily);
+    if (dailyClose) dailyClose.addEventListener('click', closeDaily);
+    if (dailyOverlay) {
+      dailyOverlay.addEventListener('click', function (e) {
+        if (e.target === dailyOverlay) closeDaily();
+      });
+    }
+    if (dailyClaimBtn) {
+      dailyClaimBtn.addEventListener('click', function () {
+        claimDaily(false);
+      });
+    }
+    if (dailyAdBtn) {
+      dailyAdBtn.addEventListener('click', function () {
+        claimDaily(true);
+      });
+    }
+
     pauseBtn.addEventListener('click', function () {
       if (S.mode === 'playing') pauseGame();
       else if (S.mode === 'paused') resumeGame();
@@ -3815,6 +4444,16 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       if (e.repeat) return;
       if (e.code === 'KeyM') {
         toggleSound();
+        return;
+      }
+      if (e.code === 'Escape' && sheetIsOpen(themesOverlay)) {
+        closeThemes();
+        e.preventDefault();
+        return;
+      }
+      if (e.code === 'Escape' && sheetIsOpen(dailyOverlay)) {
+        closeDaily();
+        e.preventDefault();
         return;
       }
       if (e.code === 'KeyP' || e.code === 'Escape') {
@@ -3966,6 +4605,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     updateEvo();
     updatePreview();
     applyDailyBonus();
+    loadThemeState();
+    applyTheme(S.theme, true);
+    loadDaily7();
+    updateDailyBadge();
     updateVipUI();
     syncControls();
     showScreen('start');
@@ -3980,6 +4623,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     }
 
     setInterval(tickBonus, 250);
+
+    setTimeout(function () {
+      if (S.mode !== 'menu') return;
+      if (anySheetOpen()) return;
+      if (dailyClaimedToday()) return;
+      openDaily();
+    }, 1500);
 
     if (window.ResizeObserver) {
       /* second pass after fonts/layout settle */

@@ -84,6 +84,37 @@
     'Следующий объект:': 'Next object:',
     '+1 «Встряхнуть стакан»': '+1 “Shake the jar”',
     '+1 «Убрать мелкие»': '+1 “Clear small”',
+    'Темы': 'Themes',
+    'Космические темы': 'Cosmic Themes',
+    'Классический космос': 'Classic Cosmos',
+    'Неоновые сферы': 'Neon Spheres',
+    'Драгоценные кристаллы': 'Precious Crystals',
+    'Стандартный дизайн планет и фона': 'Default planet and background design',
+    'Глубокий кибер-индиго и светящиеся сферы': 'Deep cyber indigo with glowing spheres',
+    'Изумрудно-фиолетовая туманность и гранёные кристаллы':
+      'Emerald-violet nebula and faceted crystals',
+    'Активна': 'Active',
+    'Выбрать': 'Select',
+    'Награды': 'Daily',
+    'Ежедневные награды': 'Daily Rewards',
+    'Забрать': 'Claim',
+    'Забрать ×2 за рекламу': 'Claim ×2 via Ad',
+    'Выбор темы сохраняется автоматически': 'Your theme is saved automatically',
+    'Заходи каждый день — на 7-й день суперприз':
+      'Come back every day — the grand prize is on day 7',
+    'Награда получена': 'Reward claimed',
+    'Награда получена!': 'Reward claimed!',
+    'Награда удвоена!': 'Reward doubled!',
+    'Сегодня уже получено': 'Already claimed today',
+    'Тема выбрана': 'Theme applied',
+    'Суперприз': 'Grand prize',
+    '+1 бустер «Встряхнуть»': '+1 Shake booster',
+    '+1 бустер «Убрать мелкие»': '+1 Clear Small booster',
+    '+2 бустера «Встряхнуть»': '+2 Shake boosters',
+    '+2 бустера «Убрать мелкие»': '+2 Clear Small boosters',
+    '+1 бустер каждого вида': '+1 booster of each kind',
+    '+3 бустера «Встряхнуть»': '+3 Shake boosters',
+    'VIP на 12 часов + по 2 бустера': 'VIP for 12h + 2 boosters of each',
     'Меню': 'Menu'
   };
 
@@ -104,7 +135,10 @@
     [/^Следующий объект: (.+)$/, function (core, m) {
       return 'Next object: ' + (DICT[normalize(m[1])] || m[1]);
     }],
-    [/^(\d+)\s*из\s*(\d+)$/, '$1 of $2']
+    [/^(\d+)\s*из\s*(\d+)$/, '$1 of $2'],
+    [/^Открыть за рекламу \((\d+)\/(\d+)\)$/, 'Unlock via Ad ($1/$2)'],
+    [/^Просмотр (\d+)\/(\d+)$/, 'Viewed $1/$2'],
+    [/^День (\d+)$/, 'Day $1']
   ];
 
   function normalize(value) {
