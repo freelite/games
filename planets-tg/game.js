@@ -3304,18 +3304,48 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       '</svg>';
   }
 
-  function leagueCrestMarkup(cls) {
+  const CREST_FAN_ANGLES = {
+    1: [0],
+    2: [-18, 18],
+    3: [-26, 0, 26],
+    4: [-33, -11, 11, 33],
+    5: [-40, -20, 0, 20, 40]
+  };
+
+  function crestSpikeFan(tier) {
+    const angles = CREST_FAN_ANGLES[tier] || CREST_FAN_ANGLES[1];
+    const pivotX = 24;
+    const pivotY = 31.2;
+    const len = 15.4;
+    const half = 2.5;
+    let out = '';
+    for (let i = 0; i < angles.length; i++) {
+      const rad = angles[i] * Math.PI / 180;
+      const dx = Math.sin(rad);
+      const dy = Math.cos(rad);
+      const px = -dy;
+      const py = dx;
+      out += '<path d="M' + (pivotX + px * half).toFixed(2) + ' ' + (pivotY + py * half).toFixed(2) +
+        'L' + (pivotX + dx * len).toFixed(2) + ' ' + (pivotY + dy * len).toFixed(2) +
+        'L' + (pivotX - px * half).toFixed(2) + ' ' + (pivotY - py * half).toFixed(2) +
+        'z" fill="currentColor" stroke="none" opacity="0.92"/>';
+    }
+    return out;
+  }
+
+  function leagueCrestMarkup(tier, cls) {
+    const crown = tier >= 5
+      ? '<path d="M16.6 9.2l2.6-5 4.8 3.4 4.8-3.4 2.6 5"/><circle cx="24" cy="3.4" r="1.7" fill="currentColor" stroke="none"/>'
+      : '<circle cx="24" cy="7.4" r="1.5" fill="currentColor" stroke="none" opacity="0.55"/>';
     return '<svg class="' + (cls || 'lb-crest') + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<path d="M13.6 20.6c-3.9-.5-7-2.7-8.8-6.3 4.1-.5 7.5.9 9.7 3.6"/>' +
-      '<path d="M10.8 27c-3.6-1.5-6.1-4.3-7.4-8 3.9 0 7.1 1.7 9.1 4.6"/>' +
-      '<path d="M34.4 20.6c3.9-.5 7-2.7 8.8-6.3-4.1-.5-7.5.9-9.7 3.6"/>' +
-      '<path d="M37.2 27c3.6-1.5 6.1-4.3 7.4-8-3.9 0-7.1 1.7-9.1 4.6"/>' +
-      '<path d="M17.2 12.4l2.4-4.8 4.4 3.4 4.4-3.4 2.4 4.8"/>' +
-      '<circle cx="24" cy="5.2" r="1.8" fill="currentColor" stroke="none"/>' +
-      '<path d="M24 11.2l7.8 3v9.4c0 4.7-3.3 8.3-7.8 10.1-4.5-1.8-7.8-5.4-7.8-10.1v-9.4l7.8-3z"/>' +
-      '<path d="M24 14.8l1.7 3.4 3.7.5-2.7 2.6.7 3.7-3.4-1.8-3.4 1.8.7-3.7-2.7-2.6 3.7-.5 1.7-3.4z" fill="currentColor" stroke="none"/>' +
-      '<path d="M20.4 34.2h7.2"/>' +
-      '<path d="M24 37.4l2.8 1.8-2.8 5.2-2.8-5.2 2.8-1.8z" fill="currentColor" stroke="none" opacity="0.85"/>' +
+      crestSpikeFan(tier) +
+      '<path d="M15.4 18.6c-3.5-.5-6.4-2.4-8.1-5.8 3.8-.5 6.9.8 8.9 3.3"/>' +
+      '<path d="M12.9 24.4c-3.3-1.4-5.6-4-6.8-7.4 3.6 0 6.5 1.6 8.4 4.2"/>' +
+      '<path d="M32.6 18.6c3.5-.5 6.4-2.4 8.1-5.8-3.8-.5-6.9.8-8.9 3.3"/>' +
+      '<path d="M35.1 24.4c3.3-1.4 5.6-4 6.8-7.4-3.6 0-6.5 1.6-8.4 4.2"/>' +
+      crown +
+      '<path d="M24 11.4l8 3v9.2c0 4.9-3.4 8.6-8 10.3-4.6-1.7-8-5.4-8-10.3v-9.2l8-3z"/>' +
+      '<path d="M24 15.2l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5 1.6-3.3z" fill="currentColor" stroke="none"/>' +
       '</svg>';
   }
 
@@ -3353,7 +3383,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
       const crest = document.createElement('span');
       crest.className = 'lb-card-crest';
-      crest.innerHTML = leagueCrestMarkup('lb-crest');
+      crest.innerHTML = leagueCrestMarkup(item.step, 'lb-crest');
       card.appendChild(crest);
 
       const name = document.createElement('b');
@@ -3368,31 +3398,21 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
       lbLeaguesEl.appendChild(card);
     }
-    const activeCard = lbLeaguesEl.querySelector('.is-current');
-    if (activeCard) {
-      requestAnimationFrame(function () {
-        const target = Math.max(0, activeCard.offsetLeft - lbLeaguesEl.clientWidth / 2 + activeCard.offsetWidth / 2);
-        try {
-          lbLeaguesEl.scrollTo({ left: target, behavior: 'smooth' });
-        } catch (err) {
-          lbLeaguesEl.scrollLeft = target;
-        }
-      });
-    }
   }
 
   function buildLbRow(row, place) {
     const el = document.createElement('div');
     el.className = 'lb-row' + (row.you ? ' is-you' : '') + (place <= 3 ? ' is-top' : '');
 
-    const placeEl = document.createElement('span');
-    placeEl.className = 'lb-place';
-    if (LB_MEDAL[place]) placeEl.innerHTML = medalMarkup(place);
-    else placeEl.textContent = String(place);
-    el.appendChild(placeEl);
-
     const whoEl = document.createElement('span');
     whoEl.className = 'lb-who';
+
+    const crestEl = document.createElement('span');
+    crestEl.className = 'lb-av-crest';
+    crestEl.setAttribute('data-league', String(leagueForScore(row.score).step));
+    crestEl.innerHTML = leagueCrestMarkup(leagueForScore(row.score).step, 'lb-crest');
+    whoEl.appendChild(crestEl);
+
     const avatarEl = document.createElement('span');
     avatarEl.className = 'lb-avatar';
     const initial = playerInitial(row.name);
@@ -3414,21 +3434,27 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       avatarEl.textContent = initial;
     }
     whoEl.appendChild(avatarEl);
-    const crestEl = document.createElement('span');
-    crestEl.className = 'lb-av-crest';
-    crestEl.setAttribute('data-league', String(leagueForScore(row.score).step));
-    crestEl.innerHTML = leagueCrestMarkup('lb-crest');
-    whoEl.appendChild(crestEl);
+
     const nameEl = document.createElement('span');
     nameEl.className = 'lb-name';
     nameEl.textContent = row.name;
     whoEl.appendChild(nameEl);
+
     if (row.you) {
       const badge = document.createElement('span');
       badge.className = 'lb-you';
-      badge.textContent = 'ВЫ';
+      badge.textContent = lbTr('ВЫ');
       whoEl.appendChild(badge);
     }
+
+    const placeEl = document.createElement('span');
+    placeEl.className = 'lb-place' + (LB_MEDAL[place] ? ' is-medal' : '');
+    if (LB_MEDAL[place]) {
+      placeEl.innerHTML = medalMarkup(place);
+    } else {
+      placeEl.textContent = '#' + place;
+    }
+    whoEl.appendChild(placeEl);
     el.appendChild(whoEl);
 
     const scoreEl = document.createElement('span');
@@ -3451,7 +3477,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (lbRank) lbRank.textContent = '#' + place;
     if (lbLeagueIcon) {
       lbLeagueIcon.setAttribute('data-league', String(league.step));
-      lbLeagueIcon.innerHTML = leagueCrestMarkup('lb-league-crest');
+      lbLeagueIcon.innerHTML = leagueCrestMarkup(league.step, 'lb-league-crest');
     }
     if (lbLeagueCard) lbLeagueCard.setAttribute('data-league', String(league.step));
     renderLeagueShowcase(league);
