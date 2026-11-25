@@ -3504,7 +3504,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   function getPlatformBadgeSvg(platform) {
     const id = normalizePlatform(platform);
-    const head = '<svg class="lb-platform" viewBox="0 0 24 24" width="15" height="15" role="img" aria-hidden="true" focusable="false">';
+    const head = '<svg class="lb-platform-svg" viewBox="0 0 24 24" width="18" height="18" role="img" aria-hidden="true" focusable="false">';
     if (id === 'vk') {
       return head + '<circle cx="12" cy="12" r="12" fill="#0077FF"/>' +
         '<text x="12" y="15.9" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="8.6" font-weight="700" fill="#FFFFFF">VK</text></svg>';
@@ -3566,24 +3566,15 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     }
     whoEl.appendChild(avatarEl);
 
-    const placeEl = document.createElement('span');
-    placeEl.className = 'lb-place' + (LB_MEDAL[place] ? ' is-medal' : '');
-    if (LB_MEDAL[place]) {
-      placeEl.innerHTML = medalMarkup(place);
-    } else {
-      placeEl.textContent = '#' + place;
-    }
-    whoEl.appendChild(placeEl);
+    const platformEl = document.createElement('span');
+    platformEl.className = 'lb-platform';
+    platformEl.innerHTML = getPlatformBadgeSvg(row.platform);
+    whoEl.appendChild(platformEl);
 
     const nameEl = document.createElement('span');
     nameEl.className = 'lb-name';
     nameEl.textContent = row.name;
     whoEl.appendChild(nameEl);
-
-    const platformEl = document.createElement('span');
-    platformEl.className = 'lb-platform';
-    platformEl.innerHTML = getPlatformBadgeSvg(row.platform);
-    whoEl.appendChild(platformEl);
 
     if (row.you) {
       const badge = document.createElement('span');
