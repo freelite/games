@@ -2215,22 +2215,8 @@ body[data-theme] .fatal { background: var(--bg-page) !important; }
 body[data-theme] .evo-num { color: var(--muted-2) !important; }
 body[data-theme] .evo-item.reached .evo-num { color: var(--accent-secondary) !important; }
 
-/* ---------- reward border pulse (no glow, no transform) ---------- */
+/* ---------- v28: legacy reward stripe/glow pulse removed ---------- */
 .daily-btn { box-shadow: none !important; }
-@property --reward-border {
-  syntax: '<color>';
-  inherits: false;
-  initial-value: rgba(251, 191, 36, 0.42);
-}
-body[data-theme] .daily-btn.has-reward {
-  border-color: var(--reward-border, var(--daily-border-hover)) !important;
-  box-shadow: none !important;
-  animation: rewardBorderPulse 2.4s ease-in-out infinite;
-}
-@keyframes rewardBorderPulse {
-  0%, 100% { --reward-border: var(--daily-border); }
-  50% { --reward-border: var(--daily-border-hover); }
-}
 
 /* ============================================================
    v17 — luxury controls: glass gradient, crisp border, gold icons
@@ -2338,7 +2324,7 @@ body[data-theme="crystals"] {
   background-attachment: scroll, scroll !important;
 }
 
-/* ---------- v26: reward button — only a smooth outer border pulse -------- */
+/* ---------- v28: reward button — a single lively 1.2s border pulse ------- */
 .daily-btn,
 #dailyBtn,
 #btn-daily,
@@ -2347,7 +2333,10 @@ body[data-theme="crystals"] {
 #btn-daily.has-reward,
 body[data-theme] .daily-btn,
 body[data-theme] #dailyBtn,
-body[data-theme] #btn-daily {
+body[data-theme] #btn-daily,
+body[data-theme] .daily-btn.has-reward,
+body[data-theme] #dailyBtn.has-reward,
+body[data-theme] #btn-daily.has-reward {
   background-image: none !important;
   box-shadow: none !important;
 }
@@ -2371,11 +2360,6 @@ body[data-theme] #btn-daily {
   border: 0 !important;
   box-shadow: none !important;
 }
-@property --reward-border {
-  syntax: '<color>';
-  inherits: false;
-  initial-value: rgba(251, 191, 36, 0.35);
-}
 .daily-btn.has-reward,
 #dailyBtn.has-reward,
 #btn-daily.has-reward,
@@ -2383,14 +2367,13 @@ body[data-theme] .daily-btn.has-reward,
 body[data-theme] #dailyBtn.has-reward,
 body[data-theme] #btn-daily.has-reward {
   background-image: none !important;
-  border: 1.5px solid rgba(251, 191, 36, 0.35) !important;
-  border-color: var(--reward-border) !important;
+  border: 1.5px solid rgba(251, 191, 36, 0.25) !important;
   box-shadow: none !important;
-  animation: rewardBorderPulseV26 2.4s ease-in-out infinite !important;
+  animation: rewardBorderPulseV28 1.2s ease-in-out infinite !important;
 }
-@keyframes rewardBorderPulseV26 {
-  0%, 100% { --reward-border: rgba(251, 191, 36, 0.35); }
-  50% { --reward-border: rgba(251, 191, 36, 0.95); }
+@keyframes rewardBorderPulseV28 {
+  0%, 100% { border-color: rgba(251, 191, 36, 0.25); }
+  50% { border-color: rgba(251, 191, 36, 1); }
 }
 
 @media (min-width: 769px) and (pointer: fine) { .setting-row-vibration { display: none !important; } }
@@ -2410,8 +2393,8 @@ body[data-theme] .stat.best:hover { border-color: rgba(255, 201, 107, 0.55) !imp
 .stat-value-row { display: flex; align-items: center; justify-content: center; gap: 4px; }
 .best-cup {
   flex: 0 0 auto;
-  width: 13px;
-  height: 13px;
+  width: 15px;
+  height: 15px;
   color: #ffc96b;
   filter: drop-shadow(0 0 5px rgba(255, 201, 107, 0.6));
   transition: transform 0.12s ease;
@@ -2646,4 +2629,209 @@ body[data-theme="crystals"] .lb-you { border-color: rgba(196, 181, 253, 0.65); b
   .stat.best { padding-left: 6px; padding-right: 6px; }
   .stat-value-row { gap: 3px; }
   .lb-row { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 6px; padding: 5px 6px; font-size: 10.8px; }
+}
+
+/* ============================================================
+   v28 — RECORD/BEST plate as a real volumetric button
+   ============================================================ */
+.stat.best,
+body[data-theme] .stat.best {
+  border: 1.5px solid rgba(251, 191, 36, 0.55) !important;
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.16) 0%, rgba(251, 191, 36, 0.05) 100%) !important;
+  box-shadow: 0 3px 0 rgba(180, 120, 10, 0.45), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.1s ease, box-shadow 0.1s ease;
+}
+.stat.best:hover,
+body[data-theme] .stat.best:hover {
+  border-color: rgba(251, 191, 36, 0.95) !important;
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.26) 0%, rgba(251, 191, 36, 0.08) 100%) !important;
+}
+.stat.best:active,
+body[data-theme] .stat.best:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(180, 120, 10, 0.45) !important;
+}
+.stat.best:focus-visible {
+  outline: 2px solid rgba(255, 201, 107, 0.75);
+  outline-offset: 2px;
+}
+.best-cup {
+  width: 15px;
+  height: 15px;
+  color: #ffc96b;
+  filter: drop-shadow(0 0 6px rgba(255, 201, 107, 0.7));
+}
+.stat.best:hover .best-cup { transform: translateY(-1px) scale(1.06); }
+.stat.best:active .best-cup { transform: translateY(-2px) scale(1.1); }
+
+/* ============================================================
+   v28 — champion Space Leaderboard window
+   ============================================================ */
+.lb-modal {
+  max-height: 86vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+}
+.lb-modal > .sheet-head { flex: 0 0 auto; }
+.lb-kicker { display: none !important; }
+
+.lb-league,
+body[data-theme] .lb-league {
+  flex: 0 0 auto;
+  padding: 10px 11px 9px;
+  border: 1.5px solid rgba(251, 191, 36, 0.7) !important;
+  background: linear-gradient(135deg, rgba(120, 82, 16, 0.72) 0%, rgba(38, 26, 66, 0.94) 55%, rgba(14, 16, 38, 0.96) 100%) !important;
+  box-shadow: 0 0 26px -12px rgba(255, 201, 107, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+.lb-league-icon,
+body[data-theme] .lb-league-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 201, 107, 0.7);
+  background: radial-gradient(circle at 34% 26%, rgba(255, 226, 160, 0.5), rgba(26, 18, 46, 0.94));
+  color: #ffd76a;
+  box-shadow: 0 0 16px -6px rgba(255, 201, 107, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.lb-league-crest { width: 38px; height: 38px; }
+.lb-league-icon[data-league="1"] { color: #ffbe86; border-color: rgba(255, 190, 134, 0.75); }
+.lb-league-icon[data-league="2"] { color: #e8efff; border-color: rgba(210, 224, 250, 0.75); }
+.lb-league-icon[data-league="3"] { color: #ffd76a; border-color: rgba(255, 215, 106, 0.8); }
+.lb-league-icon[data-league="4"] { color: #a8ecff; border-color: rgba(168, 236, 255, 0.8); }
+.lb-league-icon[data-league="5"] { color: #e2d0ff; border-color: rgba(226, 208, 255, 0.85); }
+.lb-league-name,
+body[data-theme] .lb-league-name { font-size: 14px; color: #ffe6a3 !important; }
+.lb-league-sub,
+body[data-theme] .lb-league-sub { font-size: 10px; color: #cbb7f6 !important; }
+.lb-rank b { font-size: 17px; color: #ffd76a; }
+.lb-rank span,
+body[data-theme] .lb-rank span { color: #cbb7f6 !important; }
+.lb-bar { height: 8px; margin-top: 9px; background: rgba(4, 6, 20, 0.8); box-shadow: inset 0 0 0 1px rgba(255, 201, 107, 0.25); }
+.lb-bar-fill { background: linear-gradient(90deg, #ffb347, #ffd76a 55%, #fff3ce); box-shadow: 0 0 14px rgba(255, 201, 107, 0.85); }
+.lb-league-bottom,
+body[data-theme] .lb-league-bottom { font-size: 10px; color: #cbb7f6 !important; }
+.lb-league-bottom span:last-child { color: #ffe6a3 !important; }
+
+.lb-showcase { flex: 0 0 auto; display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+.lb-showcase-title {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9aa6d6;
+}
+.lb-leagues {
+  display: flex;
+  gap: 7px;
+  padding: 2px 2px 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+.lb-leagues::-webkit-scrollbar { width: 0; height: 0; }
+.lb-league-card {
+  --c: #ffd76a;
+  --c-soft: rgba(255, 215, 106, 0.18);
+  --c-line: rgba(255, 215, 106, 0.5);
+  position: relative;
+  display: flex;
+  flex: 0 0 118px;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 7px 9px;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--c-soft) 0%, rgba(10, 12, 30, 0.92) 100%);
+  color: var(--c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 18px -12px rgba(0, 0, 0, 0.9);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.lb-league-card[data-league="1"] { --c: #ffbe86; --c-soft: rgba(255, 150, 70, 0.2); --c-line: rgba(255, 190, 134, 0.5); }
+.lb-league-card[data-league="2"] { --c: #e8efff; --c-soft: rgba(190, 210, 245, 0.16); --c-line: rgba(210, 224, 250, 0.5); }
+.lb-league-card[data-league="3"] { --c: #ffd76a; --c-soft: rgba(255, 205, 90, 0.2); --c-line: rgba(255, 215, 106, 0.55); }
+.lb-league-card[data-league="4"] { --c: #a8ecff; --c-soft: rgba(120, 220, 255, 0.18); --c-line: rgba(168, 236, 255, 0.55); }
+.lb-league-card[data-league="5"] { --c: #e2d0ff; --c-soft: rgba(167, 139, 250, 0.24); --c-line: rgba(226, 208, 255, 0.65); }
+.lb-league-card.is-current {
+  border-width: 2px;
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px var(--c-line), 0 0 22px -6px var(--c), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.lb-league-card.is-passed { opacity: 0.78; }
+.lb-league-card.is-next { opacity: 0.9; }
+.lb-card-flag { display: flex; align-items: center; justify-content: center; min-height: 14px; align-self: stretch; }
+.lb-card-current {
+  padding: 1px 6px;
+  border-radius: 99px;
+  border: 1px solid var(--c-line);
+  background: rgba(0, 0, 0, 0.32);
+  font-size: 7.6px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c);
+}
+.lb-card-check { display: flex; color: var(--c); }
+.lb-card-check svg { width: 12px; height: 12px; }
+.lb-card-points { font-size: 8.6px; font-weight: 800; letter-spacing: 0.04em; color: var(--c); }
+.lb-card-crest { display: flex; align-items: center; justify-content: center; height: 42px; }
+.lb-crest { width: 42px; height: 42px; filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.18)); }
+.lb-card-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9.8px;
+  font-weight: 800;
+  color: var(--c);
+  text-align: center;
+}
+.lb-card-desc {
+  font-size: 8.2px;
+  line-height: 1.18;
+  color: #b9c3ea;
+  text-align: center;
+}
+
+.lb-av-crest {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 201, 107, 0.65);
+  border-radius: 9px;
+  background: radial-gradient(circle at 34% 26%, rgba(255, 226, 160, 0.4), rgba(18, 14, 38, 0.94));
+  color: #ffd76a;
+  box-shadow: 0 0 10px -2px rgba(255, 201, 107, 0.7);
+}
+.lb-av-crest svg { width: 21px; height: 21px; }
+.lb-av-crest[data-league="1"] { color: #ffbe86; border-color: rgba(255, 190, 134, 0.7); box-shadow: 0 0 10px -2px rgba(255, 150, 70, 0.65); }
+.lb-av-crest[data-league="2"] { color: #e8efff; border-color: rgba(210, 224, 250, 0.7); box-shadow: 0 0 10px -2px rgba(210, 224, 250, 0.6); }
+.lb-av-crest[data-league="3"] { color: #ffd76a; border-color: rgba(255, 215, 106, 0.75); box-shadow: 0 0 11px -2px rgba(255, 205, 90, 0.7); }
+.lb-av-crest[data-league="4"] { color: #a8ecff; border-color: rgba(168, 236, 255, 0.75); box-shadow: 0 0 11px -2px rgba(120, 220, 255, 0.7); }
+.lb-av-crest[data-league="5"] { color: #e2d0ff; border-color: rgba(226, 208, 255, 0.8); box-shadow: 0 0 12px -2px rgba(167, 139, 250, 0.8); }
+
+.lb-list {
+  flex: 1 1 auto !important;
+  min-height: 92px;
+  max-height: none !important;
+  overflow-y: auto;
+}
+.lb-row { grid-template-columns: 24px minmax(0, 1fr) auto; }
+.lb-who { gap: 6px; }
+
+@media (max-width: 380px) {
+  .lb-league-card { flex: 0 0 106px; padding: 7px 6px 8px; }
+  .lb-crest { width: 38px; height: 38px; }
+  .lb-card-name { font-size: 9.2px; }
+  .lb-card-desc { font-size: 7.8px; }
+  .lb-av-crest { width: 26px; height: 26px; }
+  .lb-av-crest svg { width: 19px; height: 19px; }
 }

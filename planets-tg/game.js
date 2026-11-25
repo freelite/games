@@ -1153,6 +1153,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const leaderboardOverlay = $('leaderboardOverlay');
   const leaderboardClose = $('leaderboardClose');
   const lbListEl = $('lbList');
+  const lbLeaguesEl = $('lbLeagues');
+  const lbLeagueCard = $('lbLeagueCard');
   const lbLeagueName = $('lbLeagueName');
   const lbLeagueSub = $('lbLeagueSub');
   const lbLeagueStep = $('lbLeagueStep');
@@ -3229,11 +3231,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   const LB_LEAGUES = [
-    { step: 1, min: 0, max: 5000, name: 'Бронзовая орбита' },
-    { step: 2, min: 5000, max: 20000, name: 'Серебряный пояс' },
-    { step: 3, min: 20000, max: 60000, name: 'Золотая туманность' },
-    { step: 4, min: 60000, max: 175000, name: 'Платиновый квазар' },
-    { step: 5, min: 175000, max: 0, name: 'Легенда Чёрной дыры' }
+    { step: 1, min: 0, max: 5000, name: 'Бронзовая орбита', points: '0+', desc: 'Первые шаги среди звёзд' },
+    { step: 2, min: 5000, max: 20000, name: 'Серебряный пояс', points: '5 000+', desc: 'Уверенный покоритель орбит' },
+    { step: 3, min: 20000, max: 60000, name: 'Золотая туманность', points: '20 000+', desc: 'Мастер гравитации и комбо' },
+    { step: 4, min: 60000, max: 175000, name: 'Платиновый квазар', points: '60 000+', desc: 'Элита звёздных систем' },
+    { step: 5, min: 175000, max: 0, name: 'Повелитель Галактики', points: '175 000+', desc: 'Абсолютный чемпион Вселенной' }
   ];
 
   const LB_MEDAL = {
@@ -3302,6 +3304,83 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       '</svg>';
   }
 
+  function leagueCrestMarkup(cls) {
+    return '<svg class="' + (cls || 'lb-crest') + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M13.6 20.6c-3.9-.5-7-2.7-8.8-6.3 4.1-.5 7.5.9 9.7 3.6"/>' +
+      '<path d="M10.8 27c-3.6-1.5-6.1-4.3-7.4-8 3.9 0 7.1 1.7 9.1 4.6"/>' +
+      '<path d="M34.4 20.6c3.9-.5 7-2.7 8.8-6.3-4.1-.5-7.5.9-9.7 3.6"/>' +
+      '<path d="M37.2 27c3.6-1.5 6.1-4.3 7.4-8-3.9 0-7.1 1.7-9.1 4.6"/>' +
+      '<path d="M17.2 12.4l2.4-4.8 4.4 3.4 4.4-3.4 2.4 4.8"/>' +
+      '<circle cx="24" cy="5.2" r="1.8" fill="currentColor" stroke="none"/>' +
+      '<path d="M24 11.2l7.8 3v9.4c0 4.7-3.3 8.3-7.8 10.1-4.5-1.8-7.8-5.4-7.8-10.1v-9.4l7.8-3z"/>' +
+      '<path d="M24 14.8l1.7 3.4 3.7.5-2.7 2.6.7 3.7-3.4-1.8-3.4 1.8.7-3.7-2.7-2.6 3.7-.5 1.7-3.4z" fill="currentColor" stroke="none"/>' +
+      '<path d="M20.4 34.2h7.2"/>' +
+      '<path d="M24 37.4l2.8 1.8-2.8 5.2-2.8-5.2 2.8-1.8z" fill="currentColor" stroke="none" opacity="0.85"/>' +
+      '</svg>';
+  }
+
+  function renderLeagueShowcase(current) {
+    if (!lbLeaguesEl) return;
+    lbLeaguesEl.innerHTML = '';
+    const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>';
+    for (let i = 0; i < LB_LEAGUES.length; i++) {
+      const item = LB_LEAGUES[i];
+      const passed = item.step < current.step;
+      const active = item.step === current.step;
+      const card = document.createElement('div');
+      card.className = 'lb-league-card' + (active ? ' is-current' : (passed ? ' is-passed' : ' is-next'));
+      card.setAttribute('data-league', String(item.step));
+
+      const flag = document.createElement('span');
+      flag.className = 'lb-card-flag';
+      if (active) {
+        const now = document.createElement('span');
+        now.className = 'lb-card-current';
+        now.textContent = lbTr('Сейчас');
+        flag.appendChild(now);
+      } else if (passed) {
+        const done = document.createElement('span');
+        done.className = 'lb-card-check';
+        done.innerHTML = check;
+        flag.appendChild(done);
+      } else {
+        const pts = document.createElement('span');
+        pts.className = 'lb-card-points';
+        pts.textContent = item.points;
+        flag.appendChild(pts);
+      }
+      card.appendChild(flag);
+
+      const crest = document.createElement('span');
+      crest.className = 'lb-card-crest';
+      crest.innerHTML = leagueCrestMarkup('lb-crest');
+      card.appendChild(crest);
+
+      const name = document.createElement('b');
+      name.className = 'lb-card-name';
+      name.textContent = lbTr(item.name);
+      card.appendChild(name);
+
+      const desc = document.createElement('span');
+      desc.className = 'lb-card-desc';
+      desc.textContent = lbTr(item.desc);
+      card.appendChild(desc);
+
+      lbLeaguesEl.appendChild(card);
+    }
+    const activeCard = lbLeaguesEl.querySelector('.is-current');
+    if (activeCard) {
+      requestAnimationFrame(function () {
+        const target = Math.max(0, activeCard.offsetLeft - lbLeaguesEl.clientWidth / 2 + activeCard.offsetWidth / 2);
+        try {
+          lbLeaguesEl.scrollTo({ left: target, behavior: 'smooth' });
+        } catch (err) {
+          lbLeaguesEl.scrollLeft = target;
+        }
+      });
+    }
+  }
+
   function buildLbRow(row, place) {
     const el = document.createElement('div');
     el.className = 'lb-row' + (row.you ? ' is-you' : '') + (place <= 3 ? ' is-top' : '');
@@ -3335,6 +3414,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       avatarEl.textContent = initial;
     }
     whoEl.appendChild(avatarEl);
+    const crestEl = document.createElement('span');
+    crestEl.className = 'lb-av-crest';
+    crestEl.setAttribute('data-league', String(leagueForScore(row.score).step));
+    crestEl.innerHTML = leagueCrestMarkup('lb-crest');
+    whoEl.appendChild(crestEl);
     const nameEl = document.createElement('span');
     nameEl.className = 'lb-name';
     nameEl.textContent = row.name;
@@ -3342,7 +3426,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (row.you) {
       const badge = document.createElement('span');
       badge.className = 'lb-you';
-      badge.textContent = 'ВЫ / YOU';
+      badge.textContent = 'ВЫ';
       whoEl.appendChild(badge);
     }
     el.appendChild(whoEl);
@@ -3365,7 +3449,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (lbLeagueSub) lbLeagueSub.textContent = lbTr('Ваша лига');
     if (lbLeagueStep) lbLeagueStep.textContent = league.step + ' / 5';
     if (lbRank) lbRank.textContent = '#' + place;
-    if (lbLeagueIcon) lbLeagueIcon.setAttribute('data-league', String(league.step));
+    if (lbLeagueIcon) {
+      lbLeagueIcon.setAttribute('data-league', String(league.step));
+      lbLeagueIcon.innerHTML = leagueCrestMarkup('lb-league-crest');
+    }
+    if (lbLeagueCard) lbLeagueCard.setAttribute('data-league', String(league.step));
+    renderLeagueShowcase(league);
 
     let percent = 100;
     let progressText = lbTr('Максимальная лига');
