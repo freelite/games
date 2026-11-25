@@ -4682,3 +4682,34 @@ body[data-theme] .daily-ad-btn {
   .evo-row #themeBtn { left: 14px !important; }
   .evo-row #settingsBtn { left: 64px !important; }
 }
+
+/* ============================================================
+   v48 — desktop only: exact 600px jar alignment + FullHD wallpapers
+   (mobile <= 768px untouched)
+   ============================================================ */
+@media (min-width: 769px) {
+  .hud-pair {
+    width: min(600px, calc(100vw - 520px)) !important;
+    max-width: none !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  body[data-theme="cosmos"] {
+    --bg-wallpaper: url('assets/bg_cosmos_desktop.jpg?v=48');
+  }
+  body[data-theme="neon"] {
+    --bg-wallpaper: url('assets/bg_neon_desktop.jpg?v=48');
+  }
+  body[data-theme="crystals"] {
+    --bg-wallpaper: url('assets/bg_crystals_desktop.jpg?v=48');
+  }
+  body[data-theme="cosmos"],
+  body[data-theme="neon"],
+  body[data-theme="crystals"] {
+    background-image: var(--wallpaper-scrim), var(--bg-wallpaper) !important;
+    background-size: cover, cover !important;
+    background-position: center center, center center !important;
+    background-repeat: no-repeat, no-repeat !important;
+  }
+}

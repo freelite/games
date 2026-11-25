@@ -4679,8 +4679,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   function resize() {
     const desktop = window.innerWidth >= 769;
+    const desktopJarW = Math.max(200, Math.min(600, window.innerWidth - 520));
     if (desktop) {
-      stage.style.width = Math.max(200, Math.min(600, window.innerWidth - 520)) + 'px';
+      stage.style.width = desktopJarW + 'px';
       stage.style.minWidth = '0';
       stage.style.maxWidth = 'none';
     }
@@ -4714,10 +4715,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
 
     const mobile = window.innerWidth < 769;
-    const padSide = desktop ? 16 : 12;
-    const stageMaxW = desktop ? 600 : 820 - padSide * 2;
+    const padSide = desktop ? 0 : 12;
+    const stageMaxW = desktop ? desktopJarW : 820 - padSide * 2;
     const availW = Math.max(80, Math.min(w - padSide * 2, stageMaxW));
-    WORLD_W = desktop ? 560 : 400;
     const spawnLevels = 3;
     let maxSpawnRadius = 0;
     for (let i = 0; i < spawnLevels; i++) {
@@ -4727,22 +4727,35 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const jarDropFactor = 0.55;
     const bottomGapPx = 8;
     const minWorldH = mobile ? 320 : 380;
-    const widthScale = availW / WORLD_W;
-    let scale = widthScale;
-    let jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
-    if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
-      const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
-      if (fit > 0 && fit < scale) scale = fit;
-    }
-    jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
-    if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
-      const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
-      if (fit > 0 && fit < scale) scale = fit;
+    let scale;
+    let jarTopWorld;
+    if (desktop) {
+      // desktop jar: the logical width is derived from the screen width so the
+      // physical Matter.js walls, the baked jar buffer and the visual walls all
+      // span exactly min(600, innerWidth - 520) px while planets keep pixel size
+      scale = Math.max(0.05, (desktopJarW - 32) / 560);
+      WORLD_W = desktopJarW / scale;
       jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+      WORLD_H = Math.max(minWorldH, (h - bottomGapPx) / scale - jarTopWorld);
+    } else {
+      WORLD_W = 400;
+      const widthScale = availW / WORLD_W;
+      scale = widthScale;
+      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+      if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
+        const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
+        if (fit > 0 && fit < scale) scale = fit;
+      }
+      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+      if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
+        const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
+        if (fit > 0 && fit < scale) scale = fit;
+        jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+      }
+      WORLD_H = Math.max(minWorldH, Math.round((h - bottomGapPx) / scale) - jarTopWorld);
     }
     SPAWN_Y = -maxSpawnRadius * jarDropFactor;
     HOLD_Y = SPAWN_Y;
-    WORLD_H = Math.max(minWorldH, Math.round((h - bottomGapPx) / scale) - jarTopWorld);
     view.scale = scale;
     DANGER_Y = (mobile ? 42 : 76) / scale;
     view.jarW = WORLD_W * scale;
