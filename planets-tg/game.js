@@ -2606,7 +2606,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     dangerBadgeEl.classList.toggle('show', on);
     if (view.scale > 0) {
       const lineY = view.jarTop + DANGER_Y * view.scale;
-      dangerBadgeEl.style.top = Math.max(0, Math.round(lineY - 58)) + 'px';
+      const badgeTop = lineY - 58 >= 0 ? lineY - 58 : lineY + 10;
+      dangerBadgeEl.style.top = Math.max(0, Math.round(badgeTop)) + 'px';
     }
     if (!on) return;
     dangerTimeEl.textContent = Math.max(0, DANGER_TIME - S.danger).toFixed(1) + (window.I18N && I18N.lang === 'en' ? 's' : 'с');
@@ -4544,21 +4545,26 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     ctx.imageSmoothingEnabled = true;
     if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
 
-    const padSide = desktop ? 12 : 10;
+    const mobile = window.innerWidth < 769;
+    const padSide = mobile ? 3 : 12;
     const railW = desktop ? 250 : 0;
     const availW = Math.max(80, w - padSide * 2 - railW * 2);
-    const aimTopPx = desktop ? 52 : 42;
-    const jarGapPx = 30;
-    const jarTopPx = aimTopPx + jarGapPx;
-    const bottomPad = desktop ? 6 : 2;
+    const jarTopPx = mobile ? 4 : 6;
+    const bottomPad = mobile ? 2 : 6;
     const availH = Math.max(80, h - jarTopPx - bottomPad);
     WORLD_W = desktop ? 470 : 400;
     const minWorldH = 520;
-    const scale = Math.min(availW / WORLD_W, availH / minWorldH);
-    WORLD_H = Math.max(minWorldH, Math.round(availH / scale));
+    let scale;
+    if (mobile) {
+      scale = Math.min(availW / WORLD_W, availH / 320);
+      WORLD_H = Math.max(320, Math.round(availH / scale));
+    } else {
+      scale = Math.min(availW / WORLD_W, availH / minWorldH);
+      WORLD_H = Math.max(minWorldH, Math.round(availH / scale));
+    }
     view.scale = scale;
-    HOLD_Y = (aimTopPx - jarTopPx) / scale;
-    const topOffsetPx = desktop ? 75 : 27;
+    HOLD_Y = 4 / scale;
+    const topOffsetPx = mobile ? 36 : 75;
     DANGER_Y = Math.max(12, Math.round(topOffsetPx / scale));
     view.jarW = WORLD_W * scale;
     view.jarH = availH;
