@@ -2297,8 +2297,8 @@ body[data-theme] #adBoosterBtn:hover .btn-ico {
 
 body[data-theme] #dailyBtn {
   background-color: rgba(70, 44, 120, 0.68) !important;
-  background-image: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.01) 100%) !important;
-  border: 1px solid rgba(251, 191, 36, 0.5) !important;
+  background-image: none !important;
+  border: 1.5px solid rgba(251, 191, 36, 0.5) !important;
   color: #f8fafc !important;
 }
 
@@ -2338,38 +2338,59 @@ body[data-theme="crystals"] {
   background-attachment: scroll, scroll !important;
 }
 
-/* ---------- v22: reward button — border pulse only, no inner stripe ---------- */
+/* ---------- v26: reward button — only a smooth outer border pulse -------- */
 .daily-btn,
 #dailyBtn,
+#btn-daily,
 .daily-btn.has-reward,
-#dailyBtn.has-reward {
+#dailyBtn.has-reward,
+#btn-daily.has-reward,
+body[data-theme] .daily-btn,
+body[data-theme] #dailyBtn,
+body[data-theme] #btn-daily {
   background-image: none !important;
   box-shadow: none !important;
 }
+#btn-daily::before,
+#btn-daily::after,
+#btn-daily.has-reward::before,
+#btn-daily.has-reward::after,
 #dailyBtn::before,
 #dailyBtn::after,
-.daily-btn::before,
-.daily-btn::after,
 #dailyBtn.has-reward::before,
 #dailyBtn.has-reward::after,
+.daily-btn::before,
+.daily-btn::after,
 .daily-btn.has-reward::before,
 .daily-btn.has-reward::after {
   content: none !important;
   display: none !important;
+  width: 0 !important;
+  height: 0 !important;
   background: none !important;
+  border: 0 !important;
   box-shadow: none !important;
+}
+@property --reward-border {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: rgba(251, 191, 36, 0.35);
 }
 .daily-btn.has-reward,
 #dailyBtn.has-reward,
+#btn-daily.has-reward,
 body[data-theme] .daily-btn.has-reward,
-body[data-theme] #dailyBtn.has-reward {
-  border: 1.5px solid rgba(251, 191, 36, 0.4) !important;
+body[data-theme] #dailyBtn.has-reward,
+body[data-theme] #btn-daily.has-reward {
+  background-image: none !important;
+  border: 1.5px solid rgba(251, 191, 36, 0.35) !important;
+  border-color: var(--reward-border) !important;
   box-shadow: none !important;
-  animation: rewardBorderPulseV22 2s ease-in-out infinite !important;
+  animation: rewardBorderPulseV26 2.4s ease-in-out infinite !important;
 }
-@keyframes rewardBorderPulseV22 {
-  0%, 100% { border-color: rgba(251, 191, 36, 0.4); }
-  50% { border-color: rgba(251, 191, 36, 0.95); }
+@keyframes rewardBorderPulseV26 {
+  0%, 100% { --reward-border: rgba(251, 191, 36, 0.35); }
+  50% { --reward-border: rgba(251, 191, 36, 0.95); }
 }
 
 @media (min-width: 769px) and (pointer: fine) { .setting-row-vibration { display: none !important; } }
@@ -2538,7 +2559,35 @@ body[data-theme="crystals"] { --lb-glow: rgba(167, 139, 250, 0.4); }
   color: var(--muted-2);
 }
 .lb-row.is-you .lb-place { color: var(--lb-gold); }
-.lb-who { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.lb-who { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.lb-avatar {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 201, 107, 0.5);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6d28d9, #2563eb 55%, #0ea5e9);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px -4px rgba(0, 0, 0, 0.9);
+}
+.lb-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.lb-avatar.lb-avatar-fallback { font-size: 13px; }
+.lb-row.is-you .lb-avatar { border-color: var(--lb-gold); box-shadow: 0 0 10px -4px var(--lb-gold); }
 .lb-name {
   overflow: hidden;
   text-overflow: ellipsis;

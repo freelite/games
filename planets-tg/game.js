@@ -7,6 +7,7 @@
 
 const TG_BOT_USERNAME = 'planet_merge_game_bot';
 const ADSGRAM_BLOCK_ID = '61632';
+const LEADERBOARD_DB_URL = "";
 
   /* ------------------------------------------------------------
  Helpers
@@ -1639,6 +1640,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   function writeBest(v) {
     saveValue(BEST_KEY, v);
     cloudSaveBest(v);
+    savePlayerProfile();
   }
 
   function readMuted() {
@@ -2954,6 +2956,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
         S.best = cloud;
         localSet(BEST_KEY, cloud);
         updateBest();
+        savePlayerProfile();
         renderLeaderboard();
       });
     } catch (err) {}
@@ -2962,32 +2965,268 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   /* ------------------------------------------------------------
    Space leaderboard
    ------------------------------------------------------------ */
-  const LB_OPPONENTS = [
-    { name: 'NOVA-9', score: 250000 },
-    { name: 'ORION', score: 218500 },
-    { name: 'VEGA-7', score: 187400 },
-    { name: 'CYGNUS', score: 162000 },
-    { name: 'PULSAR', score: 141800 },
-    { name: 'ANDROMEDA', score: 124500 },
-    { name: 'SIRIUS-X', score: 104200 },
-    { name: 'SOLARIS', score: 92000 },
-    { name: 'KEPLER-16', score: 78500 },
-    { name: 'ZENITH', score: 66300 },
-    { name: 'AURORA', score: 55000 },
-    { name: 'HELIOS', score: 45200 },
-    { name: 'LYRA-4', score: 38100 },
-    { name: 'DRACO', score: 31400 },
-    { name: 'TAURUS-2', score: 26800 },
-    { name: 'QUASAR', score: 22100 },
-    { name: 'NEBULA-5', score: 18500 },
-    { name: 'COMET', score: 15200 },
-    { name: 'ATLAS-6', score: 12400 },
-    { name: 'RIGEL', score: 9700 },
-    { name: 'PHOENIX', score: 7100 },
-    { name: 'METEOR', score: 5200 },
-    { name: 'ECLIPSE', score: 3100 },
-    { name: 'PIONEER', score: 1200 }
-  ];
+  const LB_PLAYERS_KEY = 'merge_cosmos_players_v1';
+  const LB_CLOUD_KEY = 'planet_merge_leaderboard_v1';
+  const LB_GUEST_KEY = 'merge_cosmos_guest_id_v1';
+  const LB_TOP_LIMIT = 50;
+
+  function leaderboardEndpoint(suffix) {
+    const base = String(LEADERBOARD_DB_URL || '').trim().replace(/\/+$/, '');
+    return base ? base + suffix : '';
+  }
+
+  function telegramPlayer() {
+    try {
+      const webApp = window.Telegram && window.Telegram.WebApp;
+      const user = webApp && webApp.initDataUnsafe ? webApp.initDataUnsafe.user : null;
+      return user && user.id != null ? user : null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function guestPlayerId() {
+    let id = '';
+    try {
+      id = localStorage.getItem(LB_GUEST_KEY) || '';
+    } catch (err) {
+      id = '';
+    }
+    if (!id) {
+      id = 'guest_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      try {
+        localStorage.setItem(LB_GUEST_KEY, id);
+      } catch (err) {}
+    }
+    return id;
+  }
+
+  function playerNameFrom(user) {
+    const parts = [];
+    if (user && typeof user.first_name === 'string' && user.first_name.trim()) parts.push(user.first_name.trim());
+    if (user && typeof user.last_name === 'string' && user.last_name.trim()) parts.push(user.last_name.trim());
+    let name = parts.join(' ');
+    if (!name && user && typeof user.username === 'string' && user.username.trim()) name = '@' + user.username.trim();
+    return name.slice(0, 28);
+  }
+
+  function guestName(id) {
+    const tail = String(id || '').replace(/^guest_/, '').slice(-4).toUpperCase() || '0000';
+    const en = !!(window.I18N && I18N.lang === 'en');
+    return (en ? 'Guest' : 'Гость') + ' #' + tail;
+  }
+
+  function currentPlayerProfile() {
+    const user = telegramPlayer();
+    let id = '';
+    let name = '';
+    let photoUrl = '';
+    if (user) {
+      id = 'tg_' + String(user.id);
+      name = playerNameFrom(user) || guestName(id);
+      photoUrl = typeof user.photo_url === 'string' ? user.photo_url : '';
+    } else {
+      id = guestPlayerId();
+      name = guestName(id);
+    }
+    return {
+      id: id,
+      name: name,
+      photoUrl: photoUrl,
+      score: Math.max(0, Math.floor(Number(S.best) || 0)),
+      updatedAt: Date.now()
+    };
+  }
+
+  function validPlayer(item) {
+    if (!item || typeof item !== 'object') return null;
+    const id = typeof item.id === 'string' && item.id ? item.id : '';
+    if (!id) return null;
+    const raw = Number(item.score);
+    const score = Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 0;
+    const name = String(item.name || '').slice(0, 28) || guestName(id);
+    return {
+      id: id,
+      name: name,
+      photoUrl: typeof item.photoUrl === 'string' ? item.photoUrl : '',
+      score: score,
+      updatedAt: Number(item.updatedAt) || 0
+    };
+  }
+
+  function readPlayersMap() {
+    const out = {};
+    try {
+      const raw = localStorage.getItem(LB_PLAYERS_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && typeof parsed === 'object') {
+        Object.keys(parsed).forEach(function (key) {
+          const player = validPlayer(parsed[key]);
+          if (player) out[player.id] = player;
+        });
+      }
+    } catch (err) {}
+    return out;
+  }
+
+  function cloudLeaderboardApi() {
+    try {
+      const tg = window.Telegram && window.Telegram.WebApp;
+      return (tg && tg.CloudStorage) || null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function writeCloudPlayers(map) {
+    const api = cloudLeaderboardApi();
+    if (!api || typeof api.setItem !== 'function') return;
+    const list = Object.keys(map).map(function (key) {
+      return map[key];
+    }).sort(sortPlayers).slice(0, 15).map(function (player) {
+      return {
+        id: player.id,
+        name: player.name,
+        photoUrl: String(player.photoUrl || '').slice(0, 300),
+        score: player.score,
+        updatedAt: player.updatedAt
+      };
+    });
+    let payload = JSON.stringify(list);
+    while (payload.length > 3800 && list.length > 1) {
+      list.pop();
+      payload = JSON.stringify(list);
+    }
+    try {
+      api.setItem(LB_CLOUD_KEY, payload, function () {});
+    } catch (err) {}
+  }
+
+  function writePlayersMap(map) {
+    try {
+      localStorage.setItem(LB_PLAYERS_KEY, JSON.stringify(map));
+    } catch (err) {}
+    writeCloudPlayers(map);
+  }
+
+  function mergePlayerInto(map, player) {
+    const next = validPlayer(player);
+    if (!next) return;
+    const prev = map[next.id];
+    if (prev) {
+      next.score = Math.max(next.score, prev.score);
+      if (!next.photoUrl && prev.photoUrl) next.photoUrl = prev.photoUrl;
+      if (!next.name && prev.name) next.name = prev.name;
+      next.updatedAt = Math.max(next.updatedAt, prev.updatedAt);
+    }
+    map[next.id] = next;
+  }
+
+  function putPlayerToCloudDb(player) {
+    const url = leaderboardEndpoint('/' + encodeURIComponent(player.id) + '.json');
+    if (!url || typeof fetch !== 'function') return;
+    try {
+      fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: player.id,
+          name: player.name,
+          photoUrl: player.photoUrl,
+          score: player.score,
+          updatedAt: player.updatedAt
+        })
+      }).catch(function () {});
+    } catch (err) {}
+  }
+
+  function savePlayerProfile() {
+    const profile = currentPlayerProfile();
+    const map = readPlayersMap();
+    mergePlayerInto(map, profile);
+    writePlayersMap(map);
+    putPlayerToCloudDb(map[profile.id] || profile);
+    return profile;
+  }
+
+  function loadCloudPlayers(done) {
+    const finish = typeof done === 'function' ? done : function () {};
+    const url = leaderboardEndpoint('.json');
+    if (url && typeof fetch === 'function') {
+      let settled = false;
+      const doneOnce = function (list) {
+        if (settled) return;
+        settled = true;
+        finish(list);
+      };
+      try {
+        fetch(url, { cache: 'no-store' }).then(function (response) {
+          return response && response.ok ? response.json() : null;
+        }).then(function (data) {
+          const list = [];
+          if (data && typeof data === 'object') {
+            Object.keys(data).forEach(function (key) {
+              const player = validPlayer(data[key]);
+              if (player) list.push(player);
+            });
+          }
+          if (list.length) {
+            const map = readPlayersMap();
+            list.forEach(function (player) { mergePlayerInto(map, player); });
+            writePlayersMap(map);
+          }
+          doneOnce(list);
+        }).catch(function () {
+          doneOnce(null);
+        });
+        setTimeout(function () { doneOnce(null); }, 4500);
+      } catch (err) {
+        doneOnce(null);
+      }
+      return;
+    }
+    const api = cloudLeaderboardApi();
+    if (!api || typeof api.getItem !== 'function') {
+      finish(null);
+      return;
+    }
+    try {
+      api.getItem(LB_CLOUD_KEY, function (err, value) {
+        if (err || !value) {
+          finish(null);
+          return;
+        }
+        let parsed = null;
+        try {
+          parsed = JSON.parse(value);
+        } catch (parseErr) {
+          parsed = null;
+        }
+        if (!Array.isArray(parsed)) {
+          finish(null);
+          return;
+        }
+        const map = readPlayersMap();
+        parsed.forEach(function (player) { mergePlayerInto(map, player); });
+        writePlayersMap(map);
+        finish(parsed);
+      });
+    } catch (err) {
+      finish(null);
+    }
+  }
+
+  function playerInitial(name) {
+    const clean = String(name || '').replace(/^@+/, '').trim();
+    return clean ? clean.charAt(0).toUpperCase() : '?';
+  }
+
+  function sortPlayers(a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    const an = String(a.name || '').toLowerCase();
+    const bn = String(b.name || '').toLowerCase();
+    return an < bn ? -1 : an > bn ? 1 : 0;
+  }
 
   const LB_LEAGUES = [
     { step: 1, min: 0, max: 5000, name: 'Бронзовая орбита' },
@@ -3012,19 +3251,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return text;
   }
 
-  function playerDisplayName() {
-    let name = '';
-    try {
-      const webApp = window.Telegram && window.Telegram.WebApp;
-      const user = webApp && webApp.initDataUnsafe ? webApp.initDataUnsafe.user : null;
-      if (user && typeof user.first_name === 'string') name = user.first_name.trim();
-    } catch (err) {
-      name = '';
-    }
-    if (!name) return 'Игрок / Player';
-    return name.slice(0, 18);
-  }
-
   function leagueForScore(score) {
     let found = LB_LEAGUES[0];
     for (let i = 0; i < LB_LEAGUES.length; i++) {
@@ -3034,16 +3260,37 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function leaderboardRows() {
-    const rows = LB_OPPONENTS.map(function (item) {
-      return { name: item.name, score: item.score, you: false };
+    const map = readPlayersMap();
+    const self = currentPlayerProfile();
+    const rows = [];
+    Object.keys(map).forEach(function (id) {
+      if (id === self.id) return;
+      const player = map[id];
+      let playerName = player.name;
+      if (id.indexOf('guest_') === 0 && /^(Гость|Guest) #/i.test(playerName)) playerName = guestName(id);
+      rows.push({
+        id: id,
+        name: playerName,
+        photoUrl: player.photoUrl,
+        score: player.score,
+        you: false
+      });
     });
-    rows.push({ name: playerDisplayName(), score: Math.max(0, S.best), you: true });
-    rows.sort(function (a, b) {
-      if (b.score !== a.score) return b.score - a.score;
-      if (a.you === b.you) return 0;
-      return a.you ? 1 : -1;
+    rows.push({
+      id: self.id,
+      name: self.name,
+      photoUrl: self.photoUrl,
+      score: self.score,
+      you: true
     });
-    return rows;
+    rows.sort(sortPlayers);
+    const top = rows.slice(0, LB_TOP_LIMIT);
+    const inTop = top.some(function (row) { return row.you; });
+    if (!inTop) {
+      const selfRow = rows.filter(function (row) { return row.you; })[0];
+      if (selfRow) top.push(selfRow);
+    }
+    return top;
   }
 
   function medalMarkup(place) {
@@ -3067,6 +3314,27 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     const whoEl = document.createElement('span');
     whoEl.className = 'lb-who';
+    const avatarEl = document.createElement('span');
+    avatarEl.className = 'lb-avatar';
+    const initial = playerInitial(row.name);
+    if (row.photoUrl) {
+      const img = document.createElement('img');
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.referrerPolicy = 'no-referrer';
+      img.addEventListener('error', function () {
+        if (img.parentNode) img.parentNode.removeChild(img);
+        avatarEl.classList.add('lb-avatar-fallback');
+        avatarEl.textContent = initial;
+      });
+      img.src = row.photoUrl;
+      avatarEl.appendChild(img);
+    } else {
+      avatarEl.classList.add('lb-avatar-fallback');
+      avatarEl.textContent = initial;
+    }
+    whoEl.appendChild(avatarEl);
     const nameEl = document.createElement('span');
     nameEl.className = 'lb-name';
     nameEl.textContent = row.name;
@@ -3131,7 +3399,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     haptic('light');
     lbReturnMode = S.mode;
     if (S.mode === 'playing') pauseGame();
+    savePlayerProfile();
     renderLeaderboard();
+    loadCloudPlayers(function () {
+      if (leaderboardOverlay && leaderboardOverlay.classList.contains('open')) renderLeaderboard();
+    });
     if (leaderboardOverlay) {
       leaderboardOverlay.classList.add('open');
       leaderboardOverlay.setAttribute('aria-hidden', 'false');
@@ -5167,6 +5439,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     syncControls();
     showScreen('start');
     cloudLoadBest();
+    savePlayerProfile();
+    loadCloudPlayers(function () {
+      if (leaderboardOverlay && leaderboardOverlay.classList.contains('open')) renderLeaderboard();
+    });
 
     if (
       bridgeOnline &&

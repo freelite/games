@@ -128,7 +128,9 @@
     'Бросить вызов друзьям': 'Challenge Friends',
     'Максимальная лига': 'Top league',
     'До следующей лиги': 'To next league',
-    'Игрок / Player': 'Player'
+    'Игрок / Player': 'Player',
+    'Гость': 'Guest',
+    'Игрок': 'Player'
   };
 
   var PATTERNS = [
