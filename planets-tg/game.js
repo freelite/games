@@ -1111,6 +1111,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const shakeChargesEl = $('shakeCharges');
   const cleanChargesEl = $('cleanCharges');
   const evoEl = $('evo');
+  const evoTitleEl = $('evoTitle');
   const nextPreview = $('nextPreview');
   const nextNameEl = $('nextName');
   const nextCardEl = $('nextCard');
@@ -1149,6 +1150,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const dailyGridEl = $('dailyGrid');
   const dailyClaimBtn = $('dailyClaimBtn');
   const dailyAdBtn = $('dailyAdBtn');
+  const dailyStreakEl = $('dailyStreak');
+  const dailyTomorrowEl = $('dailyTomorrow');
+  const dailyTitleEl = $('dailyTitle');
+  const dailySubEl = $('dailySub');
   const bestStat = $('bestStat');
   const leaderboardOverlay = $('leaderboardOverlay');
   const leaderboardClose = $('leaderboardClose');
@@ -2818,6 +2823,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   document.addEventListener('i18n:change', function () {
     try { updateVipUI(); } catch (err) { /* noop */ }
     try { renderThemeList(); } catch (err) { /* noop */ }
+    try { updateEvoTitle(); } catch (err) { /* noop */ }
     try { renderDailyGrid(); } catch (err) { /* noop */ }
     try { updateDailyBadge(); } catch (err) { /* noop */ }
     try { renderLeaderboard(); } catch (err) { /* noop */ }
@@ -4342,14 +4348,63 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return DAILY_REWARDS[clamp(S.daily7.streak, 0, DAILY_REWARDS.length - 1)];
   }
 
+  function dailyLangEn() {
+    return !!(window.I18N && I18N.lang === 'en');
+  }
+
+  function dailyText(ru, en) {
+    return dailyLangEn() ? en : ru;
+  }
+
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.6l4.3 4.3L19 6.5"/></svg>';
+  const ICON_GIFT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16v8.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5V11z"/><path d="M3 7.5h18V11H3z"/><path d="M12 7.5V21"/><path d="M12 7.5c-1.2-2.6-3-3.6-4.2-2.7-1 .8-.2 2.2 1.2 2.6.9.3 3 .1 3 .1z"/><path d="M12 7.5c1.2-2.6 3-3.6 4.2-2.7 1 .8.2 2.2-1.2 2.6-.9.3-3 .1-3 .1z"/></svg>';
+
+  function updateEvoTitle() {
+    if (!evoTitleEl) return;
+    evoTitleEl.textContent = dailyText('Эволюция планет', 'Planet evolution');
+  }
+
   function updateDailyBadge() {
     const claimed = dailyClaimedToday();
+    const en = dailyLangEn();
+    const days = clamp(S.daily7.streak, 0, DAILY_REWARDS.length);
     if (dailyBtn) dailyBtn.classList.toggle('has-reward', !claimed);
+    if (dailyStreakEl) {
+      dailyStreakEl.textContent = en ? 'Streak: ' + days + ' d.' : 'Серия: ' + days + ' дн.';
+    }
+    if (dailyTitleEl) {
+      dailyTitleEl.textContent = dailyText('Праздничный календарь', 'Festive Calendar');
+    }
+    if (dailySubEl) {
+      dailySubEl.textContent = dailyText(
+        'Забирай подарок каждый день — на 7-й день ждёт супер-приз',
+        'Claim a gift every day — the grand prize awaits on day 7'
+      );
+    }
     if (dailyClaimBtn) {
       dailyClaimBtn.disabled = claimed;
-      dailyClaimBtn.textContent = claimed ? 'Награда получена' : 'Забрать';
+      dailyClaimBtn.hidden = claimed;
+      dailyClaimBtn.innerHTML = ICON_GIFT + '<span>' + dailyText('Забрать награду', 'Claim Reward') + '</span>';
     }
-    if (dailyAdBtn) dailyAdBtn.disabled = claimed;
+    if (dailyAdBtn) {
+      dailyAdBtn.disabled = claimed;
+      dailyAdBtn.hidden = claimed;
+    }
+    if (dailyTomorrowEl) {
+      dailyTomorrowEl.hidden = !claimed;
+      dailyTomorrowEl.textContent = dailyText(
+        'Приходите завтра за новым подарком',
+        'Come back tomorrow for a new gift'
+      );
+    }
+  }
+
+  function dailyIconMarkup(kind) {
+    if (kind === 'clean') return ICON_CLEAN;
+    if (kind === 'crown') return ICON_CROWN;
+    if (kind === 'both') return ICON_SHAKE + ICON_CLEAN;
+    if (kind === 'gift') return ICON_GIFT;
+    return ICON_SHAKE;
   }
 
   function renderDailyGrid() {
@@ -4360,39 +4415,58 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     dailyGridEl.innerHTML = '';
     for (let i = 0; i < DAILY_REWARDS.length; i++) {
       const rew = DAILY_REWARDS[i];
+      const isToday = i === next && !claimed;
+      const isClaimed = i === claimedIdx;
+
       const cell = document.createElement('div');
       cell.className = 'daily-cell' + (rew.super ? ' super' : '');
-      if (i === claimedIdx) cell.classList.add('is-claimed');
-      else if (i === next) cell.classList.add('is-today');
+      if (isClaimed) cell.classList.add('is-claimed');
+      else if (isToday) cell.classList.add('is-today');
       else if (i < next) cell.classList.add('is-done');
 
-      const iconWrap = document.createElement('span');
-      iconWrap.className = 'daily-icon';
-      iconWrap.innerHTML = rew.icon === 'clean'
-        ? ICON_CLEAN
-        : rew.icon === 'crown'
-          ? ICON_CROWN
-          : rew.icon === 'both'
-            ? ICON_SHAKE + ICON_CLEAN
-            : ICON_SHAKE;
-      cell.appendChild(iconWrap);
+      if (isClaimed) {
+        const chk = document.createElement('span');
+        chk.className = 'daily-check';
+        chk.innerHTML = ICON_CHECK;
+        cell.appendChild(chk);
+      }
 
-      const day = document.createElement('span');
-      day.className = 'daily-day';
-      day.textContent = 'День ' + rew.day;
-      cell.appendChild(day);
-
-      if (rew.super) {
+      if (isToday) {
         const badge = document.createElement('span');
-        badge.className = 'daily-badge';
-        badge.textContent = 'Суперприз';
+        badge.className = 'daily-today-badge';
+        badge.textContent = dailyText('СЕГОДНЯ', 'TODAY');
         cell.appendChild(badge);
       }
 
+      const day = document.createElement('span');
+      day.className = 'daily-day';
+      day.textContent = dailyText('День ' + rew.day, 'Day ' + rew.day);
+      cell.appendChild(day);
+
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'daily-icon';
+      iconWrap.innerHTML = dailyIconMarkup(rew.icon);
+      cell.appendChild(iconWrap);
+
       const txt = document.createElement('span');
       txt.className = 'daily-text';
-      txt.textContent = rew.text;
+      txt.textContent = window.I18N ? I18N.t(rew.text) : rew.text;
       cell.appendChild(txt);
+
+      if (rew.super) {
+        const badge = document.createElement('span');
+        badge.className = 'daily-super-badge';
+        badge.textContent = dailyText('СУПЕР-ПРИЗ', 'SUPER PRIZE');
+        cell.appendChild(badge);
+      }
+
+      if (isClaimed && !rew.super) {
+        const state = document.createElement('span');
+        state.className = 'daily-state';
+        state.textContent = dailyText('Получено', 'Claimed');
+        cell.appendChild(state);
+      }
+
       dailyGridEl.appendChild(cell);
     }
   }
@@ -4574,7 +4648,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const h = Math.max(1, Math.round(rect.height));
     const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
     const uiDpr = Math.min(window.devicePixelRatio || 1, 1.75);
-    const desktop = w >= 900;
+    const desktop = window.innerWidth >= 769;
     const spriteChanged = setSpriteScale(Math.max(2, uiDpr));
 
     applyResponsiveLayout(desktop);
@@ -5611,6 +5685,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     applyTheme(S.theme, true);
     loadDaily7();
     updateDailyBadge();
+    updateEvoTitle();
     updateVipUI();
     syncControls();
     showScreen('start');
