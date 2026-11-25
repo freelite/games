@@ -4541,8 +4541,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     ctx.imageSmoothingEnabled = true;
     if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
 
-    const pad = desktop ? 12 : 6;
-	const aim = desktop ? 96 : 42;
+    const pad = desktop ? 8 : 3;
+	const aim = desktop ? 84 : 32;
 	const railW = desktop ? 250 : 0;
 	const availW = Math.max(60, w - pad * 2 - railW * 2);
 	const availH = Math.max(60, h - pad - aim);
@@ -4746,42 +4746,50 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.stroke();
 
     const capColor = skinTheme === 'neon'
-      ? 'rgba(0,245,212,0.92)'
+      ? '#00f5d4'
       : skinTheme === 'crystal'
-        ? 'rgba(253,230,138,0.94)'
-        : 'rgba(150,235,255,0.85)';
+        ? '#fbbf24'
+        : '#38bdf8';
     const orbGlow = skinTheme === 'neon'
-      ? 'rgba(0,245,212,0.36)'
+      ? 'rgba(0,245,212,0.62)'
       : skinTheme === 'crystal'
-        ? 'rgba(251,191,36,0.36)'
-        : 'rgba(120,200,255,0.36)';
-    const orbCore = skinTheme === 'neon'
-      ? '#e6fffb'
+        ? 'rgba(251,191,36,0.62)'
+        : 'rgba(56,189,248,0.62)';
+    const orbGlowSoft = skinTheme === 'neon'
+      ? 'rgba(0,245,212,0.24)'
       : skinTheme === 'crystal'
-        ? '#fff7d6'
-        : '#eafaff';
-    c.lineCap = 'round';
-    c.strokeStyle = capColor;
-    c.lineWidth = 5;
+        ? 'rgba(251,191,36,0.24)'
+        : 'rgba(56,189,248,0.24)';
+    const ORB_R = 6.5;
     for (let i = 0; i < 2; i++) {
-      const wx = i === 0 ? 2.6 : W - 2.6;
-      c.beginPath();
-      c.moveTo(wx, 26);
-      c.lineTo(wx, 4.5);
-      c.stroke();
+      const wx = i === 0 ? ORB_R : W - ORB_R;
+      const wy = ORB_R;
 
-      const gr = c.createRadialGradient(wx, 4.5, 0, wx, 4.5, 15);
-      gr.addColorStop(0, orbCore);
-      gr.addColorStop(0.24, capColor);
-      gr.addColorStop(0.55, orbGlow);
-      gr.addColorStop(1, 'rgba(0,0,0,0)');
+      c.save();
+      c.globalCompositeOperation = 'lighter';
+      const halo = c.createRadialGradient(wx, wy, 0, wx, wy, 26);
+      halo.addColorStop(0, orbGlow);
+      halo.addColorStop(0.34, orbGlowSoft);
+      halo.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = halo;
+      c.beginPath();
+      c.arc(wx, wy, 26, 0, TAU);
+      c.fill();
+      c.restore();
+
+      const gr = c.createRadialGradient(wx - ORB_R * 0.32, wy - ORB_R * 0.36, 0, wx, wy, ORB_R);
+      gr.addColorStop(0, '#ffffff');
+      gr.addColorStop(0.3, '#ffffff');
+      gr.addColorStop(0.62, capColor);
+      gr.addColorStop(1, capColor);
       c.fillStyle = gr;
       c.beginPath();
-      c.arc(wx, 4.5, 15, 0, TAU);
+      c.arc(wx, wy, ORB_R, 0, TAU);
       c.fill();
-      c.fillStyle = orbCore;
+
+      c.fillStyle = 'rgba(255,255,255,0.92)';
       c.beginPath();
-      c.arc(wx, 4.5, 3.4, 0, TAU);
+      c.arc(wx, wy, ORB_R * 0.42, 0, TAU);
       c.fill();
     }
 
