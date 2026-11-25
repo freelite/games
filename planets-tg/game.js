@@ -3140,9 +3140,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   };
 
   const THEME_WALLPAPERS = {
-    cosmos: 'assets/bg_cosmos.jpg?v=19',
-    neon: 'assets/bg_neon.jpg?v=19',
-    crystal: 'assets/bg_crystals.jpg?v=19',
+    cosmos: 'assets/bg_cosmos.jpg?v=20',
+    neon: 'assets/bg_neon.jpg?v=20',
+    crystal: 'assets/bg_crystals.jpg?v=20',
   };
   const wallpaperCache = {};
 
