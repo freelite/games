@@ -1744,12 +1744,23 @@
 
 /* ---------- palette per theme (body[data-theme]) ---------- */
 body[data-theme="cosmos"] {
-  --bg-page: #090d16;
-  --bg-page-2: #111827;
-  --bg-image: radial-gradient(1100px 760px at 12% -12%, rgba(108, 74, 255, 0.26), transparent 62%),
-    radial-gradient(900px 700px at 92% 112%, rgba(0, 186, 255, 0.16), transparent 62%),
-    radial-gradient(680px 520px at 50% 46%, rgba(255, 86, 170, 0.06), transparent 72%),
-    linear-gradient(180deg, #090d16 0%, #111827 100%);
+  --bg-page: #070b14;
+  --bg-page-2: #0f172a;
+  --bg-image: radial-gradient(1000px 720px at 14% -10%, rgba(88, 112, 255, 0.32), transparent 64%),
+    radial-gradient(820px 660px at 86% 6%, rgba(140, 108, 255, 0.22), transparent 66%),
+    radial-gradient(760px 620px at 50% 112%, rgba(0, 186, 255, 0.16), transparent 70%),
+    radial-gradient(620px 460px at 28% 58%, rgba(80, 130, 255, 0.1), transparent 72%),
+    radial-gradient(2.4px 2.4px at 9% 16%, rgba(255, 255, 255, 0.9), transparent 62%),
+    radial-gradient(2px 2px at 21% 38%, rgba(214, 232, 255, 0.8), transparent 62%),
+    radial-gradient(1.6px 1.6px at 34% 12%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(2.2px 2.2px at 48% 72%, rgba(196, 225, 255, 0.75), transparent 62%),
+    radial-gradient(1.8px 1.8px at 63% 28%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(2.6px 2.6px at 74% 62%, rgba(210, 232, 255, 0.85), transparent 62%),
+    radial-gradient(1.7px 1.7px at 87% 18%, rgba(255, 255, 255, 0.72), transparent 60%),
+    radial-gradient(2.1px 2.1px at 94% 84%, rgba(198, 226, 255, 0.78), transparent 62%),
+    radial-gradient(1.5px 1.5px at 12% 88%, rgba(255, 255, 255, 0.66), transparent 60%),
+    radial-gradient(1.9px 1.9px at 58% 92%, rgba(225, 238, 255, 0.7), transparent 60%),
+    linear-gradient(180deg, #070b14 0%, #0a1022 48%, #0f172a 100%);
   --bg-jar: #0b1029;
   --jar-border: #d9b45c;
   --surface-card: rgba(16, 18, 44, 0.62);
@@ -1802,11 +1813,23 @@ body[data-theme="cosmos"] {
 }
 
 body[data-theme="neon"] {
-  --bg-page: #0b061d;
-  --bg-page-2: #170c38;
-  --bg-image: radial-gradient(1000px 720px at 12% -10%, rgba(0, 245, 212, 0.18), transparent 60%),
-    radial-gradient(900px 700px at 92% 114%, rgba(192, 132, 252, 0.24), transparent 62%),
-    linear-gradient(180deg, #0b061d 0%, #170c38 100%);
+  --bg-page: #090418;
+  --bg-page-2: #190b3b;
+  --bg-image: radial-gradient(980px 720px at 10% -8%, rgba(0, 245, 212, 0.18), transparent 62%),
+    radial-gradient(900px 680px at 88% 2%, rgba(192, 132, 252, 0.2), transparent 64%),
+    radial-gradient(760px 620px at 46% 108%, rgba(0, 245, 212, 0.12), transparent 70%),
+    radial-gradient(560px 480px at 78% 54%, rgba(192, 132, 252, 0.14), transparent 72%),
+    radial-gradient(2.4px 2.4px at 8% 22%, rgba(216, 255, 249, 0.95), transparent 62%),
+    radial-gradient(2px 2px at 19% 66%, rgba(0, 245, 212, 0.85), transparent 62%),
+    radial-gradient(1.7px 1.7px at 31% 14%, rgba(255, 255, 255, 0.75), transparent 60%),
+    radial-gradient(2.3px 2.3px at 44% 84%, rgba(203, 255, 248, 0.8), transparent 62%),
+    radial-gradient(1.9px 1.9px at 57% 34%, rgba(216, 180, 254, 0.85), transparent 60%),
+    radial-gradient(2.6px 2.6px at 69% 70%, rgba(0, 245, 212, 0.9), transparent 62%),
+    radial-gradient(1.6px 1.6px at 82% 12%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(2.2px 2.2px at 91% 88%, rgba(192, 132, 252, 0.85), transparent 62%),
+    radial-gradient(1.8px 1.8px at 13% 92%, rgba(0, 245, 212, 0.7), transparent 60%),
+    radial-gradient(2px 2px at 62% 8%, rgba(224, 247, 255, 0.8), transparent 60%),
+    linear-gradient(180deg, #090418 0%, #11082a 50%, #190b3b 100%);
   --bg-jar: #120a2e;
   --jar-border: #00f5d4;
   --surface-card: rgba(24, 14, 58, 0.66);
@@ -1859,11 +1882,23 @@ body[data-theme="neon"] {
 }
 
 body[data-theme="crystals"] {
-  --bg-page: #041714;
-  --bg-page-2: #0a2923;
-  --bg-image: radial-gradient(1000px 720px at 12% -10%, rgba(16, 185, 129, 0.2), transparent 60%),
-    radial-gradient(900px 700px at 92% 114%, rgba(251, 191, 36, 0.16), transparent 62%),
-    linear-gradient(180deg, #041714 0%, #0a2923 100%);
+  --bg-page: #120618;
+  --bg-page-2: #240c2b;
+  --bg-image: radial-gradient(980px 740px at 12% -8%, rgba(251, 191, 36, 0.2), transparent 64%),
+    radial-gradient(880px 700px at 88% 4%, rgba(168, 85, 247, 0.2), transparent 66%),
+    radial-gradient(760px 620px at 46% 110%, rgba(190, 24, 93, 0.18), transparent 70%),
+    radial-gradient(560px 460px at 74% 58%, rgba(251, 191, 36, 0.12), transparent 72%),
+    radial-gradient(2.5px 2.5px at 8% 18%, rgba(255, 241, 200, 0.95), transparent 62%),
+    radial-gradient(2px 2px at 22% 62%, rgba(251, 191, 36, 0.85), transparent 62%),
+    radial-gradient(1.7px 1.7px at 33% 12%, rgba(255, 255, 255, 0.78), transparent 60%),
+    radial-gradient(2.3px 2.3px at 47% 80%, rgba(255, 228, 160, 0.82), transparent 62%),
+    radial-gradient(1.9px 1.9px at 59% 30%, rgba(216, 180, 254, 0.8), transparent 60%),
+    radial-gradient(2.6px 2.6px at 71% 66%, rgba(251, 191, 36, 0.9), transparent 62%),
+    radial-gradient(1.6px 1.6px at 84% 14%, rgba(255, 255, 255, 0.82), transparent 60%),
+    radial-gradient(2.2px 2.2px at 93% 86%, rgba(244, 114, 182, 0.82), transparent 62%),
+    radial-gradient(1.8px 1.8px at 14% 90%, rgba(255, 236, 180, 0.72), transparent 60%),
+    radial-gradient(2px 2px at 64% 6%, rgba(233, 213, 255, 0.78), transparent 60%),
+    linear-gradient(180deg, #120618 0%, #1b0921 50%, #240c2b 100%);
   --bg-jar: #06231d;
   --jar-border: #fbbf24;
   --surface-card: rgba(8, 42, 36, 0.68);
@@ -2195,4 +2230,80 @@ body[data-theme] .daily-btn.has-reward {
 @keyframes rewardBorderPulse {
   0%, 100% { --reward-border: var(--daily-border); }
   50% { --reward-border: var(--daily-border-hover); }
+}
+
+/* ============================================================
+   v17 — luxury controls: glass gradient, crisp border, gold icons
+   ============================================================ */
+body[data-theme] .control-grid > .bonus-btn,
+body[data-theme] .control-grid > .invite-btn {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.01) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 0 rgba(0, 0, 0, 0.22), 0 10px 22px -16px rgba(0, 0, 0, 0.95) !important;
+}
+
+body[data-theme] .control-grid > .bonus-btn:hover:not(:disabled),
+body[data-theme] .control-grid > .invite-btn:hover {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.03) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.32) !important;
+}
+
+body[data-theme] .control-grid > .bonus-btn:active:not(:disabled),
+body[data-theme] .control-grid > .invite-btn:active {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+body[data-theme] .control-grid .bonus-btn .bonus-text,
+body[data-theme] .control-grid .invite-btn > span:not(.daily-dot) {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+}
+
+body[data-theme] #vipBtn {
+  background-color: #2c1b54 !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.01) 100%) !important;
+  border: 1px solid rgba(251, 191, 36, 0.55) !important;
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 22px -16px rgba(0, 0, 0, 0.95) !important;
+}
+
+body[data-theme] #vipBtn.vip-active {
+  background-color: #5c3e12 !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.01) 100%) !important;
+  border-color: #fbbf24 !important;
+  color: #f8fafc !important;
+}
+
+body[data-theme] #vipBtn .btn-ico,
+body[data-theme] #vipBtn.vip-active .btn-ico {
+  color: #fbbf24 !important;
+}
+
+body[data-theme] #dailyBtn .btn-ico,
+body[data-theme] #dailyBtn:hover .btn-ico {
+  color: #fbbf24 !important;
+}
+
+body[data-theme] #adBoosterBtn .btn-ico,
+body[data-theme] #adBoosterBtn:hover .btn-ico {
+  color: #fbbf24 !important;
+}
+
+body[data-theme] #dailyBtn {
+  background-color: rgba(70, 44, 120, 0.68) !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.01) 100%) !important;
+  border: 1px solid rgba(251, 191, 36, 0.5) !important;
+  color: #f8fafc !important;
+}
+
+body[data-theme] #adBoosterBtn,
+body[data-theme] #inviteFriendBtn {
+  background-color: rgba(58, 40, 96, 0.72) !important;
+  border-color: rgba(251, 191, 36, 0.4) !important;
 }

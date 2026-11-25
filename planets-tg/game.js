@@ -3082,9 +3082,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     {
       id: 'crystal',
       name: 'Драгоценные кристаллы',
-      sub: 'Изумрудно-фиолетовая туманность и гранёные кристаллы',
+      sub: 'Королевский пурпур, золото и гранёные самоцветы',
       cost: 3,
-      swatch: ['#10b981', '#8b5cf6', '#fbbf24'],
+      swatch: ['#be123c', '#a855f7', '#fbbf24'],
     },
   ];
 
@@ -3127,11 +3127,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       jarLeftGlow: 'rgba(192,132,252,0.14)',
     },
     crystal: {
-      jarTop: 'rgba(8,48,40,0.62)',
-      jarMid: 'rgba(4,32,27,0.58)',
-      jarBottom: 'rgba(2,20,17,0.82)',
-      jarTopGlow: 'rgba(16,185,129,0.2)',
-      jarLeftGlow: 'rgba(251,191,36,0.14)',
+      jarTop: 'rgba(26,10,32,0.82)',
+      jarMid: 'rgba(19,7,26,0.88)',
+      jarBottom: 'rgba(10,3,16,0.94)',
+      jarTopGlow: 'rgba(251,191,36,0.16)',
+      jarLeftGlow: 'rgba(245,158,11,0.12)',
     },
   };
 
@@ -3213,70 +3213,151 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function paintCrystal(c, r, cfg) {
-    const hot = (cfg.spark && cfg.spark[0]) || '#ecfdf5';
-    const mid = (cfg.spark && cfg.spark[1]) || '#10b981';
-    const deep = (cfg.spark && cfg.spark[2]) || '#065f46';
+    const hot = (cfg.spark && cfg.spark[0]) || '#fff5e6';
+    const mid = (cfg.spark && cfg.spark[1]) || '#9f1239';
+    const deep = (cfg.spark && cfg.spark[2]) || '#3b0764';
+    const sides = 8;
+    const seed = (r * 0.37) % TAU;
 
     c.save();
     c.beginPath();
     c.arc(0, 0, r, 0, TAU);
     c.clip();
 
-    const base = c.createLinearGradient(-r, -r, r, r);
-    base.addColorStop(0, rgbaOf(hot, 0.96));
-    base.addColorStop(0.45, rgbaOf(mid, 0.94));
-    base.addColorStop(1, rgbaOf(deep, 0.98));
-    c.fillStyle = base;
+    const body = c.createRadialGradient(-r * 0.42, -r * 0.48, r * 0.04, 0, 0, r * 1.14);
+    body.addColorStop(0, rgbaOf(hot, 0.98));
+    body.addColorStop(0.28, rgbaOf(mid, 0.96));
+    body.addColorStop(0.64, rgbaOf(deep, 0.98));
+    body.addColorStop(1, 'rgba(24,6,20,1)');
+    c.fillStyle = body;
     c.fillRect(-r, -r, r * 2, r * 2);
 
-    const facets = 7;
-    for (let i = 0; i < facets; i++) {
-      const a0 = (i / facets) * TAU - 0.35;
-      const a1 = ((i + 1) / facets) * TAU - 0.35;
-      const rr = r * 1.02;
+    const sheen = c.createLinearGradient(-r, -r, r, r);
+    sheen.addColorStop(0, 'rgba(251,191,36,0.3)');
+    sheen.addColorStop(0.34, 'rgba(190,24,93,0.26)');
+    sheen.addColorStop(0.62, 'rgba(168,85,247,0.22)');
+    sheen.addColorStop(1, 'rgba(30,64,175,0.24)');
+    c.fillStyle = sheen;
+    c.fillRect(-r, -r, r * 2, r * 2);
+
+    const outer = [];
+    const table = [];
+    const tabR = r * 0.44;
+    const tabShift = -r * 0.1;
+    for (let i = 0; i < sides; i++) {
+      const a = seed + (i / sides) * TAU;
+      outer.push([Math.cos(a) * r * 1.05, Math.sin(a) * r * 1.05]);
+      const ta = seed + (i / sides) * TAU + Math.PI / sides;
+      table.push([Math.cos(ta) * tabR, Math.sin(ta) * tabR + tabShift]);
+    }
+
+    for (let i = 0; i < sides; i++) {
+      const o1 = outer[i];
+      const o2 = outer[(i + 1) % sides];
+      const t1 = table[i];
+      const t2 = table[(i + 1) % sides];
+      const bright = i % 2 === 0;
+
       c.beginPath();
-      c.moveTo(0, 0);
-      c.lineTo(Math.cos(a0) * rr, Math.sin(a0) * rr);
-      c.lineTo(Math.cos(a1) * rr, Math.sin(a1) * rr);
+      c.moveTo(o1[0], o1[1]);
+      c.lineTo(o2[0], o2[1]);
+      c.lineTo(t1[0], t1[1]);
       c.closePath();
-      c.fillStyle = i % 2 ? 'rgba(255,255,255,0.1)' : 'rgba(2,20,28,0.16)';
+      c.fillStyle = bright ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.3)';
       c.fill();
-      c.strokeStyle = rgbaOf(hot, i % 2 ? 0.34 : 0.16);
-      c.lineWidth = Math.max(0.5, r * 0.022);
+      c.strokeStyle = bright ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.35)';
+      c.lineWidth = Math.max(0.5, r * 0.02);
+      c.stroke();
+
+      c.beginPath();
+      c.moveTo(o2[0], o2[1]);
+      c.lineTo(t2[0], t2[1]);
+      c.lineTo(t1[0], t1[1]);
+      c.closePath();
+      c.fillStyle = bright ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.2)';
+      c.fill();
+      c.strokeStyle = 'rgba(255,255,255,0.24)';
+      c.lineWidth = Math.max(0.5, r * 0.018);
       c.stroke();
     }
 
-    c.strokeStyle = rgbaOf(hot, 0.5);
-    c.lineWidth = Math.max(0.8, r * 0.028);
     c.beginPath();
-    c.moveTo(-r * 0.62, -r * 0.5);
-    c.lineTo(r * 0.12, 0);
-    c.lineTo(-r * 0.3, r * 0.62);
+    c.moveTo(table[0][0], table[0][1]);
+    for (let i = 1; i < sides; i++) c.lineTo(table[i][0], table[i][1]);
+    c.closePath();
+    const tabGrad = c.createLinearGradient(-tabR, -tabR + tabShift, tabR, tabR + tabShift);
+    tabGrad.addColorStop(0, rgbaOf(hot, 0.98));
+    tabGrad.addColorStop(0.5, rgbaOf(mid, 0.82));
+    tabGrad.addColorStop(1, rgbaOf(deep, 0.92));
+    c.fillStyle = tabGrad;
+    c.fill();
+    c.strokeStyle = 'rgba(255,255,255,0.55)';
+    c.lineWidth = Math.max(0.6, r * 0.022);
     c.stroke();
 
-    c.fillStyle = rgbaOf(hot, 0.9);
-    for (let i = 0; i < 3; i++) {
-      const a = -0.9 + i * 1.1;
-      const d = r * (0.42 + i * 0.16);
+    for (let i = 0; i < sides; i++) {
+      const p = table[i];
+      const q = table[(i + 1) % sides];
       c.beginPath();
-      c.moveTo(Math.cos(a) * d, Math.sin(a) * d);
-      c.lineTo(Math.cos(a) * d + r * 0.05, Math.sin(a) * d - r * 0.03);
-      c.lineTo(Math.cos(a) * d + r * 0.02, Math.sin(a) * d + r * 0.05);
+      c.moveTo(p[0] * 0.3, p[1] * 0.3 + tabShift * 0.7);
+      c.lineTo(q[0], q[1]);
+      c.lineTo(p[0], p[1]);
       c.closePath();
+      c.fillStyle = i % 2 ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.14)';
       c.fill();
     }
-    c.restore();
 
-    c.strokeStyle = rgbaOf(mid, 0.95);
-    c.lineWidth = Math.max(1.2, r * 0.055);
+    c.strokeStyle = 'rgba(255,255,255,0.92)';
+    c.lineWidth = Math.max(0.8, r * 0.035);
     c.beginPath();
-    c.arc(0, 0, r * 0.985, 0, TAU);
+    c.moveTo(outer[sides - 1][0] * 0.99, outer[sides - 1][1] * 0.99);
+    c.lineTo(table[0][0], table[0][1]);
+    c.lineTo(table[1][0], table[1][1]);
+    c.stroke();
+    c.lineWidth = Math.max(0.6, r * 0.024);
+    c.beginPath();
+    c.moveTo(table[1][0], table[1][1]);
+    c.lineTo(outer[2][0] * 0.99, outer[2][1] * 0.99);
     c.stroke();
 
-    c.strokeStyle = rgbaOf(hot, 0.7);
-    c.lineWidth = Math.max(0.7, r * 0.024);
+    c.fillStyle = 'rgba(255,255,255,0.95)';
     c.beginPath();
-    c.arc(0, 0, r * 0.88, 0, TAU);
+    c.moveTo(-r * 0.42, -r * 0.62);
+    c.lineTo(-r * 0.3, -r * 0.4);
+    c.lineTo(-r * 0.44, -r * 0.34);
+    c.lineTo(-r * 0.56, -r * 0.44);
+    c.closePath();
+    c.fill();
+    c.beginPath();
+    c.moveTo(r * 0.34, r * 0.05);
+    c.lineTo(r * 0.46, r * 0.16);
+    c.lineTo(r * 0.3, r * 0.2);
+    c.closePath();
+    c.fill();
+
+    c.restore();
+
+    const bez = c.createLinearGradient(-r, -r, r, r);
+    bez.addColorStop(0, '#fde68a');
+    bez.addColorStop(0.32, '#fbbf24');
+    bez.addColorStop(0.64, '#f59e0b');
+    bez.addColorStop(1, '#b45309');
+    c.strokeStyle = bez;
+    c.lineWidth = Math.max(1.4, r * 0.085);
+    c.beginPath();
+    c.arc(0, 0, r * 0.962, 0, TAU);
+    c.stroke();
+
+    c.strokeStyle = 'rgba(255,247,214,0.8)';
+    c.lineWidth = Math.max(0.6, r * 0.028);
+    c.beginPath();
+    c.arc(0, 0, r * 0.9, 0, TAU);
+    c.stroke();
+
+    c.strokeStyle = 'rgba(255,255,255,0.9)';
+    c.lineWidth = Math.max(0.7, r * 0.03);
+    c.beginPath();
+    c.arc(0, 0, r * 0.962, Math.PI * 1.1, Math.PI * 1.62);
     c.stroke();
 
     gloss(c, r, 0.3);
@@ -3327,7 +3408,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const metaColor = document.querySelector('meta[name="theme-color"]');
     if (metaColor) {
       metaColor.setAttribute('content',
-        def.id === 'neon' ? '#0b061d' : def.id === 'crystal' ? '#041714' : '#090d16');
+        def.id === 'neon' ? '#090418' : def.id === 'crystal' ? '#120618' : '#070b14');
     }
     for (const key in planetSpriteCache) delete planetSpriteCache[key];
     buildStars();
@@ -3886,6 +3967,15 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     bottomShade.addColorStop(1, 'rgba(0,0,0,0.3)');
     c.fillStyle = bottomShade;
     c.fillRect(0, H * 0.72, W, H * 0.28);
+
+    if (skinTheme === 'crystal') {
+      const warm = c.createRadialGradient(W * 0.5, H * 0.74, 0, W * 0.5, H * 0.74, Math.max(W, H) * 0.9);
+      warm.addColorStop(0, 'rgba(251,191,36,0.16)');
+      warm.addColorStop(0.5, 'rgba(245,158,11,0.06)');
+      warm.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = warm;
+      c.fillRect(0, 0, W, H);
+    }
     c.restore();
 
     c.save();
@@ -3899,12 +3989,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const skinA = themeId() === 'neon'
       ? 'rgba(0,245,212,0.22)'
       : themeId() === 'crystal'
-        ? 'rgba(16,185,129,0.24)'
+        ? 'rgba(251,191,36,0.26)'
         : 'rgba(110,80,255,0.2)';
     const skinB = themeId() === 'neon'
       ? 'rgba(34,211,238,0.18)'
       : themeId() === 'crystal'
-        ? 'rgba(251,191,36,0.16)'
+        ? 'rgba(245,158,11,0.22)'
         : 'rgba(70,200,255,0.16)';
     jarPath();
     c.strokeStyle = skinA;
@@ -3921,9 +4011,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       neon.addColorStop(0.55, 'rgba(34,211,238,0.95)');
       neon.addColorStop(1, 'rgba(0,245,212,0.9)');
     } else if (skinTheme === 'crystal') {
-      neon.addColorStop(0, 'rgba(16,185,129,0.95)');
-      neon.addColorStop(0.55, 'rgba(251,191,36,0.92)');
-      neon.addColorStop(1, 'rgba(16,185,129,0.9)');
+      neon.addColorStop(0, 'rgba(245,158,11,0.95)');
+      neon.addColorStop(0.55, 'rgba(251,191,36,1)');
+      neon.addColorStop(1, 'rgba(245,158,11,0.92)');
     } else {
       neon.addColorStop(0, 'rgba(120,220,255,0.85)');
       neon.addColorStop(0.55, 'rgba(120,110,255,0.92)');
@@ -3937,7 +4027,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.strokeStyle = skinTheme === 'neon'
       ? 'rgba(0,245,212,0.9)'
       : skinTheme === 'crystal'
-        ? 'rgba(251,191,36,0.75)'
+        ? 'rgba(253,230,138,0.92)'
         : 'rgba(150,235,255,0.8)';
     c.lineWidth = 2.4;
     c.beginPath();
@@ -3956,6 +4046,24 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     jarOutline(c, W - 6, H - 6, R_TOP - 3, R_BOT - 3);
     c.stroke();
     c.restore();
+
+    if (skinTheme === 'crystal') {
+      c.save();
+      c.translate(5.5, 5.5);
+      jarOutline(c, W - 11, H - 11, Math.max(6, R_TOP - 5.5), Math.max(4, R_BOT - 5.5));
+      c.strokeStyle = 'rgba(255,236,170,0.5)';
+      c.lineWidth = 1.3;
+      c.stroke();
+      c.restore();
+
+      c.save();
+      c.translate(10, 10);
+      jarOutline(c, W - 20, H - 20, Math.max(5, R_TOP - 10), Math.max(3, R_BOT - 10));
+      c.strokeStyle = 'rgba(251,191,36,0.3)';
+      c.lineWidth = 1;
+      c.stroke();
+      c.restore();
+    }
     c.restore();
 
     jarCanvas = cv;
@@ -4200,17 +4308,23 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       rim.addColorStop(0.5, 'rgba(34,211,238,0.95)');
       rim.addColorStop(1, 'rgba(0,245,212,0.85)');
     } else if (skin === 'crystal') {
-      rim.addColorStop(0, 'rgba(16,185,129,0.85)');
-      rim.addColorStop(0.5, 'rgba(251,191,36,0.9)');
-      rim.addColorStop(1, 'rgba(16,185,129,0.85)');
+      rim.addColorStop(0, 'rgba(245,158,11,0.92)');
+      rim.addColorStop(0.35, 'rgba(251,191,36,1)');
+      rim.addColorStop(0.62, 'rgba(253,230,138,0.96)');
+      rim.addColorStop(1, 'rgba(245,158,11,0.92)');
     } else {
       rim.addColorStop(0, 'rgba(120,225,255,0.7)');
       rim.addColorStop(0.5, 'rgba(165,145,255,0.85)');
       rim.addColorStop(1, 'rgba(120,225,255,0.7)');
     }
     ctx.strokeStyle = rim;
-    ctx.lineWidth = 2.6;
+    ctx.lineWidth = skin === 'crystal' ? 3.4 : 2.6;
     ctx.stroke();
+    if (skin === 'crystal') {
+      ctx.strokeStyle = 'rgba(255,246,214,0.42)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    }
     ctx.strokeStyle = 'rgba(255,255,255,0.16)';
     ctx.lineWidth = 1;
     ctx.stroke();

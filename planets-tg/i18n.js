@@ -91,8 +91,8 @@
     'Драгоценные кристаллы': 'Precious Crystals',
     'Стандартный дизайн планет и фона': 'Default planet and background design',
     'Глубокий кибер-индиго и светящиеся сферы': 'Deep cyber indigo with glowing spheres',
-    'Изумрудно-фиолетовая туманность и гранёные кристаллы':
-      'Emerald-violet nebula and faceted crystals',
+    'Королевский пурпур, золото и гранёные самоцветы':
+      'Royal purple, gold and faceted gemstones',
     'Активна': 'Active',
     'Выбрать': 'Select',
     'Награды': 'Daily',
