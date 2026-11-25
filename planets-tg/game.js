@@ -51,7 +51,7 @@ const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.fi
   let WORLD_W = 400;
   let WORLD_H = 600;
   let DANGER_Y = 120;
-  const HOLD_Y = -36;
+  let HOLD_Y = -36;
   const MAX_LEVEL = 10;
   const DROP_COOLDOWN = 0.42;
   const DANGER_TIME = 5.0;
@@ -4541,29 +4541,25 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     ctx.imageSmoothingEnabled = true;
     if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
 
-    const pad = desktop ? 8 : 3;
-	const aim = desktop ? 84 : 32;
-	const railW = desktop ? 250 : 0;
-	const availW = Math.max(60, w - pad * 2 - railW * 2);
-	const availH = Math.max(60, h - pad - aim);
-	WORLD_W = desktop ? 470 : 400;
-	WORLD_H = desktop ? 580 : clamp(Math.round(WORLD_W * (availH / availW)), 520, 780);
-	const ratio = WORLD_W / WORLD_H;
-
-
-    let jarW = Math.min(availW, availH * ratio);
-    let jarH = jarW / ratio;
-    if (jarH > availH) {
-      jarH = availH;
-      jarW = jarH * ratio;
-    }
-    view.scale = jarW / WORLD_W;
-    const topOffsetPx = window.innerWidth >= 769 ? 75 : 28;
-    DANGER_Y = Math.max(18, Math.round(topOffsetPx / view.scale));
-    view.jarW = jarW;
-    view.jarH = jarH;
-    view.jarLeft = (w - jarW) / 2;
-    view.jarTop = h - pad - jarH;
+    const padSide = desktop ? 12 : 10;
+    const railW = desktop ? 250 : 0;
+    const availW = Math.max(80, w - padSide * 2 - railW * 2);
+    const jarTopPx = 12;
+    const bottomPad = desktop ? 6 : 2;
+    const availH = Math.max(80, h - jarTopPx - bottomPad);
+    WORLD_W = desktop ? 470 : 400;
+    const minWorldH = 520;
+    const scale = Math.min(availW / WORLD_W, availH / minWorldH);
+    WORLD_H = Math.max(minWorldH, Math.round(availH / scale));
+    view.scale = scale;
+    const aimTopPx = desktop ? 52 : 42;
+    HOLD_Y = (aimTopPx - jarTopPx) / scale;
+    const topOffsetPx = desktop ? 96 : 72;
+    DANGER_Y = Math.max(18, Math.round(topOffsetPx / scale));
+    view.jarW = WORLD_W * scale;
+    view.jarH = availH;
+    view.jarLeft = Math.round((w - view.jarW) / 2);
+    view.jarTop = jarTopPx;
     view.aimZone = view.jarTop;
 
     buildStars();
@@ -4745,53 +4741,53 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.lineWidth = 2.4;
     c.stroke();
 
-    const capColor = skinTheme === 'neon'
-      ? '#00f5d4'
+    const tipColor = skinTheme === 'neon'
+      ? '0,245,212'
       : skinTheme === 'crystal'
-        ? '#fbbf24'
-        : '#38bdf8';
-    const orbGlow = skinTheme === 'neon'
-      ? 'rgba(0,245,212,0.62)'
-      : skinTheme === 'crystal'
-        ? 'rgba(251,191,36,0.62)'
-        : 'rgba(56,189,248,0.62)';
-    const orbGlowSoft = skinTheme === 'neon'
-      ? 'rgba(0,245,212,0.24)'
-      : skinTheme === 'crystal'
-        ? 'rgba(251,191,36,0.24)'
-        : 'rgba(56,189,248,0.24)';
-    const ORB_R = 6.5;
-    for (let i = 0; i < 2; i++) {
-      const wx = i === 0 ? ORB_R : W - ORB_R;
-      const wy = ORB_R;
-
+        ? '251,191,36'
+        : '56,189,248';
+    c.save();
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.translate(view.jarLeft, view.jarTop);
+    c.globalCompositeOperation = 'lighter';
+    c.lineCap = 'round';
+    const tipWalls = [0, W * view.scale];
+    const tipFade = 10;
+    const tipBody = 28;
+    for (let i = 0; i < tipWalls.length; i++) {
+      const wx = tipWalls[i];
+      const beam = c.createLinearGradient(0, 0, 0, -tipFade);
+      beam.addColorStop(0, 'rgba(255,255,255,0.62)');
+      beam.addColorStop(0.4, 'rgba(' + tipColor + ',0.3)');
+      beam.addColorStop(1, 'rgba(' + tipColor + ',0)');
       c.save();
-      c.globalCompositeOperation = 'lighter';
-      const halo = c.createRadialGradient(wx, wy, 0, wx, wy, 26);
-      halo.addColorStop(0, orbGlow);
-      halo.addColorStop(0.34, orbGlowSoft);
-      halo.addColorStop(1, 'rgba(0,0,0,0)');
-      c.fillStyle = halo;
+      c.shadowColor = 'rgba(' + tipColor + ',0.95)';
+      c.shadowBlur = 15;
+      c.strokeStyle = beam;
+      c.lineWidth = 3.2;
       c.beginPath();
-      c.arc(wx, wy, 26, 0, TAU);
-      c.fill();
+      c.moveTo(wx, 0);
+      c.lineTo(wx, -tipFade);
+      c.stroke();
       c.restore();
 
-      const gr = c.createRadialGradient(wx - ORB_R * 0.32, wy - ORB_R * 0.36, 0, wx, wy, ORB_R);
-      gr.addColorStop(0, '#ffffff');
-      gr.addColorStop(0.3, '#ffffff');
-      gr.addColorStop(0.62, capColor);
-      gr.addColorStop(1, capColor);
-      c.fillStyle = gr;
+      const burn = c.createLinearGradient(0, 0, 0, tipBody);
+      burn.addColorStop(0, 'rgba(255,255,255,0.96)');
+      burn.addColorStop(0.14, 'rgba(255,255,255,0.86)');
+      burn.addColorStop(0.46, 'rgba(' + tipColor + ',0.74)');
+      burn.addColorStop(1, 'rgba(' + tipColor + ',0)');
+      c.save();
+      c.shadowColor = 'rgba(' + tipColor + ',0.9)';
+      c.shadowBlur = 13;
+      c.strokeStyle = burn;
+      c.lineWidth = 3.4;
       c.beginPath();
-      c.arc(wx, wy, ORB_R, 0, TAU);
-      c.fill();
-
-      c.fillStyle = 'rgba(255,255,255,0.92)';
-      c.beginPath();
-      c.arc(wx, wy, ORB_R * 0.42, 0, TAU);
-      c.fill();
+      c.moveTo(wx, 0);
+      c.lineTo(wx, tipBody);
+      c.stroke();
+      c.restore();
     }
+    c.restore();
 
     c.strokeStyle = 'rgba(255,255,255,0.07)';
     c.lineWidth = 1;
