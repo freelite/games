@@ -3245,12 +3245,55 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   ];
 
   const LB_LEAGUE_COLOR = {
-    1: '#ffbe86',
-    2: '#e8efff',
-    3: '#ffd76a',
-    4: '#a8ecff',
-    5: '#e2d0ff'
+    1: '#d97706',
+    2: '#94a3b8',
+    3: '#fbbf24',
+    4: '#67e8f9',
+    5: '#c084fc'
   };
+
+  const LB_LEAGUE_ACCENT = {
+    1: '#b45309',
+    2: '#cbd5e1',
+    3: '#f59e0b',
+    4: '#e0f2fe',
+    5: '#e879f9'
+  };
+
+  function hexTriplet(hex) {
+    const h = String(hex || '').replace('#', '');
+    if (h.length !== 6) return '251, 191, 36';
+    return parseInt(h.slice(0, 2), 16) + ', ' + parseInt(h.slice(2, 4), 16) + ', ' + parseInt(h.slice(4, 6), 16);
+  }
+
+  function applyCrestPalette(el, step) {
+    if (!el) return;
+    const color = LB_LEAGUE_COLOR[step] || '#fbbf24';
+    const rgb = hexTriplet(color);
+    const bg = 'rgba(' + rgb + ', 0.16)';
+    const line = 'rgba(' + rgb + ', 0.72)';
+    const glow = 'rgba(' + rgb + ', 0.55)';
+    el.setAttribute('data-league', String(step));
+    el.style.setProperty('--badge-color', color);
+    el.style.setProperty('--badge-bg', bg);
+    el.style.setProperty('--badge-border', line);
+    el.style.setProperty('--badge-glow', glow);
+    el.style.setProperty('--crest-rgb', rgb);
+    el.style.setProperty('--crest-color', color);
+    el.style.setProperty('--league-color', color);
+    el.style.setProperty('--league-glow', glow);
+    el.style.setProperty('background', bg, 'important');
+    el.style.setProperty('background-image', 'none', 'important');
+    el.style.setProperty('border', '1.5px solid ' + line, 'important');
+    el.style.setProperty('box-shadow', 'inset 0 0 12px rgba(' + rgb + ', 0.38), 0 0 10px ' + glow, 'important');
+    el.style.setProperty('color', color, 'important');
+    const svg = el.querySelector('svg');
+    if (svg) {
+      svg.style.setProperty('color', color, 'important');
+      svg.style.setProperty('stroke', 'currentColor', 'important');
+      svg.style.setProperty('filter', 'drop-shadow(0 0 5px rgba(' + rgb + ', 0.85))', 'important');
+    }
+  }
 
   const LB_MEDAL = {
     1: '#ffd15c',
@@ -3425,12 +3468,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const crestEl = document.createElement('span');
     crestEl.className = 'lb-av-crest';
     const rowLeague = leagueForScore(row.score);
-    const rowLeagueColor = LB_LEAGUE_COLOR[rowLeague.step] || '#ffd76a';
-    crestEl.setAttribute('data-league', String(rowLeague.step));
-    crestEl.setAttribute('data-league-color', rowLeagueColor);
-    crestEl.style.setProperty('--league-color', rowLeagueColor);
-    crestEl.style.setProperty('--league-glow', rgbaOf(rowLeagueColor, 0.55));
+    const rowLeagueColor = LB_LEAGUE_COLOR[rowLeague.step] || '#fbbf24';
     crestEl.innerHTML = leagueCrestMarkup(rowLeague.step, 'lb-crest', rowLeagueColor);
+    applyCrestPalette(crestEl, rowLeague.step);
     whoEl.appendChild(crestEl);
 
     const avatarEl = document.createElement('span');
@@ -3495,13 +3535,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (lbLeagueSub) lbLeagueSub.textContent = lbTr('Ваша лига');
     if (lbLeagueStep) lbLeagueStep.textContent = league.step + ' / 5';
     if (lbRank) lbRank.textContent = '#' + place;
-    const leagueColor = LB_LEAGUE_COLOR[league.step] || '#ffd76a';
+    const leagueColor = LB_LEAGUE_COLOR[league.step] || '#fbbf24';
     const leagueGlow = rgbaOf(leagueColor, 0.55);
     if (lbLeagueIcon) {
-      lbLeagueIcon.style.setProperty('--league-color', leagueColor);
-      lbLeagueIcon.style.setProperty('--league-glow', leagueGlow);
-      lbLeagueIcon.setAttribute('data-league', String(league.step));
       lbLeagueIcon.innerHTML = leagueCrestMarkup(league.step, 'lb-league-crest', leagueColor);
+      applyCrestPalette(lbLeagueIcon, league.step);
     }
     if (lbLeagueCard) {
       lbLeagueCard.setAttribute('data-league', String(league.step));
@@ -4592,11 +4630,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     HOLD_Y = SPAWN_Y;
     WORLD_H = Math.max(minWorldH, Math.round((h - bottomGapPx) / scale) - jarTopWorld);
     view.scale = scale;
-    DANGER_Y = (mobile ? 36 : 72) / scale;
+    DANGER_Y = (mobile ? 42 : 76) / scale;
     view.jarW = WORLD_W * scale;
     view.jarH = WORLD_H * scale;
     view.jarLeft = Math.round((w - view.jarW) / 2);
-    view.jarTop = Math.round(jarTopWorld * scale);
+    view.jarTop = Math.round(jarTopWorld * scale) + 5;
     view.aimZone = view.jarTop;
 
     buildStars();

@@ -3388,63 +3388,27 @@ body[data-theme="crystals"] #settingsBtn:hover {
 }
 
 /* ============================================================
-   v41 - every crest square takes its own league palette
-   (only crest squares glow; the five ALL LEAGUES cards untouched)
+   v42 - crest square colour comes strictly from its own league
+   (inline --badge-* variables from game.js; no !important locks)
    ============================================================ */
 .lb-league-icon,
 body[data-theme] .lb-league-icon,
 .lb-av-crest,
 body[data-theme] .lb-av-crest {
-  --crest-rgb: 255, 215, 106;
-  --crest-color: var(--league-color, #ffd76a);
-  border: 1.5px solid rgba(var(--crest-rgb), 0.72) !important;
-  background: rgba(var(--crest-rgb), 0.16) !important;
-  background-image: none !important;
-  color: var(--crest-color) !important;
+  background: var(--badge-bg, rgba(251, 191, 36, 0.16));
+  background-image: none;
+  border: 1.5px solid var(--badge-border, rgba(251, 191, 36, 0.72));
+  color: var(--badge-color, #fbbf24);
   box-shadow:
-    inset 0 0 12px rgba(var(--crest-rgb), 0.38),
-    0 0 10px rgba(var(--crest-rgb), 0.55) !important;
+    inset 0 0 12px var(--badge-glow, rgba(251, 191, 36, 0.38)),
+    0 0 10px var(--badge-glow, rgba(251, 191, 36, 0.55));
 }
-body[data-theme="cosmos"] .lb-league-icon,
-body[data-theme="cosmos"] .lb-av-crest {
-  background: rgba(var(--crest-rgb), 0.16) !important;
-  border-color: rgba(var(--crest-rgb), 0.72) !important;
-  box-shadow:
-    inset 0 0 12px rgba(var(--crest-rgb), 0.38),
-    0 0 10px rgba(var(--crest-rgb), 0.55) !important;
-}
-body[data-theme="neon"] .lb-league-icon,
-body[data-theme="neon"] .lb-av-crest {
-  background: rgba(var(--crest-rgb), 0.18) !important;
-  border-color: rgba(var(--crest-rgb), 0.78) !important;
-  box-shadow:
-    inset 0 0 12px rgba(var(--crest-rgb), 0.42),
-    0 0 10px rgba(var(--crest-rgb), 0.62) !important;
-}
-body[data-theme="crystals"] .lb-league-icon,
-body[data-theme="crystals"] .lb-av-crest {
-  background: rgba(var(--crest-rgb), 0.15) !important;
-  border-color: rgba(var(--crest-rgb), 0.7) !important;
-  box-shadow:
-    inset 0 0 12px rgba(var(--crest-rgb), 0.36),
-    0 0 10px rgba(var(--crest-rgb), 0.52) !important;
-}
-.lb-league-icon[data-league="1"],
-.lb-av-crest[data-league="1"] { --crest-rgb: 255, 190, 134; --crest-color: #ffbe86; --league-color: #ffbe86; --league-glow: rgba(255, 190, 134, 0.55); }
-.lb-league-icon[data-league="2"],
-.lb-av-crest[data-league="2"] { --crest-rgb: 232, 239, 255; --crest-color: #e8efff; --league-color: #e8efff; --league-glow: rgba(232, 239, 255, 0.55); }
-.lb-league-icon[data-league="3"],
-.lb-av-crest[data-league="3"] { --crest-rgb: 255, 215, 106; --crest-color: #ffd76a; --league-color: #ffd76a; --league-glow: rgba(255, 215, 106, 0.55); }
-.lb-league-icon[data-league="4"],
-.lb-av-crest[data-league="4"] { --crest-rgb: 168, 236, 255; --crest-color: #a8ecff; --league-color: #a8ecff; --league-glow: rgba(168, 236, 255, 0.55); }
-.lb-league-icon[data-league="5"],
-.lb-av-crest[data-league="5"] { --crest-rgb: 226, 208, 255; --crest-color: #e2d0ff; --league-color: #e2d0ff; --league-glow: rgba(226, 208, 255, 0.55); }
-.lb-league-icon .lb-league-crest,
 .lb-league-icon svg,
+body[data-theme] .lb-league-icon svg,
 .lb-av-crest svg,
 body[data-theme] .lb-av-crest svg {
-  color: var(--crest-color) !important;
-  filter: drop-shadow(0 0 5px rgba(var(--crest-rgb), 0.95)) !important;
+  color: var(--badge-color, #fbbf24);
+  filter: drop-shadow(0 0 5px var(--badge-glow, rgba(251, 191, 36, 0.85)));
 }
 
 /* ============================================================
