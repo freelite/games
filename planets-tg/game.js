@@ -1143,7 +1143,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const themesClose = $('themesClose');
   const themeListEl = $('themeList');
   const dailyBtn = $('dailyBtn');
-  const dailyDot = $('dailyDot');
   const dailyOverlay = $('dailyOverlay');
   const dailyClose = $('dailyClose');
   const dailyGridEl = $('dailyGrid');
@@ -3435,6 +3434,15 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     }
     whoEl.appendChild(avatarEl);
 
+    const placeEl = document.createElement('span');
+    placeEl.className = 'lb-place' + (LB_MEDAL[place] ? ' is-medal' : '');
+    if (LB_MEDAL[place]) {
+      placeEl.innerHTML = medalMarkup(place);
+    } else {
+      placeEl.textContent = '#' + place;
+    }
+    whoEl.appendChild(placeEl);
+
     const nameEl = document.createElement('span');
     nameEl.className = 'lb-name';
     nameEl.textContent = row.name;
@@ -3446,15 +3454,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       badge.textContent = lbTr('ВЫ');
       whoEl.appendChild(badge);
     }
-
-    const placeEl = document.createElement('span');
-    placeEl.className = 'lb-place' + (LB_MEDAL[place] ? ' is-medal' : '');
-    if (LB_MEDAL[place]) {
-      placeEl.innerHTML = medalMarkup(place);
-    } else {
-      placeEl.textContent = '#' + place;
-    }
-    whoEl.appendChild(placeEl);
     el.appendChild(whoEl);
 
     const scoreEl = document.createElement('span');
@@ -4278,7 +4277,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   function updateDailyBadge() {
     const claimed = dailyClaimedToday();
-    if (dailyDot) dailyDot.classList.toggle('hidden', claimed);
     if (dailyBtn) dailyBtn.classList.toggle('has-reward', !claimed);
     if (dailyClaimBtn) {
       dailyClaimBtn.disabled = claimed;

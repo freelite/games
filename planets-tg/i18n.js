@@ -130,7 +130,7 @@
     'Элита звёздных систем': 'Elite of star systems',
     'Абсолютный чемпион Вселенной': 'Absolute champion of the Universe',
     'Все лиги': 'All leagues',
-    'Сейчас': 'Now',
+    'Сейчас': 'Current',
     'ВЫ': 'YOU',
     'Бросить вызов друзьям': 'Challenge Friends',
     'Максимальная лига': 'Top league',
