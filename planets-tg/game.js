@@ -1936,10 +1936,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   function buildWalls() {
     const opts = { isStatic: true, friction: 0.25, restitution: 0.08, render: { visible: false } };
     const t = 80;
+    const jarBottom = WORLD_H - 1;
+    const jarTopWall = -160;
+    const wallH = jarBottom - jarTopWall;
     return [
-      Bodies.rectangle(-t / 2, WORLD_H / 2 - 300, t, WORLD_H + 1000, opts),
-      Bodies.rectangle(WORLD_W + t / 2, WORLD_H / 2 - 300, t, WORLD_H + 1000, opts),
-      Bodies.rectangle(WORLD_W / 2, WORLD_H - 4 + t / 2, WORLD_W + t * 2, t, opts),
+      Bodies.rectangle(-t / 2, jarTopWall + wallH / 2, t, wallH, opts),
+      Bodies.rectangle(WORLD_W + t / 2, jarTopWall + wallH / 2, t, wallH, opts),
+      Bodies.rectangle(WORLD_W / 2, jarBottom + t / 2, WORLD_W + t * 2, t, opts),
     ];
   }
 
@@ -4544,7 +4547,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const padSide = desktop ? 12 : 10;
     const railW = desktop ? 250 : 0;
     const availW = Math.max(80, w - padSide * 2 - railW * 2);
-    const jarTopPx = 12;
+    const aimTopPx = desktop ? 52 : 42;
+    const jarGapPx = 30;
+    const jarTopPx = aimTopPx + jarGapPx;
     const bottomPad = desktop ? 6 : 2;
     const availH = Math.max(80, h - jarTopPx - bottomPad);
     WORLD_W = desktop ? 470 : 400;
@@ -4552,10 +4557,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const scale = Math.min(availW / WORLD_W, availH / minWorldH);
     WORLD_H = Math.max(minWorldH, Math.round(availH / scale));
     view.scale = scale;
-    const aimTopPx = desktop ? 52 : 42;
     HOLD_Y = (aimTopPx - jarTopPx) / scale;
-    const topOffsetPx = desktop ? 96 : 72;
-    DANGER_Y = Math.max(18, Math.round(topOffsetPx / scale));
+    const topOffsetPx = desktop ? 75 : 27;
+    DANGER_Y = Math.max(12, Math.round(topOffsetPx / scale));
     view.jarW = WORLD_W * scale;
     view.jarH = availH;
     view.jarLeft = Math.round((w - view.jarW) / 2);
