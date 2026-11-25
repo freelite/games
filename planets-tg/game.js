@@ -52,6 +52,7 @@ const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.fi
   let WORLD_H = 600;
   let DANGER_Y = 120;
   let HOLD_Y = -36;
+  let SPAWN_Y = 30;
   const MAX_LEVEL = 10;
   const DROP_COOLDOWN = 0.42;
   const DANGER_TIME = 5.0;
@@ -3243,6 +3244,14 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     { step: 5, min: 175000, max: 0, name: 'Повелитель Галактики', points: '175 000+', desc: 'Абсолютный чемпион Вселенной' }
   ];
 
+  const LB_LEAGUE_COLOR = {
+    1: '#ffbe86',
+    2: '#e8efff',
+    3: '#ffd76a',
+    4: '#a8ecff',
+    5: '#e2d0ff'
+  };
+
   const LB_MEDAL = {
     1: '#ffd15c',
     2: '#d8e3ff',
@@ -3338,11 +3347,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return out;
   }
 
-  function leagueCrestMarkup(tier, cls) {
+  function leagueCrestMarkup(tier, cls, color) {
+    const tint = color || LB_LEAGUE_COLOR[tier] || '#ffd76a';
     const crown = tier >= 5
       ? '<path d="M16.6 9.2l2.6-5 4.8 3.4 4.8-3.4 2.6 5"/><circle cx="24" cy="3.4" r="1.7" fill="currentColor" stroke="none"/>'
       : '<circle cx="24" cy="7.4" r="1.5" fill="currentColor" stroke="none" opacity="0.55"/>';
-    return '<svg class="' + (cls || 'lb-crest') + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    return '<svg class="' + (cls || 'lb-crest') + '" style="color:' + tint + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       crestSpikeFan(tier) +
       '<path d="M15.4 18.6c-3.5-.5-6.4-2.4-8.1-5.8 3.8-.5 6.9.8 8.9 3.3"/>' +
       '<path d="M12.9 24.4c-3.3-1.4-5.6-4-6.8-7.4 3.6 0 6.5 1.6 8.4 4.2"/>' +
@@ -3481,10 +3491,15 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (lbLeagueStep) lbLeagueStep.textContent = league.step + ' / 5';
     if (lbRank) lbRank.textContent = '#' + place;
     if (lbLeagueIcon) {
+      const leagueColor = LB_LEAGUE_COLOR[league.step] || '#ffd76a';
+      lbLeagueIcon.style.setProperty('--league-color', leagueColor);
       lbLeagueIcon.setAttribute('data-league', String(league.step));
-      lbLeagueIcon.innerHTML = leagueCrestMarkup(league.step, 'lb-league-crest');
+      lbLeagueIcon.innerHTML = leagueCrestMarkup(league.step, 'lb-league-crest', leagueColor);
     }
-    if (lbLeagueCard) lbLeagueCard.setAttribute('data-league', String(league.step));
+    if (lbLeagueCard) {
+      lbLeagueCard.setAttribute('data-league', String(league.step));
+      lbLeagueCard.style.setProperty('--league-color', LB_LEAGUE_COLOR[league.step] || '#ffd76a');
+    }
     renderLeagueShowcase(league);
 
     let percent = 100;
@@ -4546,7 +4561,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
 
     const mobile = window.innerWidth < 769;
-    const padSide = mobile ? 3 : 12;
+    const padSide = 15;
     const railW = desktop ? 250 : 0;
     const availW = Math.max(80, w - padSide * 2 - railW * 2);
     const jarTopPx = mobile ? 4 : 6;
@@ -4563,9 +4578,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       WORLD_H = Math.max(minWorldH, Math.round(availH / scale));
     }
     view.scale = scale;
-    HOLD_Y = 4 / scale;
-    const topOffsetPx = mobile ? 36 : 75;
-    DANGER_Y = Math.max(12, Math.round(topOffsetPx / scale));
+    const maxSpawnRadius = 26;
+    SPAWN_Y = Math.max(22, maxSpawnRadius + 4);
+    HOLD_Y = SPAWN_Y;
+    const topOffsetPx = mobile ? 48 : 82;
+    DANGER_Y = Math.max(SPAWN_Y + maxSpawnRadius + 6, Math.round(topOffsetPx / scale));
     view.jarW = WORLD_W * scale;
     view.jarH = availH;
     view.jarLeft = Math.round((w - view.jarW) / 2);
