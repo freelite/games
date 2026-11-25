@@ -972,7 +972,7 @@ const LEADERBOARD_DB_URL = "https://planet-merge-lb-default-rtdb.europe-west1.fi
     const sp = getSprite(level);
     const k = radiusPx / LEVELS[level - 1].radius;
     const half = sp.half * k;
-    c.drawImage(sp.canvas, x - half, y - half, half * 2, half * 2);
+    c.drawImage(sp.canvas, Math.round(x - half), Math.round(y - half), Math.round(half * 2), Math.round(half * 2));
   }
 
   function drawFace(c, r, cfg, b, t) {
@@ -2043,6 +2043,17 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     b.angularVelocity = (Math.random() - 0.5) * 0.008;
     Composite.add(engine.world, b);
     return b;
+  }
+
+  function snapshotPrevTransforms() {
+    const all = Composite.allBodies(engine.world);
+    for (let i = 0; i < all.length; i++) {
+      const b = all[i];
+      if (!b.isPlanet || b.isSleeping) continue;
+      b.prevX = b.position.x;
+      b.prevY = b.position.y;
+      b.prevAngle = b.angle;
+    }
   }
 
   function planetBodies() {
@@ -4676,7 +4687,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const rect = stage.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
     const h = Math.max(1, Math.round(rect.height));
-    const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 769 ? 1.5 : 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 769 ? 1.25 : 2);
     const uiDpr = dpr;
     const spriteChanged = setSpriteScale(Math.max(2, uiDpr));
 
@@ -5054,22 +5065,26 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     }
   }
 
-  function drawBody(b, t) {
+  function drawBody(b, t, alpha) {
     const cfg = LEVELS[b.level - 1];
     const sp = getSprite(b.level);
     const sx = b.pop * (1 + b.squash);
     const sy = b.pop * (1 - b.squash);
-    const rot = b.angle;
+    const a = alpha === undefined ? 1 : alpha;
+    const drawX = b.prevX !== undefined ? b.prevX + (b.position.x - b.prevX) * a : b.position.x;
+    const drawY = b.prevY !== undefined ? b.prevY + (b.position.y - b.prevY) * a : b.position.y;
+    const drawAngle = b.prevAngle !== undefined ? b.prevAngle + (b.angle - b.prevAngle) * a : b.angle;
+    const side = Math.round(sp.half * 2);
 
     ctx.save();
-    ctx.translate(b.position.x, b.position.y);
-    ctx.rotate(rot);
+    ctx.translate(drawX, drawY);
+    ctx.rotate(drawAngle);
     ctx.scale(sx, sy);
-    ctx.drawImage(sp.canvas, -sp.half, -sp.half, sp.half * 2, sp.half * 2);
+    ctx.drawImage(sp.canvas, -Math.round(sp.half), -Math.round(sp.half), side, side);
     ctx.restore();
 
     ctx.save();
-    ctx.translate(b.position.x, b.position.y);
+    ctx.translate(drawX, drawY);
     ctx.scale(sx, sy);
     drawFace(ctx, cfg.radius, cfg, b, t);
     ctx.restore();
@@ -5106,7 +5121,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     if (aimGlowCanvas) {
       const gl = rad * 1.9;
-      ctx.drawImage(aimGlowCanvas, x - gl, y - gl, gl * 2, gl * 2);
+      ctx.drawImage(aimGlowCanvas, Math.round(x - gl), Math.round(y - gl), Math.round(gl * 2), Math.round(gl * 2));
     }
 
     ctx.save();
@@ -5319,6 +5334,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   function render(now) {
     if (view.w < 2 || view.h < 2) return;
     const t = now / 1000;
+    const alpha = Math.min(1, acc / FIXED_DT);
 
     ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);
     ctx.clearRect(0, 0, view.w, view.h);
@@ -5327,7 +5343,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     drawMenuPlanets(t);
 
     const sh = getShakeOffset();
-    if (jarCanvas) ctx.drawImage(jarCanvas, sh.x, sh.y, view.w, view.h);
+    if (jarCanvas) ctx.drawImage(jarCanvas, Math.round(sh.x), Math.round(sh.y), view.w, view.h);
 
     ctx.save();
     ctx.translate(view.jarLeft + sh.x, view.jarTop + sh.y);
@@ -5340,13 +5356,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     list.sort(function (a, b) {
       return b.level - a.level;
     });
-    for (let i = 0; i < list.length; i++) drawBody(list[i], t);
+    for (let i = 0; i < list.length; i++) drawBody(list[i], t, alpha);
 
     drawEffects(t);
     drawDangerUI(t);
     ctx.restore();
 
-    if (jarFrontCanvas) ctx.drawImage(jarFrontCanvas, sh.x, sh.y, view.w, view.h);
+    if (jarFrontCanvas) ctx.drawImage(jarFrontCanvas, Math.round(sh.x), Math.round(sh.y), view.w, view.h);
     drawFlash();
     drawShooting();
   }
@@ -5680,6 +5696,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       acc += frameTime;
       let steps = 0;
       while (acc >= FIXED_DT && steps < MAX_STEPS_PER_FRAME) {
+        snapshotPrevTransforms();
         Engine.update(engine, FIXED_DT);
         processMerges();
         updateGame(FIXED_DT / 1000);
