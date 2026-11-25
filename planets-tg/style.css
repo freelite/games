@@ -2312,17 +2312,17 @@ body[data-theme] #inviteFriendBtn {
    v18 — cosmic photo wallpapers per theme + translucent jar glass
    ============================================================ */
 body[data-theme="cosmos"] {
-  --bg-wallpaper: url('assets/bg_cosmos.jpg?v=18');
+  --bg-wallpaper: url('assets/bg_cosmos.jpg?v=19');
   --wallpaper-scrim: linear-gradient(180deg, rgba(4, 7, 18, 0.66) 0%, rgba(4, 7, 18, 0.30) 32%, rgba(3, 5, 14, 0.62) 72%, rgba(2, 3, 10, 0.88) 100%);
   --jar-glass: rgba(8, 12, 24, 0.72);
 }
 body[data-theme="neon"] {
-  --bg-wallpaper: url('assets/bg_neon.jpg?v=18');
+  --bg-wallpaper: url('assets/bg_neon.jpg?v=19');
   --wallpaper-scrim: linear-gradient(180deg, rgba(6, 2, 16, 0.66) 0%, rgba(9, 3, 24, 0.30) 32%, rgba(5, 2, 13, 0.62) 72%, rgba(2, 1, 8, 0.88) 100%);
   --jar-glass: rgba(12, 5, 26, 0.74);
 }
 body[data-theme="crystals"] {
-  --bg-wallpaper: url('assets/bg_crystals.jpg?v=18');
+  --bg-wallpaper: url('assets/bg_crystals.jpg?v=19');
   --wallpaper-scrim: linear-gradient(180deg, rgba(12, 3, 10, 0.66) 0%, rgba(18, 4, 14, 0.30) 32%, rgba(10, 2, 9, 0.62) 72%, rgba(5, 1, 7, 0.88) 100%);
   --jar-glass: rgba(18, 7, 26, 0.74);
 }

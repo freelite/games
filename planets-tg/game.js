@@ -80,15 +80,12 @@ const ADSGRAM_BLOCK_ID = '61632';
  ------------------------------------------------------------ */
   function jarOutline(c, w, h, rTop, rBot) {
     c.beginPath();
-    c.moveTo(rTop, 0);
-    c.lineTo(w - rTop, 0);
-    c.quadraticCurveTo(w, 0, w, rTop);
+    c.moveTo(0, 0);
+    c.lineTo(w, 0);
     c.lineTo(w, h - rBot);
     c.quadraticCurveTo(w, h, w - rBot, h);
     c.lineTo(rBot, h);
     c.quadraticCurveTo(0, h, 0, h - rBot);
-    c.lineTo(0, rTop);
-    c.quadraticCurveTo(0, 0, rTop, 0);
     c.closePath();
   }
 
@@ -909,9 +906,14 @@ const ADSGRAM_BLOCK_ID = '61632';
     c.translate(size / 2, size / 2);
     c.scale(spriteScale, spriteScale);
 
+    const haloCol = skin === 'neon'
+      ? rgbaOf(NEON_SKINS[level - 1].base, 0.55)
+      : skin === 'crystal'
+        ? rgbaOf(CRYSTAL_SKINS[level - 1].light, 0.5)
+        : cfg.glow;
     const halo = c.createRadialGradient(0, 0, r * 0.8, 0, 0, half);
     halo.addColorStop(0, 'rgba(0,0,0,0)');
-    halo.addColorStop(0.52, cfg.glow);
+    halo.addColorStop(0.52, haloCol);
     halo.addColorStop(1, 'rgba(0,0,0,0)');
     c.fillStyle = halo;
     c.beginPath();
@@ -927,8 +929,8 @@ const ADSGRAM_BLOCK_ID = '61632';
     c.ellipse(0, r * 0.96, r * 1.02, r * 0.42, 0, 0, TAU);
     c.fill();
 
-    if (skin === 'neon') paintNeon(c, r, cfg);
-    else if (skin === 'crystal') paintCrystal(c, r, cfg);
+    if (skin === 'neon') paintNeon(c, r, cfg, level);
+    else if (skin === 'crystal') paintCrystal(c, r, cfg, level);
     else cfg.draw(c, r);
 
     c.save();
@@ -1982,14 +1984,15 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   function spawnPlanet(level, x, y) {
     const cfg = LEVELS[level - 1];
     const b = Bodies.circle(x, y, cfg.radius, {
-      restitution: 0.12,
-      friction: 0.42,
-      frictionStatic: 0.55,
-      frictionAir: 0.0014,
-      density: 0.0011,
+      restitution: 0.16,
+      friction: 0.32,
+      frictionStatic: 0.4,
+      frictionAir: 0.008,
+      density: 0.001 * Math.pow(1.45, level),
       slop: 0.03,
       label: 'planet',
     });
+    if (level >= 2) Body.setInertia(b, b.inertia * 0.35);
     b.isPlanet = true;
     b.level = level;
     b.merging = false;
@@ -2079,6 +2082,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       nb.pop = 0.52;
       nb.popV = 3.2;
       Body.setVelocity(nb, { x: vx, y: vy - 0.7 });
+      Body.setAngularVelocity(nb, (Math.random() - 0.5) * 0.12);
       S.maxLevel = Math.max(S.maxLevel, newLevel);
       updateEvo();
       if (newLevel >= 7) addShake(0.3, 4 + newLevel * 0.5);
@@ -3136,9 +3140,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   };
 
   const THEME_WALLPAPERS = {
-    cosmos: 'assets/bg_cosmos.jpg?v=18',
-    neon: 'assets/bg_neon.jpg?v=18',
-    crystal: 'assets/bg_crystals.jpg?v=18',
+    cosmos: 'assets/bg_cosmos.jpg?v=19',
+    neon: 'assets/bg_neon.jpg?v=19',
+    crystal: 'assets/bg_crystals.jpg?v=19',
   };
   const wallpaperCache = {};
 
@@ -3167,103 +3171,137 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return THEMES[0];
   }
 
-  function paintNeon(c, r, cfg) {
-    const mid = (cfg.spark && cfg.spark[1]) || '#00f5d4';
-    const hot = (cfg.spark && cfg.spark[0]) || '#eafffb';
+  const NEON_SKINS = [
+    { base: '#00f5d4', hot: '#dcfffb', deep: '#022b30', arcs: 1, orbit: 0.4 },
+    { base: '#3b82f6', hot: '#e3efff', deep: '#06152f', arcs: 2, orbit: 0.52 },
+    { base: '#22c55e', hot: '#e4ffe9', deep: '#04240f', arcs: 3, orbit: 0.66 },
+    { base: '#eab308', hot: '#fff8d6', deep: '#2a1c02', arcs: 1, orbit: 0.34 },
+    { base: '#f97316', hot: '#ffeddc', deep: '#2a0d02', arcs: 2, orbit: 0.46 },
+    { base: '#ec4899', hot: '#ffe4f4', deep: '#2a0420', arcs: 3, orbit: 0.6 },
+    { base: '#a855f7', hot: '#f4e6ff', deep: '#170433', arcs: 1, orbit: 0.48 },
+    { base: '#06b6d4', hot: '#dcfbff', deep: '#02222b', arcs: 2, orbit: 0.68 },
+    { base: '#fbbf24', hot: '#fff6d5', deep: '#2b1a02', arcs: 3, orbit: 0.42 },
+    { base: '#c084fc', hot: '#ffffff', deep: '#0b0216', arcs: 4, orbit: 0.76 },
+  ];
 
-    c.save();
-    c.shadowColor = mid;
-    c.shadowBlur = r * 0.6;
-    const core = c.createRadialGradient(-r * 0.32, -r * 0.34, r * 0.04, 0, 0, r * 1.02);
-    core.addColorStop(0, hot);
-    core.addColorStop(0.34, rgbaOf(mid, 0.95));
-    core.addColorStop(0.72, rgbaOf(mid, 0.35));
-    core.addColorStop(1, '#050a1e');
-    c.fillStyle = core;
-    c.beginPath();
-    c.arc(0, 0, r, 0, TAU);
-    c.fill();
-    c.restore();
-
-    const inner = c.createRadialGradient(0, 0, 0, 0, 0, r * 0.86);
-    inner.addColorStop(0, rgbaOf(hot, 0.55));
-    inner.addColorStop(0.5, rgbaOf(mid, 0.18));
-    inner.addColorStop(1, 'rgba(0,0,0,0)');
-    c.fillStyle = inner;
-    c.beginPath();
-    c.arc(0, 0, r, 0, TAU);
-    c.fill();
-
-    c.save();
-    c.beginPath();
-    c.arc(0, 0, r, 0, TAU);
-    c.clip();
-    c.strokeStyle = rgbaOf(mid, 0.5);
-    c.lineWidth = Math.max(0.8, r * 0.03);
-    for (let i = 0; i < 3; i++) {
-      const yy = -r * 0.42 + i * r * 0.42;
-      c.beginPath();
-      c.ellipse(0, yy, r * 0.92, r * 0.22, 0, 0, TAU);
-      c.stroke();
-    }
-    c.restore();
-
-    c.strokeStyle = rgbaOf(mid, 0.95);
-    c.lineWidth = Math.max(1.2, r * 0.055);
-    c.beginPath();
-    c.arc(0, 0, r * 0.985, 0, TAU);
-    c.stroke();
-
-    c.strokeStyle = rgbaOf(hot, 0.6);
-    c.lineWidth = Math.max(0.7, r * 0.024);
-    c.beginPath();
-    c.arc(0, 0, r * 0.82, 0, TAU);
-    c.stroke();
-
-    c.strokeStyle = rgbaOf(hot, 0.85);
-    c.lineWidth = Math.max(0.8, r * 0.03);
-    c.beginPath();
-    c.arc(0, 0, r * 0.9, Math.PI * 1.05, Math.PI * 1.5);
-    c.stroke();
-
-    gloss(c, r, 0.26);
-  }
-
-  function paintCrystal(c, r, cfg) {
-    const hot = (cfg.spark && cfg.spark[0]) || '#fff5e6';
-    const mid = (cfg.spark && cfg.spark[1]) || '#9f1239';
-    const deep = (cfg.spark && cfg.spark[2]) || '#3b0764';
-    const sides = 8;
-    const seed = (r * 0.37) % TAU;
+  function paintNeon(c, r, cfg, level) {
+    const sk = NEON_SKINS[clamp(level || 1, 1, 10) - 1] || NEON_SKINS[0];
+    const base = sk.base;
+    const hot = sk.hot;
+    const deep = sk.deep;
+    const li = level || 1;
 
     c.save();
     c.beginPath();
     c.arc(0, 0, r, 0, TAU);
     c.clip();
 
-    const body = c.createRadialGradient(-r * 0.42, -r * 0.48, r * 0.04, 0, 0, r * 1.14);
-    body.addColorStop(0, rgbaOf(hot, 0.98));
-    body.addColorStop(0.28, rgbaOf(mid, 0.96));
-    body.addColorStop(0.64, rgbaOf(deep, 0.98));
-    body.addColorStop(1, 'rgba(24,6,20,1)');
-    c.fillStyle = body;
+    const shell = c.createRadialGradient(-r * 0.36, -r * 0.4, r * 0.04, 0, 0, r * 1.1);
+    shell.addColorStop(0, rgbaOf(hot, 0.3));
+    shell.addColorStop(0.38, rgbaOf(base, 0.92));
+    shell.addColorStop(0.74, rgbaOf(base, 0.3));
+    shell.addColorStop(1, rgbaOf(deep, 1));
+    c.fillStyle = shell;
     c.fillRect(-r, -r, r * 2, r * 2);
 
-    const sheen = c.createLinearGradient(-r, -r, r, r);
-    sheen.addColorStop(0, 'rgba(251,191,36,0.3)');
-    sheen.addColorStop(0.34, 'rgba(190,24,93,0.26)');
-    sheen.addColorStop(0.62, 'rgba(168,85,247,0.22)');
-    sheen.addColorStop(1, 'rgba(30,64,175,0.24)');
-    c.fillStyle = sheen;
+    const dark = c.createRadialGradient(0, 0, 0, 0, 0, r * 0.64);
+    dark.addColorStop(0, 'rgba(3,4,14,0.98)');
+    dark.addColorStop(0.66, 'rgba(3,4,14,0.84)');
+    dark.addColorStop(1, 'rgba(3,4,14,0)');
+    c.fillStyle = dark;
+    c.beginPath();
+    c.arc(0, 0, r * 0.64, 0, TAU);
+    c.fill();
+
+    c.lineWidth = Math.max(0.6, r * 0.022);
+    c.strokeStyle = rgbaOf(base, 0.45);
+    for (let i = 0; i < sk.arcs + 1; i++) {
+      const rad = r * (0.5 + ((i + 1) / (sk.arcs + 2)) * 0.38);
+      c.beginPath();
+      c.ellipse(0, 0, rad, rad * (0.5 + i * 0.11), li * 0.22 + i * 0.9, 0, TAU);
+      c.stroke();
+    }
+
+    c.strokeStyle = rgbaOf(hot, 0.8);
+    c.lineWidth = Math.max(1, r * 0.018);
+    for (let i = 0; i < sk.arcs; i++) {
+      const a0 = li * 0.7 + i * (TAU / (sk.arcs + 1));
+      const a1 = a0 + Math.PI * (0.4 + (li % 3) * 0.14);
+      c.beginPath();
+      c.arc(0, 0, r * (0.72 + i * 0.05), a0, a1);
+      c.stroke();
+    }
+
+    c.strokeStyle = rgbaOf(base, 0.95);
+    c.lineWidth = Math.max(1.4, r * 0.055);
+    c.beginPath();
+    c.arc(0, 0, r * 0.965, 0, TAU);
+    c.stroke();
+
+    c.strokeStyle = rgbaOf(hot, 0.55);
+    c.lineWidth = Math.max(0.7, r * 0.02);
+    c.beginPath();
+    c.arc(0, 0, r * 0.885, 0, TAU);
+    c.stroke();
+
+    c.fillStyle = rgbaOf(hot, 0.92);
+    c.beginPath();
+    c.arc(0, 0, r * 0.085, 0, TAU);
+    c.fill();
+
+    c.restore();
+
+    c.strokeStyle = rgbaOf(base, 0.32);
+    c.lineWidth = Math.max(1, r * 0.028);
+    c.beginPath();
+    c.arc(0, 0, r * 1.02, 0, TAU);
+    c.stroke();
+
+    gloss(c, r, 0.16);
+  }
+
+  const CRYSTAL_SKINS = [
+    { light: '#fffdf7', mid: '#e9e5f3', deep: '#a8a2c0', edge: '#7d7699', facets: 5, table: 0.5 },
+    { light: '#dcfcff', mid: '#4fd8e6', deep: '#0b5266', edge: '#0e7490', facets: 6, table: 0.46 },
+    { light: '#d9ffe9', mid: '#16c784', deep: '#04432f', edge: '#047857', facets: 7, table: 0.48 },
+    { light: '#fff4c9', mid: '#f5a524', deep: '#6b2e05', edge: '#92400e', facets: 8, table: 0.44 },
+    { light: '#ffe3ea', mid: '#e11d48', deep: '#450318', edge: '#881337', facets: 9, table: 0.52 },
+    { light: '#f4e9ff', mid: '#8b5cf6', deep: '#2b0a5c', edge: '#5b21b6', facets: 10, table: 0.46 },
+    { light: '#dbeafe', mid: '#2563eb', deep: '#081345', edge: '#1e3a8a', facets: 11, table: 0.5 },
+    { light: '#fff2f8', mid: '#f472b6', deep: '#5b0f36', edge: '#9d174d', facets: 12, table: 0.42 },
+    { light: '#fffbe8', mid: '#fbbf24', deep: '#5c3407', edge: '#b45309', facets: 7, table: 0.54 },
+    { light: '#f2f4ff', mid: '#2a3142', deep: '#04060c', edge: '#fbbf24', facets: 9, table: 0.4, crown: true },
+  ];
+
+  function paintCrystal(c, r, cfg, level) {
+    const li = clamp(level || 1, 1, 10);
+    const sk = CRYSTAL_SKINS[li - 1] || CRYSTAL_SKINS[0];
+    const light = sk.light;
+    const mid = sk.mid;
+    const deep = sk.deep;
+    const sides = sk.facets;
+    const seed = (li * 0.61) % TAU;
+    const tabR = r * sk.table;
+    const tabShift = -r * 0.06;
+
+    c.save();
+    c.beginPath();
+    c.arc(0, 0, r, 0, TAU);
+    c.clip();
+
+    const body = c.createRadialGradient(-r * 0.44, -r * 0.5, r * 0.05, 0, 0, r * 1.12);
+    body.addColorStop(0, rgbaOf(light, 0.99));
+    body.addColorStop(0.34, rgbaOf(mid, 0.98));
+    body.addColorStop(0.68, rgbaOf(deep, 1));
+    body.addColorStop(1, 'rgba(4,2,8,1)');
+    c.fillStyle = body;
     c.fillRect(-r, -r, r * 2, r * 2);
 
     const outer = [];
     const table = [];
-    const tabR = r * 0.44;
-    const tabShift = -r * 0.1;
     for (let i = 0; i < sides; i++) {
       const a = seed + (i / sides) * TAU;
-      outer.push([Math.cos(a) * r * 1.05, Math.sin(a) * r * 1.05]);
+      outer.push([Math.cos(a) * r * 1.04, Math.sin(a) * r * 1.04]);
       const ta = seed + (i / sides) * TAU + Math.PI / sides;
       table.push([Math.cos(ta) * tabR, Math.sin(ta) * tabR + tabShift]);
     }
@@ -3273,17 +3311,17 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       const o2 = outer[(i + 1) % sides];
       const t1 = table[i];
       const t2 = table[(i + 1) % sides];
-      const bright = i % 2 === 0;
+      const bright = (i + li) % 2 === 0;
 
       c.beginPath();
       c.moveTo(o1[0], o1[1]);
       c.lineTo(o2[0], o2[1]);
       c.lineTo(t1[0], t1[1]);
       c.closePath();
-      c.fillStyle = bright ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.3)';
+      c.fillStyle = bright ? rgbaOf(light, 0.4) : rgbaOf(deep, 0.62);
       c.fill();
-      c.strokeStyle = bright ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.35)';
-      c.lineWidth = Math.max(0.5, r * 0.02);
+      c.strokeStyle = bright ? rgbaOf(light, 0.6) : 'rgba(0,0,0,0.35)';
+      c.lineWidth = Math.max(0.5, r * 0.018);
       c.stroke();
 
       c.beginPath();
@@ -3291,10 +3329,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       c.lineTo(t2[0], t2[1]);
       c.lineTo(t1[0], t1[1]);
       c.closePath();
-      c.fillStyle = bright ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.2)';
+      c.fillStyle = bright ? rgbaOf(mid, 0.36) : rgbaOf(deep, 0.42);
       c.fill();
-      c.strokeStyle = 'rgba(255,255,255,0.24)';
-      c.lineWidth = Math.max(0.5, r * 0.018);
+      c.strokeStyle = rgbaOf(light, 0.3);
+      c.lineWidth = Math.max(0.45, r * 0.014);
       c.stroke();
     }
 
@@ -3303,41 +3341,37 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     for (let i = 1; i < sides; i++) c.lineTo(table[i][0], table[i][1]);
     c.closePath();
     const tabGrad = c.createLinearGradient(-tabR, -tabR + tabShift, tabR, tabR + tabShift);
-    tabGrad.addColorStop(0, rgbaOf(hot, 0.98));
-    tabGrad.addColorStop(0.5, rgbaOf(mid, 0.82));
-    tabGrad.addColorStop(1, rgbaOf(deep, 0.92));
+    tabGrad.addColorStop(0, rgbaOf(light, 1));
+    tabGrad.addColorStop(0.45, rgbaOf(mid, 0.94));
+    tabGrad.addColorStop(1, rgbaOf(deep, 0.98));
     c.fillStyle = tabGrad;
     c.fill();
-    c.strokeStyle = 'rgba(255,255,255,0.55)';
-    c.lineWidth = Math.max(0.6, r * 0.022);
+    c.strokeStyle = rgbaOf(light, 0.7);
+    c.lineWidth = Math.max(0.6, r * 0.02);
     c.stroke();
 
     for (let i = 0; i < sides; i++) {
       const p = table[i];
       const q = table[(i + 1) % sides];
       c.beginPath();
-      c.moveTo(p[0] * 0.3, p[1] * 0.3 + tabShift * 0.7);
+      c.moveTo(p[0] * 0.24, p[1] * 0.24 + tabShift * 0.7);
       c.lineTo(q[0], q[1]);
       c.lineTo(p[0], p[1]);
       c.closePath();
-      c.fillStyle = i % 2 ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.14)';
+      c.fillStyle = i % 2 ? rgbaOf(light, 0.16) : rgbaOf(deep, 0.2);
       c.fill();
     }
 
-    c.strokeStyle = 'rgba(255,255,255,0.92)';
-    c.lineWidth = Math.max(0.8, r * 0.035);
+    c.strokeStyle = rgbaOf(light, 0.85);
+    c.lineWidth = Math.max(0.7, r * 0.028);
+    const f1 = 0.34 + (li % 4) * 0.08;
     c.beginPath();
-    c.moveTo(outer[sides - 1][0] * 0.99, outer[sides - 1][1] * 0.99);
-    c.lineTo(table[0][0], table[0][1]);
-    c.lineTo(table[1][0], table[1][1]);
-    c.stroke();
-    c.lineWidth = Math.max(0.6, r * 0.024);
-    c.beginPath();
-    c.moveTo(table[1][0], table[1][1]);
-    c.lineTo(outer[2][0] * 0.99, outer[2][1] * 0.99);
+    c.moveTo(outer[sides - 1][0] * 0.96, outer[sides - 1][1] * 0.96);
+    c.lineTo(-r * f1, -r * (0.55 + (li % 3) * 0.05));
+    c.lineTo(table[Math.floor(sides / 2)][0], table[Math.floor(sides / 2)][1]);
     c.stroke();
 
-    c.fillStyle = 'rgba(255,255,255,0.95)';
+    c.fillStyle = rgbaOf(light, 0.85);
     c.beginPath();
     c.moveTo(-r * 0.42, -r * 0.62);
     c.lineTo(-r * 0.3, -r * 0.4);
@@ -3345,39 +3379,44 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.lineTo(-r * 0.56, -r * 0.44);
     c.closePath();
     c.fill();
-    c.beginPath();
-    c.moveTo(r * 0.34, r * 0.05);
-    c.lineTo(r * 0.46, r * 0.16);
-    c.lineTo(r * 0.3, r * 0.2);
-    c.closePath();
-    c.fill();
+
+    if (sk.crown) {
+      c.fillStyle = '#fbbf24';
+      c.strokeStyle = 'rgba(255,247,214,0.9)';
+      c.lineWidth = Math.max(0.6, r * 0.02);
+      c.beginPath();
+      c.moveTo(-r * 0.5, -r * 0.5);
+      c.lineTo(-r * 0.34, -r * 0.76);
+      c.lineTo(-r * 0.16, -r * 0.56);
+      c.lineTo(0, -r * 0.84);
+      c.lineTo(r * 0.18, -r * 0.56);
+      c.lineTo(r * 0.36, -r * 0.76);
+      c.lineTo(r * 0.5, -r * 0.5);
+      c.closePath();
+      c.fill();
+      c.stroke();
+    }
 
     c.restore();
 
-    const bez = c.createLinearGradient(-r, -r, r, r);
-    bez.addColorStop(0, '#fde68a');
-    bez.addColorStop(0.32, '#fbbf24');
-    bez.addColorStop(0.64, '#f59e0b');
-    bez.addColorStop(1, '#b45309');
-    c.strokeStyle = bez;
-    c.lineWidth = Math.max(1.4, r * 0.085);
+    const rimGrad = c.createLinearGradient(-r, -r, r, r);
+    rimGrad.addColorStop(0, '#fff6cf');
+    rimGrad.addColorStop(0.34, '#fbbf24');
+    rimGrad.addColorStop(0.68, '#d97706');
+    rimGrad.addColorStop(1, '#fde68a');
+    c.strokeStyle = rimGrad;
+    c.lineWidth = Math.max(1.4, r * 0.075);
     c.beginPath();
-    c.arc(0, 0, r * 0.962, 0, TAU);
+    c.arc(0, 0, r * 0.958, 0, TAU);
     c.stroke();
 
-    c.strokeStyle = 'rgba(255,247,214,0.8)';
-    c.lineWidth = Math.max(0.6, r * 0.028);
+    c.strokeStyle = 'rgba(255,250,232,0.55)';
+    c.lineWidth = Math.max(0.5, r * 0.022);
     c.beginPath();
     c.arc(0, 0, r * 0.9, 0, TAU);
     c.stroke();
 
-    c.strokeStyle = 'rgba(255,255,255,0.9)';
-    c.lineWidth = Math.max(0.7, r * 0.03);
-    c.beginPath();
-    c.arc(0, 0, r * 0.962, Math.PI * 1.1, Math.PI * 1.62);
-    c.stroke();
-
-    gloss(c, r, 0.3);
+    gloss(c, r, 0.22);
   }
 
   function themeAdsCount(id) {
@@ -3952,8 +3991,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const skinTheme = themeId();
     const W = WORLD_W;
     const H = WORLD_H;
-    const R_TOP = 34;
-    const R_BOT = 12;
+    const R_TOP = 0;
+    const R_BOT = 18;
 
     jarOutline(c, W, H, R_TOP, R_BOT);
     const pal = themePalette();
@@ -4042,20 +4081,45 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     c.lineWidth = 2.4;
     c.stroke();
 
-    c.strokeStyle = skinTheme === 'neon'
-      ? 'rgba(0,245,212,0.9)'
+    const capColor = skinTheme === 'neon'
+      ? 'rgba(0,245,212,0.92)'
       : skinTheme === 'crystal'
-        ? 'rgba(253,230,138,0.92)'
-        : 'rgba(150,235,255,0.8)';
-    c.lineWidth = 2.4;
-    c.beginPath();
-    c.moveTo(0, 0);
-    c.lineTo(W * 0.17, 0);
-    c.stroke();
-    c.beginPath();
-    c.moveTo(W * 0.83, 0);
-    c.lineTo(W, 0);
-    c.stroke();
+        ? 'rgba(253,230,138,0.94)'
+        : 'rgba(150,235,255,0.85)';
+    const orbGlow = skinTheme === 'neon'
+      ? 'rgba(0,245,212,0.36)'
+      : skinTheme === 'crystal'
+        ? 'rgba(251,191,36,0.36)'
+        : 'rgba(120,200,255,0.36)';
+    const orbCore = skinTheme === 'neon'
+      ? '#e6fffb'
+      : skinTheme === 'crystal'
+        ? '#fff7d6'
+        : '#eafaff';
+    c.lineCap = 'round';
+    c.strokeStyle = capColor;
+    c.lineWidth = 5;
+    for (let i = 0; i < 2; i++) {
+      const wx = i === 0 ? 2.6 : W - 2.6;
+      c.beginPath();
+      c.moveTo(wx, 26);
+      c.lineTo(wx, 4.5);
+      c.stroke();
+
+      const gr = c.createRadialGradient(wx, 4.5, 0, wx, 4.5, 15);
+      gr.addColorStop(0, orbCore);
+      gr.addColorStop(0.24, capColor);
+      gr.addColorStop(0.55, orbGlow);
+      gr.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = gr;
+      c.beginPath();
+      c.arc(wx, 4.5, 15, 0, TAU);
+      c.fill();
+      c.fillStyle = orbCore;
+      c.beginPath();
+      c.arc(wx, 4.5, 3.4, 0, TAU);
+      c.fill();
+    }
 
     c.strokeStyle = 'rgba(255,255,255,0.07)';
     c.lineWidth = 1;
@@ -4133,7 +4197,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const sp = getSprite(b.level);
     const sx = b.pop * (1 + b.squash);
     const sy = b.pop * (1 - b.squash);
-    const rot = b.level <= 2 ? b.angle : 0;
+    const rot = b.angle;
 
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
