@@ -4667,12 +4667,17 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function resize() {
+    const desktop = window.innerWidth >= 769;
+    if (desktop) {
+      stage.style.width = Math.max(200, Math.min(600, window.innerWidth - 520)) + 'px';
+      stage.style.minWidth = '0';
+      stage.style.maxWidth = 'none';
+    }
     const rect = stage.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
     const h = Math.max(1, Math.round(rect.height));
     const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 769 ? 1.5 : 2);
     const uiDpr = dpr;
-    const desktop = window.innerWidth >= 769;
     const spriteChanged = setSpriteScale(Math.max(2, uiDpr));
 
     applyResponsiveLayout(desktop);
@@ -4699,9 +4704,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     const mobile = window.innerWidth < 769;
     const padSide = desktop ? 16 : 12;
-    const stageMaxW = desktop ? 520 : 820 - padSide * 2;
+    const stageMaxW = desktop ? 600 : 820 - padSide * 2;
     const availW = Math.max(80, Math.min(w - padSide * 2, stageMaxW));
-    WORLD_W = desktop ? 520 : 400;
+    WORLD_W = desktop ? 560 : 400;
     const spawnLevels = 3;
     let maxSpawnRadius = 0;
     for (let i = 0; i < spawnLevels; i++) {

@@ -4149,14 +4149,16 @@ body[data-theme="crystals"] .daily-modal {
   #themeBtn,
   #settingsBtn,
   .evo-tool {
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    border-radius: 12px !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    flex: 0 0 42px !important;
+    margin: 0 !important;
+    border-radius: 13px !important;
   }
-  #themeBtn { grid-area: theme; }
-  #settingsBtn { grid-area: settings; }
 
   .control-grid {
     grid-area: right;
@@ -4359,10 +4361,11 @@ body[data-theme] .daily-ad-btn {
     left: 50%;
     transform: translateX(-50%);
     display: grid !important;
-    grid-template-columns: 1fr 1.12fr;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
-    width: min(520px, 42vw);
-    min-width: 460px;
+    width: min(600px, calc(100vw - 520px));
+    min-width: 0;
+    margin: 0 auto;
     z-index: 40;
   }
   .hud-card {
@@ -4380,8 +4383,8 @@ body[data-theme] .daily-ad-btn {
     bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    width: min(520px, 42vw);
-    min-width: 460px;
+    width: min(600px, calc(100vw - 520px));
+    min-width: 0;
     max-width: none;
     height: auto;
     min-height: 0;
@@ -4399,13 +4402,13 @@ body[data-theme] .daily-ad-btn {
     left: 24px;
     right: auto;
     bottom: auto;
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "evo evo"
-      "theme settings";
-    gap: 12px 10px;
-    width: 230px;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start;
+    align-content: flex-start;
+    gap: 12px !important;
+    width: 220px;
     min-width: 0;
     margin: 0 !important;
     padding: 14px;
@@ -4415,10 +4418,10 @@ body[data-theme] .daily-ad-btn {
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     box-sizing: border-box;
-    z-index: 40;
+    z-index: 20;
   }
   .evo-row .evo-center {
-    grid-area: evo;
+    flex: 0 0 100%;
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
@@ -4460,14 +4463,16 @@ body[data-theme] .daily-ad-btn {
   #themeBtn,
   #settingsBtn,
   .evo-tool {
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    border-radius: 12px !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    flex: 0 0 42px !important;
+    margin: 0 !important;
+    border-radius: 13px !important;
   }
-  #themeBtn { grid-area: theme; }
-  #settingsBtn { grid-area: settings; }
 
   /* ---- right corner: next planet card ---- */
   .hud-next {
@@ -4482,7 +4487,7 @@ body[data-theme] .daily-ad-btn {
       "name preview";
     align-items: center;
     column-gap: 10px;
-    width: 230px;
+    width: 220px;
     height: 64px;
     margin: 0;
     padding: 8px 12px;
@@ -4512,15 +4517,15 @@ body[data-theme] .daily-ad-btn {
   /* ---- right corner: 6 booster / rewards buttons ---- */
   .control-grid {
     position: fixed;
-    top: calc(var(--tg-top-inset, 0px) + 96px);
+    top: calc(var(--tg-top-inset, 0px) + 94px);
     right: 24px;
     left: auto;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
-    gap: 8px !important;
-    width: 230px;
+    gap: 10px !important;
+    width: 220px;
     box-sizing: border-box;
-    z-index: 40;
+    z-index: 20;
   }
   .control-grid > .bonus-btn,
   .control-grid > .invite-btn {
