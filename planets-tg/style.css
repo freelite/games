@@ -5486,8 +5486,9 @@ body:has(#leaderboardOverlay.open) .overlay {
   overscroll-behavior: contain !important;
   touch-action: pan-y !important;
   scrollbar-width: none;
-  scroll-snap-type: y proximity;
-  scroll-padding-top: 6px;
+  scroll-snap-type: none !important;
+  scroll-padding-top: 0 !important;
+  overflow-anchor: none !important;
   padding-top: 6px !important;
   padding-bottom: 0 !important;
   box-sizing: content-box !important;
@@ -5496,9 +5497,6 @@ body:has(#leaderboardOverlay.open) .overlay {
 .lb-list::-webkit-scrollbar {
   width: 0 !important;
   height: 0 !important;
-}
-#leaderboardOverlay .lb-list .lb-row {
-  scroll-snap-align: start;
 }
 
 /* ============================================================

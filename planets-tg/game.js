@@ -1163,6 +1163,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const leaderboardOverlay = $('leaderboardOverlay');
   const leaderboardClose = $('leaderboardClose');
   const lbListEl = $('lbList');
+  let lbUserTouched = false;
+  if (lbListEl) {
+    const lbMarkTouched = function () { lbUserTouched = true; };
+    lbListEl.addEventListener('touchstart', lbMarkTouched, { passive: true });
+    lbListEl.addEventListener('wheel', lbMarkTouched, { passive: true });
+  }
   const lbLeaguesEl = $('lbLeagues');
   const lbLeagueCard = $('lbLeagueCard');
   const lbLeagueName = $('lbLeagueName');
@@ -3479,6 +3485,20 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     try { lbListEl.scrollTo({ top: 0, behavior: 'instant' }); } catch (e) { lbListEl.scrollTop = 0; }
   }
 
+  /* iOS keeps snapping/anchoring the list on its own: pin the first
+     leader (#1) to the top until the player actually scrolls. */
+  function lbPinTop() {
+    if (!lbListEl || lbUserTouched) return;
+    resetLbScrollTop();
+  }
+
+  function lbPinTopSoon() {
+    if (!lbListEl || lbUserTouched) return;
+    requestAnimationFrame(lbPinTop);
+    setTimeout(lbPinTop, 60);
+    setTimeout(lbPinTop, 80);
+  }
+
   /* The list shows exactly five full rows and scrolls through the rest:
      the window height is measured from the real row pitch so the sixth
      row never peeks over the bottom edge. */
@@ -3777,18 +3797,22 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (lbProgressFill) lbProgressFill.style.width = percent.toFixed(1) + '%';
     if (lbProgressText) lbProgressText.textContent = progressText;
 
+    if (!lbUserTouched) lbListEl.scrollTop = 0;
     lbListEl.innerHTML = '';
     for (let i = 0; i < rows.length; i++) {
       lbListEl.appendChild(buildLbRow(rows[i], i + 1));
     }
     lbSyncWindow();
     resetLbScrollTop();
+    lbPinTopSoon();
   }
 
   function openLeaderboard() {
     Sound.unlock();
     haptic('light');
     lbReturnMode = S.mode;
+    lbUserTouched = false;
+    if (lbListEl) lbListEl.scrollTop = 0;
     if (S.mode === 'playing') pauseGame();
     savePlayerProfile();
     renderLeaderboard();
@@ -3801,11 +3825,15 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     }
     lbSyncWindow();
     resetLbScrollTop();
+    lbPinTopSoon();
     requestAnimationFrame(function () {
       lbSyncWindow();
       resetLbScrollTop();
+      lbPinTopSoon();
       requestAnimationFrame(resetLbScrollTop);
     });
+    setTimeout(lbPinTop, 60);
+    setTimeout(lbPinTop, 80);
     syncLoop();
   }
 
