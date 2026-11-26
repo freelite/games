@@ -3326,32 +3326,38 @@ body[data-theme="crystals"] .hud-pill:hover { border-color: rgba(251, 191, 36, 0
 #settingsBtn:active { transform: scale(0.94); }
 
 body[data-theme="cosmos"] #themeBtn,
-body[data-theme="cosmos"] #settingsBtn {
+body[data-theme="cosmos"] #settingsBtn,
+body[data-theme="cosmos"] #fullscreenBtn {
   color: #8ff3ff !important;
   border-color: rgba(67, 231, 255, 0.45) !important;
 }
 body[data-theme="cosmos"] #themeBtn:hover,
-body[data-theme="cosmos"] #settingsBtn:hover {
+body[data-theme="cosmos"] #settingsBtn:hover,
+body[data-theme="cosmos"] #fullscreenBtn:hover {
   border-color: rgba(67, 231, 255, 0.9) !important;
   box-shadow: 0 0 16px -8px rgba(67, 231, 255, 0.9);
 }
 body[data-theme="neon"] #themeBtn,
-body[data-theme="neon"] #settingsBtn {
+body[data-theme="neon"] #settingsBtn,
+body[data-theme="neon"] #fullscreenBtn {
   color: #7ffbe4 !important;
   border-color: rgba(0, 245, 212, 0.5) !important;
 }
 body[data-theme="neon"] #themeBtn:hover,
-body[data-theme="neon"] #settingsBtn:hover {
+body[data-theme="neon"] #settingsBtn:hover,
+body[data-theme="neon"] #fullscreenBtn:hover {
   border-color: rgba(0, 245, 212, 0.95) !important;
   box-shadow: 0 0 18px -8px rgba(0, 245, 212, 0.95);
 }
 body[data-theme="crystals"] #themeBtn,
-body[data-theme="crystals"] #settingsBtn {
+body[data-theme="crystals"] #settingsBtn,
+body[data-theme="crystals"] #fullscreenBtn {
   color: #fde68a !important;
   border-color: rgba(251, 191, 36, 0.5) !important;
 }
 body[data-theme="crystals"] #themeBtn:hover,
-body[data-theme="crystals"] #settingsBtn:hover {
+body[data-theme="crystals"] #settingsBtn:hover,
+body[data-theme="crystals"] #fullscreenBtn:hover {
   border-color: rgba(251, 191, 36, 0.95) !important;
   box-shadow: 0 0 16px -8px rgba(251, 191, 36, 0.9);
 }
@@ -4404,8 +4410,8 @@ body[data-theme] .daily-ad-btn {
     flex: 0 0 42px !important;
     border-radius: 13px !important;
   }
-  .evo-row #themeBtn { left: 14px !important; }
-  .evo-row #settingsBtn { left: 64px !important; }
+  .evo-row #settingsBtn { left: 14px !important; }
+  .evo-row #themeBtn { left: 64px !important; }
   .evo-row #fullscreenBtn {
     position: absolute !important;
     bottom: 14px !important;
