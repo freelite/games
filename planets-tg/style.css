@@ -5746,3 +5746,18 @@ body[data-theme="crystals"] .daily-check {
   box-shadow: 0 0 10px rgba(251, 191, 36, 0.75);
 }
 body[data-theme="crystals"] .daily-cell.is-claimed .daily-icon { color: #fbbf24 !important; }
+
+/* ============================================================
+   v69 - desktop finition typography for days 1-6 cards
+   ============================================================ */
+@media (min-width: 769px) {
+  #dailyOverlay .daily-cell:not(.super) .daily-day {
+    font-size: 11px !important;
+    letter-spacing: 0.7px !important;
+  }
+  #dailyOverlay .daily-cell:not(.super) .daily-text {
+    font-size: 12px !important;
+    line-height: 1.28 !important;
+    font-weight: 600 !important;
+  }
+}
