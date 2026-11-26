@@ -3460,6 +3460,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return top;
   }
 
+  function resetLbScrollTop() {
+    if (!lbListEl) return;
+    lbListEl.scrollTop = 0;
+    try { lbListEl.scrollTo({ top: 0, behavior: 'instant' }); } catch (e) { lbListEl.scrollTop = 0; }
+  }
+
   /* The list shows exactly five full rows and scrolls through the rest:
      the window height is measured from the real row pitch so the sixth
      row never peeks over the bottom edge. */
@@ -3762,8 +3768,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     for (let i = 0; i < rows.length; i++) {
       lbListEl.appendChild(buildLbRow(rows[i], i + 1));
     }
-    lbListEl.scrollTop = 0;
     lbSyncWindow();
+    resetLbScrollTop();
   }
 
   function openLeaderboard() {
@@ -3781,6 +3787,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       leaderboardOverlay.setAttribute('aria-hidden', 'false');
     }
     lbSyncWindow();
+    resetLbScrollTop();
+    requestAnimationFrame(function () {
+      lbSyncWindow();
+      resetLbScrollTop();
+      requestAnimationFrame(resetLbScrollTop);
+    });
     syncLoop();
   }
 
