@@ -3765,11 +3765,17 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const league = leagueForScore(S.best);
     const place = rows.findIndex(function (row) { return row.you; }) + 1;
 
-    if (lbLeagueName) lbLeagueName.textContent = lbTr(league.name);
+    const leagueColor = LB_LEAGUE_COLOR[league.step] || '#fbbf24';
+    if (lbLeagueName) {
+      lbLeagueName.textContent = lbTr(league.name);
+      lbLeagueName.style.setProperty('color', leagueColor, 'important');
+    }
     if (lbLeagueSub) lbLeagueSub.textContent = lbTr('Ваша лига');
     if (lbLeagueStep) lbLeagueStep.textContent = league.step + ' / 5';
-    if (lbRank) lbRank.textContent = '#' + place;
-    const leagueColor = LB_LEAGUE_COLOR[league.step] || '#fbbf24';
+    if (lbRank) {
+      lbRank.textContent = '#' + place;
+      lbRank.style.setProperty('color', leagueColor, 'important');
+    }
     const leagueGlow = rgbaOf(leagueColor, 0.55);
     if (lbLeagueIcon) {
       lbLeagueIcon.innerHTML = leagueCrestMarkup(league.step, 'lb-league-crest', leagueColor, true);
@@ -4078,7 +4084,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     { day: 4, shake: 0, clean: 2, icon: 'clean', text: '+2 бустера «Убрать мелкие»' },
     { day: 5, shake: 1, clean: 1, icon: 'both', text: '+1 бустер каждого вида' },
     { day: 6, shake: 3, clean: 0, icon: 'shake', text: '+3 бустера «Встряхнуть»' },
-    { day: 7, shake: 2, clean: 2, vipHours: 12, super: true, icon: 'crown', text: 'VIP на 12 часов + по 2 бустера' },
+    { day: 7, shake: 0, clean: 0, vipHours: 12, super: true, icon: 'crown', text: 'VIP на 12 часов' },
   ];
 
   const ICON_SHAKE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3"/><path d="M4.5 9.5c1.2 1 1.2 3 0 4M19.5 9.5c-1.2 1-1.2 3 0 4"/></svg>';
@@ -4150,11 +4156,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       jarLeftGlow: 'rgba(192,132,252,0.12)',
     },
     crystal: {
-      jarTop: 'rgba(18,7,26,0.60)',
-      jarMid: 'rgba(18,7,26,0.74)',
-      jarBottom: 'rgba(9,3,14,0.86)',
-      jarTopGlow: 'rgba(251,191,36,0.14)',
-      jarLeftGlow: 'rgba(245,158,11,0.10)',
+      jarTop: 'rgba(28, 7, 26, 0.64)',
+      jarMid: 'rgba(24, 6, 22, 0.76)',
+      jarBottom: 'rgba(14, 3, 14, 0.88)',
+      jarTopGlow: 'rgba(244, 63, 94, 0.16)',
+      jarLeftGlow: 'rgba(251, 191, 36, 0.14)',
     },
   };
 

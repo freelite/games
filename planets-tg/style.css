@@ -1865,72 +1865,72 @@ body[data-theme="neon"] {
 }
 
 body[data-theme="crystals"] {
-  --bg-page: #120618;
-  --bg-page-2: #240c2b;
+  --bg-page: #130514;
+  --bg-page-2: #240822;
   --bg-image: radial-gradient(980px 740px at 12% -8%, rgba(251, 191, 36, 0.2), transparent 64%),
-    radial-gradient(880px 700px at 88% 4%, rgba(168, 85, 247, 0.2), transparent 66%),
-    radial-gradient(760px 620px at 46% 110%, rgba(190, 24, 93, 0.18), transparent 70%),
+    radial-gradient(880px 700px at 88% 4%, rgba(225, 29, 72, 0.24), transparent 66%),
+    radial-gradient(760px 620px at 46% 110%, rgba(159, 18, 57, 0.22), transparent 70%),
     radial-gradient(560px 460px at 74% 58%, rgba(251, 191, 36, 0.12), transparent 72%),
     radial-gradient(2.5px 2.5px at 8% 18%, rgba(255, 241, 200, 0.95), transparent 62%),
     radial-gradient(2px 2px at 22% 62%, rgba(251, 191, 36, 0.85), transparent 62%),
-    radial-gradient(1.7px 1.7px at 33% 12%, rgba(255, 255, 255, 0.78), transparent 60%),
+    radial-gradient(1.7px 1.7px at 33% 12%, rgba(255, 228, 236, 0.78), transparent 60%),
     radial-gradient(2.3px 2.3px at 47% 80%, rgba(255, 228, 160, 0.82), transparent 62%),
-    radial-gradient(1.9px 1.9px at 59% 30%, rgba(216, 180, 254, 0.8), transparent 60%),
+    radial-gradient(1.9px 1.9px at 59% 30%, rgba(225, 29, 72, 0.8), transparent 60%),
     radial-gradient(2.6px 2.6px at 71% 66%, rgba(251, 191, 36, 0.9), transparent 62%),
     radial-gradient(1.6px 1.6px at 84% 14%, rgba(255, 255, 255, 0.82), transparent 60%),
-    radial-gradient(2.2px 2.2px at 93% 86%, rgba(244, 114, 182, 0.82), transparent 62%),
+    radial-gradient(2.2px 2.2px at 93% 86%, rgba(244, 63, 94, 0.82), transparent 62%),
     radial-gradient(1.8px 1.8px at 14% 90%, rgba(255, 236, 180, 0.72), transparent 60%),
-    radial-gradient(2px 2px at 64% 6%, rgba(233, 213, 255, 0.78), transparent 60%),
-    linear-gradient(180deg, #120618 0%, #1b0921 50%, #240c2b 100%);
-  --bg-jar: #06231d;
+    radial-gradient(2px 2px at 64% 6%, rgba(251, 207, 232, 0.78), transparent 60%),
+    linear-gradient(180deg, #130514 0%, #1c0618 50%, #240822 100%);
+  --bg-jar: #1b071c;
   --jar-border: #fbbf24;
-  --surface-card: rgba(8, 42, 36, 0.68);
-  --surface-card-2: rgba(10, 48, 40, 0.9);
-  --surface-modal: #0b342c;
-  --surface-modal-2: #041b17;
-  --modal-border: rgba(251, 191, 36, 0.34);
-  --modal-hi: rgba(16, 185, 129, 0.18);
-  --btn-bg: rgba(12, 58, 48, 0.92);
-  --btn-bg-hover: rgba(16, 74, 60, 0.95);
-  --btn-border: rgba(16, 185, 129, 0.4);
-  --btn-text: #e8fff6;
+  --surface-card: rgba(38, 10, 34, 0.72);
+  --surface-card-2: rgba(48, 12, 42, 0.92);
+  --surface-modal: #290a25;
+  --surface-modal-2: #140413;
+  --modal-border: rgba(251, 191, 36, 0.48);
+  --modal-hi: rgba(244, 63, 94, 0.24);
+  --btn-bg: rgba(54, 14, 46, 0.92);
+  --btn-bg-hover: rgba(74, 18, 62, 0.96);
+  --btn-border: rgba(244, 63, 94, 0.45);
+  --btn-text: #fff1f5;
   --btn-alt-bg: rgba(251, 191, 36, 0.14);
   --btn-alt-border: rgba(251, 191, 36, 0.55);
   --btn-alt-text: #ffe9b0;
-  --primary-grad: linear-gradient(135deg, #34d399 0%, #10b981 50%, #fbbf24 100%);
-  --primary-text: #04140f;
-  --primary-shadow: 0 12px 30px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --ghost-bg: rgba(16, 185, 129, 0.1);
-  --vip-bg: linear-gradient(135deg, #06302a, #0a4a3c);
+  --primary-grad: linear-gradient(135deg, #fb7185 0%, #e11d48 45%, #fbbf24 100%);
+  --primary-text: #1a040c;
+  --primary-shadow: 0 12px 32px rgba(225, 29, 72, 0.42), inset 0 1px 0 rgba(255, 248, 220, 0.75);
+  --ghost-bg: rgba(225, 29, 72, 0.14);
+  --vip-bg: linear-gradient(135deg, #2a0a24, #4a1038);
   --vip-border: rgba(251, 191, 36, 0.6);
-  --vip-text: #f0fff9;
+  --vip-text: #fff1f5;
   --vip-active-bg: linear-gradient(135deg, #3b280c, #5c3e12);
   --vip-active-border: #fbbf24;
   --vip-active-text: #fde68a;
-  --daily-bg: rgba(10, 58, 46, 0.8);
-  --daily-bg-hover: rgba(14, 74, 58, 0.88);
+  --daily-bg: rgba(54, 14, 46, 0.82);
+  --daily-bg-hover: rgba(74, 18, 62, 0.9);
   --daily-border: rgba(251, 191, 36, 0.5);
   --daily-border-hover: rgba(251, 191, 36, 0.85);
   --daily-text: #ffe9b0;
-  --daily-ad-grad: linear-gradient(135deg, #064e3b, #0f766e 55%, #b45309);
-  --accent-primary: #10b981;
+  --daily-ad-grad: linear-gradient(135deg, #4c0519, #9f1239 55%, #b45309);
+  --accent-primary: #e11d48;
   --accent-secondary: #fbbf24;
-  --accent-on: #041714;
-  --accent-ok: rgba(52, 211, 153, 0.65);
-  --accent-ok-soft: rgba(6, 60, 48, 0.6);
-  --title-grad: linear-gradient(180deg, #ffffff 10%, #a7f3d0 48%, #fbbf24 100%);
-  --score-grad: linear-gradient(180deg, #ffffff, #c7f9e5);
+  --accent-on: #1a040c;
+  --accent-ok: rgba(251, 113, 133, 0.65);
+  --accent-ok-soft: rgba(76, 5, 25, 0.6);
+  --title-grad: linear-gradient(180deg, #ffffff 10%, #fecdd3 48%, #fbbf24 100%);
+  --score-grad: linear-gradient(180deg, #ffffff, #fde68a);
   --best-grad: linear-gradient(180deg, #fff4c9, #fbbf24);
-  --orb-grad: radial-gradient(circle at 32% 28%, #d1fae5 0%, #10b981 34%, #065f46 68%, #03211b 100%);
+  --orb-grad: radial-gradient(circle at 32% 28%, #ffe4e6 0%, #f43f5e 34%, #881337 68%, #2a0412 100%);
   --orb-ring: rgba(251, 191, 36, 0.55);
-  --overlay-bg: radial-gradient(ellipse at 50% 35%, rgba(6, 58, 48, 0.62), rgba(2, 12, 10, 0.86) 72%);
-  --scrim: rgba(2, 12, 10, 0.8);
-  --grip: rgba(148, 220, 190, 0.42);
-  --text: #eafff7;
-  --muted: #9fd8c4;
-  --muted-2: #79b7a2;
-  --line: rgba(16, 185, 129, 0.22);
-  --panel: rgba(8, 42, 36, 0.68);
+  --overlay-bg: radial-gradient(ellipse at 50% 35%, rgba(76, 12, 54, 0.65), rgba(14, 3, 14, 0.88) 72%);
+  --scrim: rgba(10, 2, 10, 0.82);
+  --grip: rgba(233, 184, 202, 0.42);
+  --text: #fff5f7;
+  --muted: #e5b8ca;
+  --muted-2: #b8849b;
+  --line: rgba(251, 191, 36, 0.26);
+  --panel: rgba(38, 10, 34, 0.72);
 }
 
 @media (max-width: 380px) {
@@ -2697,10 +2697,10 @@ body[data-theme] .lb-league-icon {
 }
 .lb-league-crest { width: 38px; height: 38px; color: var(--league-color, #ffd76a); }
 .lb-league-name,
-body[data-theme] .lb-league-name { font-size: 14px; color: #ffe6a3 !important; }
+body[data-theme] .lb-league-name { font-size: 14px; color: var(--league-color, #ffd76a) !important; }
 .lb-league-sub,
 body[data-theme] .lb-league-sub { font-size: 10px; color: #cbb7f6 !important; }
-.lb-rank b { font-size: 17px; color: #ffd76a; }
+.lb-rank b { font-size: 17px; color: var(--league-color, #ffd76a) !important; }
 .lb-rank span,
 body[data-theme] .lb-rank span { color: #cbb7f6 !important; }
 .lb-bar { height: 8px; margin-top: 9px; background: rgba(4, 6, 20, 0.8); box-shadow: inset 0 0 0 1px rgba(255, 201, 107, 0.25); }
@@ -3136,9 +3136,9 @@ body[data-theme="neon"] .hud-next .hud-label { color: #8fd8cc; }
 body[data-theme="neon"] .hud-pill { color: #7ffbe4; border-color: rgba(0, 245, 212, 0.5); box-shadow: 0 0 16px -10px rgba(0, 245, 212, 0.9); }
 body[data-theme="neon"] .hud-pill:hover { border-color: rgba(0, 245, 212, 0.95); box-shadow: 0 0 18px -8px rgba(0, 245, 212, 0.95); }
 
-body[data-theme="crystals"] .hud-card:not(.hud-best) { border-color: rgba(16, 185, 129, 0.34); }
+body[data-theme="crystals"] .hud-card:not(.hud-best) { border-color: rgba(244, 63, 94, 0.34); }
 body[data-theme="crystals"] .hud-score .stat-value { background-image: linear-gradient(180deg, #ffffff, #fde68a); }
-body[data-theme="crystals"] .hud-next .hud-label { color: #9fd8c4; }
+body[data-theme="crystals"] .hud-next .hud-label { color: #e5b8ca; }
 body[data-theme="crystals"] .hud-pill { color: #fde68a; border-color: rgba(251, 191, 36, 0.5); }
 body[data-theme="crystals"] .hud-pill:hover { border-color: rgba(251, 191, 36, 0.95); box-shadow: 0 0 16px -8px rgba(251, 191, 36, 0.9); }
 
@@ -3566,15 +3566,15 @@ body[data-theme="neon"] .daily-modal {
 
 body[data-theme="crystals"] .daily-modal {
   --dm-accent: #fbbf24;
-  --dm-accent-2: #34d399;
+  --dm-accent-2: #fb7185;
   --dm-glow: rgba(251, 191, 36, 0.58);
-  --dm-banner-a: #064e3b;
-  --dm-banner-b: #3f1d0b;
-  --dm-bg-a: #06231d;
-  --dm-bg-b: #1a0b14;
-  --dm-cell: rgba(9, 48, 40, 0.9);
-  --dm-royal-a: #065f46;
-  --dm-royal-b: #7c2d12;
+  --dm-banner-a: #4c0519;
+  --dm-banner-b: #581c87;
+  --dm-bg-a: #1c0618;
+  --dm-bg-b: #2b0924;
+  --dm-cell: rgba(54, 14, 46, 0.9);
+  --dm-royal-a: #701a75;
+  --dm-royal-b: #9f1239;
   border-color: rgba(251, 191, 36, 0.9) !important;
 }
 
@@ -5723,3 +5723,26 @@ body[data-theme="crystals"] #dailyOverlay .daily-cell.super,
 #dailyOverlay:not(.open) .daily-cell.is-today {
   animation: none !important;
 }
+
+/* v68 - royal ruby & gold claimed state for the crystals theme */
+body[data-theme="crystals"] .daily-cell.is-claimed,
+body[data-theme="crystals"] .daily-cell.super.is-claimed {
+  border-color: rgba(251, 191, 36, 0.82) !important;
+  box-shadow:
+    inset 0 0 24px rgba(225, 29, 72, 0.34),
+    0 0 20px -10px rgba(251, 191, 36, 0.9) !important;
+}
+body[data-theme="crystals"] .daily-cell.super.is-claimed {
+  box-shadow:
+    0 0 24px -10px rgba(251, 191, 36, 0.9),
+    inset 0 0 30px rgba(225, 29, 72, 0.26) !important;
+}
+body[data-theme="crystals"] .daily-cell.is-claimed::before {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.26), transparent 70%);
+}
+body[data-theme="crystals"] .daily-check {
+  background: linear-gradient(135deg, #fde68a, #e11d48);
+  color: #1a040c;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.75);
+}
+body[data-theme="crystals"] .daily-cell.is-claimed .daily-icon { color: #fbbf24 !important; }

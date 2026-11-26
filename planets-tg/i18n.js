@@ -116,7 +116,7 @@
     '+2 бустера «Убрать мелкие»': '+2 Clear Small boosters',
     '+1 бустер каждого вида': '+1 booster of each kind',
     '+3 бустера «Встряхнуть»': '+3 Shake boosters',
-    'VIP на 12 часов + по 2 бустера': 'VIP for 12h + 2 boosters of each',
+    'VIP на 12 часов': '12h VIP Status',
     'Меню': 'Menu',
     'Космический рейтинг': 'Space Leaderboard',
     'Ваша лига': 'Your league',
