@@ -5417,3 +5417,66 @@ body[data-theme] #leaderboardOverlay .lb-row.is-you {
   overscroll-behavior: contain !important;
   pointer-events: auto !important;
 }
+
+/* ============================================================
+   v58 - exact five-player window + native finger scrolling
+   ============================================================ */
+body:has(.modal-overlay.active),
+body:has(.sheet-overlay.open),
+body:has(#leaderboardOverlay.open),
+body:has(.settings-overlay.open),
+body:has(#themesOverlay.open),
+body:has(#dailyOverlay.open),
+html:has(.modal-overlay.active),
+html:has(.sheet-overlay.open),
+html:has(#leaderboardOverlay.open),
+html:has(.settings-overlay.open),
+html:has(#themesOverlay.open),
+html:has(#dailyOverlay.open),
+.modal-overlay.active,
+.sheet-overlay.open,
+#leaderboardOverlay.open,
+.settings-overlay.open,
+#themesOverlay.open,
+#dailyOverlay.open,
+.modal-card,
+.sheet-modal,
+.lb-modal,
+.settings-modal {
+  touch-action: pan-y !important;
+}
+body:has(.modal-overlay.active) .app,
+body:has(.sheet-overlay.open) .app,
+body:has(#leaderboardOverlay.open) .app,
+body:has(.settings-overlay.open) .app,
+body:has(#themesOverlay.open) .app,
+body:has(#dailyOverlay.open) .app,
+body:has(.modal-overlay.active) .stage,
+body:has(.sheet-overlay.open) .stage,
+body:has(#leaderboardOverlay.open) .stage,
+body:has(.sheet-overlay.open) .hud,
+body:has(#leaderboardOverlay.open) .hud,
+body:has(.sheet-overlay.open) .overlay,
+body:has(#leaderboardOverlay.open) .overlay {
+  touch-action: pan-y !important;
+}
+
+#lb-list, #lbList, .lb-list,
+#lb-list *, #lbList *, .lb-list * {
+  touch-action: pan-y !important;
+}
+
+#lbList, #lb-list, .lb-list {
+  max-height: 264px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  pointer-events: auto !important;
+}
+
+@media (min-width: 769px) {
+  #lbList, #lb-list, .lb-list {
+    max-height: 314px !important;
+  }
+}

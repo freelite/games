@@ -3,10 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      try {
+        tg.ready();
+        tg.expand();
+        if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+        if (tg.requestFullscreen) tg.requestFullscreen();
+      } catch (e) {}
+    }
+  </script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <script src="./matter.min.js"></script>
   <script>window.Matter || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"><\/script>')</script>
-  <script src="i18n.js?v=57"></script>
+  <script src="i18n.js?v=58"></script>
   <script src="telegram-init.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#090d16">
@@ -16,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=57">
+  <link rel="stylesheet" href="style.css?v=58">
 </head>
 <body data-theme="cosmos">
   <script>
@@ -345,6 +356,6 @@
     <span>Проверьте подключение к интернету и обновите страницу.</span>
   </div>
 
-  <script src="game.js?v=57"></script>
+  <script src="game.js?v=58"></script>
 </body>
 </html>
