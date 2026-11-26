@@ -2071,6 +2071,19 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return out;
   }
 
+  function wakeAllPlanets() {
+    if (!engine || !Sleeping) return;
+    const all = Composite.allBodies(engine.world);
+    for (let i = 0; i < all.length; i++) {
+      const b = all[i];
+      if (!b.isPlanet) continue;
+      if (b.isSleeping) Sleeping.set(b, false);
+      if (Math.abs(b.velocity.y) < 0.05) {
+        Body.setVelocity(b, { x: b.velocity.x, y: 0.05 });
+      }
+    }
+  }
+
   let cachedSortedPlanets = [];
 
   function rebuildPlanetCache() {
@@ -2162,6 +2175,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     haptic(newLevel >= 7 ? 'medium' : 'light');
     Sound.merge(newLevel, S.combo);
     rebuildPlanetCache();
+    wakeAllPlanets();
     updateScore();
     syncControls();
   }
@@ -2439,6 +2453,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     haptic('light');
     Sound.clean();
     flash(0.12);
+    wakeAllPlanets();
     showToast('Убрано объектов: ' + small.length);
   }
 
@@ -3923,6 +3938,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
         }
       }
       rebuildPlanetCache();
+      wakeAllPlanets();
       S.danger = 0;
       S.cooldown = 0;
       S.current = randomLevel();
