@@ -5219,8 +5219,8 @@ body[data-theme] #leaderboardOverlay .lb-row.is-you {
 #leaderboardOverlay .lb-modal,
 #themesOverlay .sheet-modal,
 #dailyOverlay .sheet-modal {
-  margin-top: calc(var(--tg-top-inset, 56px) + 10px) !important;
-  max-height: calc(100dvh - var(--tg-top-inset, 56px) - 20px) !important;
+  margin: auto !important;
+  max-height: calc(100dvh - var(--tg-top-inset, 48px) - 28px) !important;
 }
 
 /* ---- leaderboard: exactly five visible rows, the rest scrolls ---- */
@@ -5240,4 +5240,120 @@ body[data-theme] #leaderboardOverlay .lb-row.is-you {
   #leaderboardOverlay .lb-row + .lb-row {
     margin-top: 5px !important;
   }
+}
+
+/* ============================================================
+   v56 - centred modals, no decorative grips, bigger headers,
+   native finger scrolling for the Space leaderboard list
+   ============================================================ */
+.settings-grip,
+.sheet-grip,
+.sheet-handle,
+.modal-handle {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+}
+.settings-modal::before,
+.sheet-modal::before,
+.lb-modal::before,
+.daily-modal::before {
+  display: none !important;
+  content: none !important;
+  height: 0 !important;
+  background: none !important;
+}
+
+.sheet-overlay,
+#leaderboardOverlay,
+#themesOverlay,
+#dailyOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: var(--tg-top-inset, 48px) 12px 16px !important;
+  box-sizing: border-box !important;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+.sheet-overlay.open,
+#leaderboardOverlay.open,
+#themesOverlay.open,
+#dailyOverlay.open {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+.settings-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: var(--tg-top-inset, 48px) 12px 16px !important;
+  box-sizing: border-box !important;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+.settings-overlay.open {
+  display: flex !important;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+
+.sheet-head,
+.settings-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-top: 14px !important;
+  padding-bottom: 12px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+.lb-head-text {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 !important;
+}
+.sheet-title,
+.settings-title,
+#leaderboardOverlay .sheet-title,
+#themesOverlay .sheet-title,
+#dailyOverlay .sheet-title {
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  text-align: left !important;
+}
+.settings-head .settings-close,
+.sheet-head .settings-close,
+.sheet-head .daily-close {
+  flex: 0 0 auto !important;
+  align-self: center !important;
+  margin: 0 !important;
+}
+
+#leaderboardOverlay .lb-list,
+.lb-list {
+  max-height: 272px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
 }

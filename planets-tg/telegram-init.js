@@ -23,7 +23,7 @@
     if (tg) {
       tg.ready();
       tg.expand();
-      if (typeof tg.requestFullscreen === 'function') tg.requestFullscreen();
+      if (typeof tg.requestFullscreen === 'function') { try { tg.requestFullscreen(); } catch (_) {} }
       if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes();
       var code = tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code;
       if (code) lang = String(code).toLowerCase().indexOf('ru') === 0 ? 'ru' : 'en';

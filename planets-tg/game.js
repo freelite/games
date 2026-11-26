@@ -2339,6 +2339,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function dropCurrent() {
+    if (anySheetOpen()) return;
     if (S.mode !== 'playing' || S.cooldown > 0 || S.current == null) return;
     const level = S.current;
     const rad = LEVELS[level - 1].radius;
@@ -5527,6 +5528,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function onPointerDown(e) {
+    if (anySheetOpen()) return;
     if (S.mode !== 'playing') return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     Sound.unlock();
@@ -5542,6 +5544,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function onPointerMove(e) {
+    if (anySheetOpen()) return;
     if (S.mode !== 'playing') return;
     if (e.pointerType === 'mouse' || pointerActive) {
       aimFromClientX(e.clientX);
@@ -5549,6 +5552,10 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function onPointerUp(e) {
+    if (anySheetOpen()) {
+      pointerActive = false;
+      return;
+    }
     if (!pointerActive) return;
     pointerActive = false;
     if (S.mode !== 'playing') return;
@@ -5610,6 +5617,20 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
         Sound.unlock();
       },
       { passive: true },
+    );
+
+    document.addEventListener(
+      'touchmove',
+      function (e) {
+        var t = e.target;
+        var inside = !!(t && t.closest && t.closest('.lb-list, .lb-row, .sheet-modal, .settings-modal'));
+        if (inside) return;
+        if (anySheetOpen()) {
+          e.preventDefault();
+          if (e.stopPropagation) e.stopPropagation();
+        }
+      },
+      { passive: false },
     );
 
     window.addEventListener(
@@ -5908,6 +5929,16 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   }
 
   function init() {
+    try {
+      var tgApp = window.Telegram && window.Telegram.WebApp;
+      if (tgApp) {
+        if (typeof tgApp.ready === 'function') tgApp.ready();
+        if (typeof tgApp.expand === 'function') tgApp.expand();
+        if (typeof tgApp.requestFullscreen === 'function') {
+          try { tgApp.requestFullscreen(); } catch (_) {}
+        }
+      }
+    } catch (err) {}
     S.best = readBest();
     S.vipUntil = Math.max(0, readInt(VIP_KEY, 0), readInt(VIP_KEY_LEGACY, 0));
     S.vipAds = clamp(readInt(VIP_ADS_KEY, 0), 0, VIP_ADS_REQUIRED);
