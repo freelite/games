@@ -752,7 +752,7 @@ const PLATFORM_ID = 'tg';
   const LEVELS = [
     {
       name: 'Астероид',
-      radius: 15,
+      radius: 14.3,
       score: 3,
       pad: 0.2,
       face: '#241b15',
@@ -764,7 +764,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Луна',
-      radius: 20,
+      radius: 19,
       score: 8,
       pad: 0.22,
       face: '#3b3733',
@@ -776,7 +776,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Меркурий',
-      radius: 26,
+      radius: 24.7,
       score: 16,
       pad: 0.24,
       face: '#43261a',
@@ -788,7 +788,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Марс',
-      radius: 33,
+      radius: 28.4,
       score: 28,
       pad: 0.26,
       face: '#3d1508',
@@ -800,7 +800,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Земля',
-      radius: 41,
+      radius: 35.3,
       score: 44,
       pad: 0.38,
       face: '#08243f',
@@ -812,7 +812,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Нептун',
-      radius: 50,
+      radius: 43,
       score: 66,
       pad: 0.32,
       face: '#dcefff',
@@ -826,7 +826,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Сатурн',
-      radius: 61,
+      radius: 52.5,
       score: 96,
       pad: 1.08,
       face: '#4a3417',
@@ -838,7 +838,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Юпитер',
-      radius: 73,
+      radius: 62.8,
       score: 140,
       pad: 0.26,
       face: '#47270f',
@@ -850,7 +850,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Солнце',
-      radius: 87,
+      radius: 74.8,
       score: 200,
       pad: 0.68,
       face: '#7a3000',
@@ -862,7 +862,7 @@ const PLATFORM_ID = 'tg';
     },
     {
       name: 'Чёрная дыра',
-      radius: 102,
+      radius: 87.7,
       score: 350,
       pad: 1.08,
       face: '#e9f8ff',
@@ -1516,6 +1516,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     warnTimer: 0,
     overToken: 0,
     record: false,
+    recordRun: false,
   };
 
   const view = {
@@ -2234,6 +2235,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     S.aimTarget = WORLD_W / 2;
     S.warnTimer = 0;
     S.record = false;
+    S.recordRun = false;
     S.secondChanceUsed = false;
     if (secondChanceBtn) secondChanceBtn.disabled = false;
     S.current = randomLevel();
@@ -2311,12 +2313,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     flash(0.35);
     burst(WORLD_W / 2, DANGER_Y + 20, 8, true);
 
-    const isRecord = S.score > S.best;
+    const isRecord = S.score > S.best || S.recordRun;
+    if (S.score > S.best) S.best = S.score;
     if (isRecord) {
-      S.best = S.score;
       writeBest(S.best);
       updateBest();
     }
+    S.recordRun = false;
     S.record = isRecord;
     bridgeSendMessage('level_failed');
     syncControls();
@@ -2825,7 +2828,47 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     el.classList.add('bump');
   }
 
+  let bestPushTimer = null;
+  let bestDirty = false;
+
+  function flushBestRecord() {
+    if (bestPushTimer) {
+      clearTimeout(bestPushTimer);
+      bestPushTimer = null;
+    }
+    if (!bestDirty) return;
+    bestDirty = false;
+    try {
+      writeBest(S.best);
+    } catch (err) {}
+  }
+
+  function scheduleBestPush() {
+    bestDirty = true;
+    if (bestPushTimer) clearTimeout(bestPushTimer);
+    bestPushTimer = setTimeout(function () {
+      bestPushTimer = null;
+      if (!bestDirty) return;
+      bestDirty = false;
+      try {
+        writeBest(S.best);
+      } catch (err) {}
+    }, 2500);
+  }
+
+  function trackLiveRecord() {
+    if (!(S.score > S.best)) return false;
+    S.best = S.score;
+    S.recordRun = true;
+    saveValue(BEST_KEY, S.best);
+    cloudSaveBest(S.best);
+    updateBest();
+    scheduleBestPush();
+    return true;
+  }
+
   function updateScore(animate) {
+    trackLiveRecord();
     scoreEl.textContent = fmt(S.score);
     if (animate !== false) bump(scoreEl);
   }
@@ -5722,6 +5765,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     document.addEventListener('visibilitychange', function () {
       updateAudioSuppression();
       if (document.hidden) {
+        flushBestRecord();
         if (S.mode === 'playing') pauseGame();
         stopLoop();
         return;
@@ -5734,6 +5778,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       ro.observe(stage);
     }
     window.addEventListener('resize', scheduleResize);
+    window.addEventListener('pagehide', function () {
+      flushBestRecord();
+    });
     window.addEventListener('orientationchange', function () {
       setTimeout(scheduleResize, 150);
     });

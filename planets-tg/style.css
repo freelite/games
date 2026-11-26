@@ -5121,3 +5121,123 @@ body[data-theme] #leaderboardOverlay .lb-row.is-top,
 body[data-theme] #leaderboardOverlay .lb-row.is-you {
   border-radius: 10px !important;
 }
+
+/* ============================================================
+   v55 - balanced "Space themes" cards (title and description on
+   the left, rewarded action button on the right), centred
+   autosave hint, modals pinned below the Telegram system buttons
+   and a five-row scrollable "Space leaderboard" list
+   ============================================================ */
+
+/* ---- theme cards: preview + text + action button ---- */
+#themesOverlay .theme-list,
+.theme-list {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+#themesOverlay .theme-card,
+.theme-card {
+  align-items: center !important;
+  gap: 10px !important;
+}
+#themesOverlay .theme-meta,
+.theme-meta {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding-right: 8px !important;
+}
+#themesOverlay .theme-name,
+.theme-name {
+  margin-bottom: 3px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.22 !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+}
+#themesOverlay .theme-sub,
+.theme-sub {
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+  opacity: 0.78 !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+/* ---- rewarded action button: 126px column, text always inside ---- */
+#themesOverlay .theme-btn,
+#themesOverlay .theme-action-btn,
+#themesOverlay .theme-action,
+.theme-action-btn,
+.theme-action {
+  flex: 0 0 126px !important;
+  width: 126px !important;
+  min-width: 124px !important;
+  max-width: 126px !important;
+  height: auto !important;
+  min-height: 40px !important;
+  max-height: none !important;
+  padding: 8px 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+/* ---- autosave hint centred horizontally and vertically ---- */
+#themesOverlay .sheet-note,
+.sheet-note {
+  width: 100% !important;
+  margin-top: 12px !important;
+  margin-bottom: 0 !important;
+  padding: 10px 8px 4px !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  opacity: 0.72 !important;
+}
+
+/* ---- modals never slide under the Telegram close / menu buttons ---- */
+.sheet-overlay .sheet-modal,
+.sheet-modal,
+.sheet-overlay .lb-modal,
+#leaderboardOverlay .sheet-modal,
+#leaderboardOverlay .lb-modal,
+#themesOverlay .sheet-modal,
+#dailyOverlay .sheet-modal {
+  margin-top: calc(var(--tg-top-inset, 56px) + 10px) !important;
+  max-height: calc(100dvh - var(--tg-top-inset, 56px) - 20px) !important;
+}
+
+/* ---- leaderboard: exactly five visible rows, the rest scrolls ---- */
+#leaderboardOverlay .lb-list,
+.lb-list {
+  max-height: 272px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 769px) {
+  #leaderboardOverlay .lb-row,
+  body[data-theme] #leaderboardOverlay .lb-row {
+    min-height: 50px !important;
+    height: 50px !important;
+  }
+  #leaderboardOverlay .lb-row + .lb-row {
+    margin-top: 5px !important;
+  }
+}
