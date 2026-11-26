@@ -3726,6 +3726,23 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     requestAnimationFrame(function () {
       if (!lbListEl) return;
+      const firstRow = lbListEl.querySelector('.lb-row');
+      if (firstRow) {
+        const rowH = firstRow.getBoundingClientRect().height;
+        const rowNodes = lbListEl.querySelectorAll('.lb-row');
+        let gap = 0;
+        if (rowNodes.length > 1) {
+          gap = Math.max(0, rowNodes[1].getBoundingClientRect().top - firstRow.getBoundingClientRect().bottom);
+        }
+        if (!gap) {
+          const cs = window.getComputedStyle(lbListEl);
+          gap = parseFloat(cs.rowGap || cs.gap) || 0;
+        }
+        if (rowH > 0) {
+          lbListEl.style.maxHeight = Math.ceil(rowH * 5 + gap * 4 + 14) + 'px';
+          lbListEl.style.overflowY = 'auto';
+        }
+      }
       const youRow = lbListEl.querySelector('.lb-row.is-you');
       if (!youRow) return;
       const target = Math.max(0, youRow.offsetTop - lbListEl.clientHeight / 2 + youRow.offsetHeight / 2);
@@ -5588,6 +5605,65 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (!Sound.muted) Sound.ui();
   }
 
+  function bindLeaderboardTouchScroll() {
+    const el = lbListEl;
+    if (!el || el.dataset.touchScrollBound === '1') return;
+    el.dataset.touchScrollBound = '1';
+    let startY = 0;
+    let lastY = 0;
+    let velocity = 0;
+    let momentumId = 0;
+
+    function stopMomentum() {
+      if (momentumId) {
+        cancelAnimationFrame(momentumId);
+        momentumId = 0;
+      }
+    }
+
+    function momentum() {
+      if (Math.abs(velocity) > 0.5) {
+        el.scrollTop -= velocity;
+        velocity *= 0.92;
+        momentumId = requestAnimationFrame(momentum);
+      } else {
+        velocity = 0;
+        momentumId = 0;
+      }
+    }
+
+    el.addEventListener('touchstart', function (e) {
+      stopMomentum();
+      startY = e.touches[0].clientY;
+      lastY = startY;
+      velocity = 0;
+      e.stopPropagation();
+    }, { passive: false });
+
+    el.addEventListener('touchmove', function (e) {
+      stopMomentum();
+      const dy = e.touches[0].clientY - lastY;
+      lastY = e.touches[0].clientY;
+      velocity = dy;
+      el.scrollTop -= dy;
+      e.stopPropagation();
+      e.preventDefault();
+    }, { passive: false });
+
+    el.addEventListener('touchend', function (e) {
+      if (Math.abs(velocity) > 0.5) {
+        stopMomentum();
+        momentumId = requestAnimationFrame(momentum);
+      }
+      e.stopPropagation();
+    }, { passive: false });
+
+    el.addEventListener('touchcancel', function () {
+      stopMomentum();
+      velocity = 0;
+    }, { passive: true });
+  }
+
   function bindEvents() {
     window.addEventListener('contextmenu', function (e) {
       e.preventDefault();
@@ -5690,17 +5766,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       });
     }
     if (lbShareBtn) lbShareBtn.addEventListener('click', leaderboardShare);
-    if (lbListEl) {
-      ['touchstart', 'touchmove'].forEach(function (type) {
-        lbListEl.addEventListener(
-          type,
-          function (e) {
-            e.stopPropagation();
-          },
-          { passive: true },
-        );
-      });
-    }
+    bindLeaderboardTouchScroll();
     adBoosterBtn.addEventListener('click', adBooster);
     secondChanceBtn.addEventListener('click', secondChance);
 
@@ -5939,17 +6005,22 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       : 'Приглашение отправлено: +1 Бустер');
   }
 
-  function init() {
+  function enterTgFullscreen() {
     try {
-      var tgApp = window.Telegram && window.Telegram.WebApp;
-      if (tgApp) {
-        if (typeof tgApp.ready === 'function') tgApp.ready();
-        if (typeof tgApp.expand === 'function') tgApp.expand();
-        if (typeof tgApp.requestFullscreen === 'function') {
-          try { tgApp.requestFullscreen(); } catch (_) {}
-        }
-      }
-    } catch (err) {}
+      var tg = window.Telegram && window.Telegram.WebApp;
+      if (!tg) return;
+      try { tg.ready(); } catch (e) {}
+      try { tg.expand(); } catch (e) {}
+      try { if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
+      try { if (tg.enableClosingConfirmation) tg.enableClosingConfirmation(); } catch (e) {}
+      try { if (tg.requestFullscreen && !tg.isFullscreen) tg.requestFullscreen(); } catch (e) {}
+    } catch (e) {}
+  }
+
+  function init() {
+    enterTgFullscreen();
+    setTimeout(enterTgFullscreen, 150);
+    document.addEventListener('pointerdown', enterTgFullscreen, { once: true });
     S.best = readBest();
     S.vipUntil = Math.max(0, readInt(VIP_KEY, 0), readInt(VIP_KEY_LEGACY, 0));
     S.vipAds = clamp(readInt(VIP_ADS_KEY, 0), 0, VIP_ADS_REQUIRED);

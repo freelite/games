@@ -2476,15 +2476,15 @@ body[data-theme="crystals"] { --lb-glow: rgba(167, 139, 250, 0.4); }
   position: relative;
   flex: 1 1 auto;
   min-height: 96px;
-  max-height: 46vh;
   padding: 3px;
-  overflow-y: auto;
+  overflow-y: auto !important;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: rgba(6, 8, 22, 0.55);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  touch-action: none !important;
+  overscroll-behavior: contain !important;
 }
 .lb-list::-webkit-scrollbar { width: 0; }
 .lb-row {
@@ -2624,7 +2624,6 @@ body[data-theme="crystals"] .lb-you { border-color: rgba(196, 181, 253, 0.65); b
 
 @media (max-height: 720px) {
   .lb-modal { gap: 6px; }
-  .lb-list { max-height: 40vh; }
 }
 @media (max-width: 380px) {
   .stat.best { padding-left: 6px; padding-right: 6px; }
@@ -2816,8 +2815,8 @@ body[data-theme] .lb-league-bottom { font-size: 10px; color: #cbb7f6 !important;
 .lb-list {
   flex: 1 1 auto !important;
   min-height: 92px;
-  max-height: none !important;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: auto !important;
 }
 .lb-row { grid-template-columns: minmax(0, 1fr) auto; }
 .lb-who { gap: 6px; }
@@ -4437,9 +4436,6 @@ body[data-theme] .daily-ad-btn {
     padding: 14px 16px 12px !important;
     border-radius: 18px !important;
   }
-  #leaderboardOverlay .lb-list {
-    max-height: 52vh !important;
-  }
   #leaderboardOverlay .lb-row {
     grid-template-columns: minmax(0, 1fr) auto !important;
     gap: 12px !important;
@@ -4640,7 +4636,6 @@ body[data-theme] #leaderboardOverlay .lb-score {
     font-size: 9.5px !important;
     padding: 2px 6px !important;
   }
-  #leaderboardOverlay .lb-list { max-height: 54vh !important; }
   #leaderboardOverlay .lb-row,
   body[data-theme] #leaderboardOverlay .lb-row {
     grid-template-columns: minmax(0, 1fr) auto !important;
