@@ -4960,27 +4960,74 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     });
   }
 
-  const DESKTOP_JAR_MIN_W = 660;
-  const DESKTOP_JAR_MAX_W = 820;
-  const DESKTOP_GAME_W = 560;
 
   function resize() {
     const desktop = window.innerWidth >= 769;
-    const targetDesktopJarW = Math.min(DESKTOP_JAR_MAX_W, Math.max(DESKTOP_JAR_MIN_W, Math.round(window.innerHeight * 0.64)));
-    const desktopJarW = desktop ? Math.max(320, Math.min(targetDesktopJarW, window.innerWidth - 520)) : 0;
-    if (desktop) {
-      stage.style.width = desktopJarW + 'px';
-      stage.style.minWidth = '0';
-      stage.style.maxWidth = desktopJarW + 'px';
-    }
-    const rect = stage.getBoundingClientRect();
-    const w = Math.max(1, Math.round(rect.width));
-    const h = Math.max(1, Math.round(rect.height));
-    const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 769 ? 1.25 : 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, desktop ? 2 : 1.25);
     const uiDpr = dpr;
     const spriteChanged = setSpriteScale(Math.max(2, uiDpr));
 
     applyResponsiveLayout(desktop);
+
+    const mobile = !desktop;
+    const spawnLevels = 3;
+    let maxSpawnRadius = 0;
+    for (let i = 0; i < spawnLevels; i++) {
+      maxSpawnRadius = Math.max(maxSpawnRadius, LEVELS[i].radius);
+    }
+    const spawnPadPx = 4;
+    const jarDropFactor = 0.55;
+    const bottomGapPx = 8;
+    const minWorldH = mobile ? 320 : 380;
+
+    let rect = stage.getBoundingClientRect();
+    let h = Math.max(1, Math.round(rect.height));
+    let w;
+    let scale;
+    let jarTopWorld;
+
+    if (desktop) {
+      WORLD_W = 560;
+      WORLD_H = 740;
+      DANGER_Y = 115;
+      const maxDesktopW = Math.max(320, window.innerWidth - 520);
+      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx;
+      scale = Math.max(0.05, Math.min((h - bottomGapPx) / (WORLD_H + jarTopWorld), maxDesktopW / WORLD_W));
+      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+      scale = Math.max(0.05, Math.min((h - bottomGapPx) / (WORLD_H + jarTopWorld), maxDesktopW / WORLD_W));
+
+      const exactJarPx = Math.round(WORLD_W * scale);
+      stage.style.width = exactJarPx + 'px';
+      stage.style.maxWidth = exactJarPx + 'px';
+      stage.style.minWidth = '0';
+      const hudPair = document.querySelector('.hud-pair');
+      if (hudPair) {
+        hudPair.style.width = exactJarPx + 'px';
+        hudPair.style.maxWidth = exactJarPx + 'px';
+      }
+      rect = stage.getBoundingClientRect();
+      h = Math.max(1, Math.round(rect.height));
+      w = Math.max(1, Math.round(rect.width));
+    } else {
+      w = Math.max(1, Math.round(rect.width));
+      const padSide = 12;
+      const availW = Math.max(80, Math.min(w - padSide * 2, 820 - padSide * 2));
+      WORLD_W = 400;
+      scale = availW / WORLD_W;
+      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+      if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
+        const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
+        if (fit > 0 && fit < scale) scale = fit;
+      }
+      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+      if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
+        const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
+        if (fit > 0 && fit < scale) scale = fit;
+        jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
+      }
+      WORLD_H = Math.max(minWorldH, Math.round((h - bottomGapPx) / scale) - jarTopWorld);
+      DANGER_Y = 42 / scale;
+    }
 
     if (w === view.w && h === view.h && dpr === view.dpr && uiDpr === view.uiDpr) {
       if (spriteChanged) {
@@ -5002,49 +5049,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     ctx.imageSmoothingEnabled = true;
     if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
 
-    const mobile = window.innerWidth < 769;
-    const padSide = desktop ? 0 : 12;
-    const stageMaxW = desktop ? desktopJarW : 820 - padSide * 2;
-    const availW = Math.max(80, Math.min(w - padSide * 2, stageMaxW));
-    const spawnLevels = 3;
-    let maxSpawnRadius = 0;
-    for (let i = 0; i < spawnLevels; i++) {
-      maxSpawnRadius = Math.max(maxSpawnRadius, LEVELS[i].radius);
-    }
-    const spawnPadPx = 4;
-    const jarDropFactor = 0.55;
-    const bottomGapPx = 8;
-    const minWorldH = mobile ? 320 : 380;
-    let scale;
-    let jarTopWorld;
-    if (desktop) {
-      // desktop jar: 560 logical units wide so the Matter.js walls, the baked
-      // jar buffer, the spawn aim bounds and the score/best row all line up
-      scale = Math.max(0.05, (w - 16) / DESKTOP_GAME_W);
-      WORLD_W = DESKTOP_GAME_W;
-      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
-      WORLD_H = Math.max(minWorldH, (h - bottomGapPx) / scale - jarTopWorld);
-    } else {
-      WORLD_W = 400;
-      const widthScale = availW / WORLD_W;
-      scale = widthScale;
-      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
-      if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
-        const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
-        if (fit > 0 && fit < scale) scale = fit;
-      }
-      jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
-      if ((h - bottomGapPx) / scale - jarTopWorld < minWorldH) {
-        const fit = (h - bottomGapPx) / (minWorldH + jarTopWorld);
-        if (fit > 0 && fit < scale) scale = fit;
-        jarTopWorld = maxSpawnRadius * (1 + jarDropFactor) + spawnPadPx / scale;
-      }
-      WORLD_H = Math.max(minWorldH, Math.round((h - bottomGapPx) / scale) - jarTopWorld);
-    }
     SPAWN_Y = -maxSpawnRadius * jarDropFactor;
     HOLD_Y = SPAWN_Y;
     view.scale = scale;
-    DANGER_Y = (mobile ? 42 : 76) / scale;
     view.jarW = WORLD_W * scale;
     view.jarH = WORLD_H * scale;
     view.jarLeft = Math.round((w - view.jarW) / 2);

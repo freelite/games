@@ -4172,8 +4172,6 @@ body[data-theme] .daily-ad-btn {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    width: clamp(660px, 64vh, 820px) !important;
-    max-width: calc(100vw - 520px) !important;
     min-width: 0;
     margin: 0 auto;
     z-index: 40;
@@ -4193,8 +4191,6 @@ body[data-theme] .daily-ad-btn {
     bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    width: clamp(660px, 64vh, 820px) !important;
-    max-width: calc(100vw - 520px) !important;
     min-width: 0;
     height: auto;
     min-height: 0;
