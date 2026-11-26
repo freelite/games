@@ -2077,9 +2077,9 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     for (let i = 0; i < all.length; i++) {
       const b = all[i];
       if (!b.isPlanet) continue;
-      if (b.isSleeping) Sleeping.set(b, false);
-      if (Math.abs(b.velocity.y) < 0.05) {
-        Body.setVelocity(b, { x: b.velocity.x, y: 0.05 });
+      if (Sleeping) Sleeping.set(b, false);
+      if (Math.abs(b.velocity.y) < 0.12) {
+        Body.setVelocity(b, { x: b.velocity.x, y: 0.12 });
       }
     }
   }
@@ -5055,6 +5055,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     buildJar();
     buildGradients();
     syncWalls();
+    wakeAllPlanets();
     if (spriteChanged || uiChanged) {
       buildEvo();
       updatePreview();
@@ -5962,11 +5963,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
     document.addEventListener('fullscreenchange', function () {
       syncFullscreenBtn();
-      setTimeout(scheduleResize, 120);
+      setTimeout(function () { scheduleResize(); wakeAllPlanets(); }, 120);
     });
     document.addEventListener('webkitfullscreenchange', function () {
       syncFullscreenBtn();
-      setTimeout(scheduleResize, 120);
+      setTimeout(function () { scheduleResize(); wakeAllPlanets(); }, 120);
     });
     syncFullscreenBtn();
   }
