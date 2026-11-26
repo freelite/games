@@ -2041,6 +2041,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     b.angle = (Math.random() - 0.5) * (level <= 2 ? 0.55 : 0.18);
     b.angularVelocity = (Math.random() - 0.5) * 0.008;
     Composite.add(engine.world, b);
+    rebuildPlanetCache();
     return b;
   }
 
@@ -2064,11 +2065,21 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return out;
   }
 
+  let cachedSortedPlanets = [];
+
+  function rebuildPlanetCache() {
+    cachedSortedPlanets = planetBodies();
+    cachedSortedPlanets.sort(function (a, b) {
+      return b.level - a.level;
+    });
+  }
+
   function clearPlanets() {
     const all = Composite.allBodies(engine.world);
     for (let i = 0; i < all.length; i++) {
       if (all[i].isPlanet) Composite.remove(engine.world, all[i]);
     }
+    rebuildPlanetCache();
   }
 
   /* ------------------------------------------------------------
@@ -2144,6 +2155,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     haptic(newLevel >= 7 ? 'medium' : 'light');
     Sound.merge(newLevel, S.combo);
+    rebuildPlanetCache();
     updateScore();
     syncControls();
   }
@@ -2417,6 +2429,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       b.isPlanet = false;
       Composite.remove(engine.world, b);
     }
+    rebuildPlanetCache();
     haptic('light');
     Sound.clean();
     flash(0.12);
@@ -3875,6 +3888,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
           }
         }
       }
+      rebuildPlanetCache();
       S.danger = 0;
       S.cooldown = 0;
       S.current = randomLevel();
@@ -4041,7 +4055,47 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
   const ICON_SHAKE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3"/><path d="M4.5 9.5c1.2 1 1.2 3 0 4M19.5 9.5c-1.2 1-1.2 3 0 4"/></svg>';
   const ICON_CLEAN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M11 4l1.6 4.4L17 10l-4.4 1.6L11 16l-1.6-4.4L5 10l4.4-1.6L11 4z"/><path d="M18 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/></svg>';
-  const ICON_CROWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 3 4-6 4 6 4-3-2 10H6L4 8z"/><path d="M6 18h12"/></svg>';
+  const ICON_CROWN = '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true">' +
+    '<defs>' +
+    '<linearGradient id="goldCrownGrad" x1="0" y1="0" x2="0.35" y2="1">' +
+    '<stop offset="0%" stop-color="#FFFBEB"/>' +
+    '<stop offset="30%" stop-color="#FDE68A"/>' +
+    '<stop offset="68%" stop-color="#F59E0B"/>' +
+    '<stop offset="100%" stop-color="#B45309"/>' +
+    '</linearGradient>' +
+    '<linearGradient id="goldCrownFacet" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0%" stop-color="#FFFDF2" stop-opacity="0.95"/>' +
+    '<stop offset="55%" stop-color="#FDE68A" stop-opacity="0.42"/>' +
+    '<stop offset="100%" stop-color="#F59E0B" stop-opacity="0.05"/>' +
+    '</linearGradient>' +
+    '<linearGradient id="goldCrownBand" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0%" stop-color="#FDE68A"/>' +
+    '<stop offset="45%" stop-color="#D97706"/>' +
+    '<stop offset="100%" stop-color="#92400E"/>' +
+    '</linearGradient>' +
+    '<filter id="goldCrownShadow" x="-40%" y="-40%" width="180%" height="180%">' +
+    '<feDropShadow dx="0" dy="1.1" stdDeviation="2" flood-color="#FBBF24" flood-opacity="0.75"/>' +
+    '</filter>' +
+    '</defs>' +
+    '<g filter="url(#goldCrownShadow)">' +
+    '<path d="M6.6 40.4 4.1 17.9 14.3 24.2 24 7.4 33.7 24.2 43.9 17.9 41.4 40.4Z" fill="url(#goldCrownGrad)" stroke="#B45309" stroke-width="1" stroke-linejoin="round"/>' +
+    '<path d="M8.9 27.1 14.3 24.2 24 7.4 33.7 24.2 39.1 27.1 37.5 35.6 10.5 35.6Z" fill="url(#goldCrownFacet)"/>' +
+    '<path d="M14.3 24.2 24 7.4 24 35.6 10.5 35.6Z" fill="#FFFFFF" opacity="0.16"/>' +
+    '<path d="M8.9 27.1 14.3 24.2" stroke="#FFFDF2" stroke-width="1.1" stroke-linecap="round" opacity="0.85"/>' +
+    '<path d="M39.1 27.1 33.7 24.2" stroke="#FFFDF2" stroke-width="1.1" stroke-linecap="round" opacity="0.55"/>' +
+    '<path d="M18.6 31.6 24 27.4 29.4 31.6" stroke="#FFF7CC" stroke-width="0.9" stroke-linecap="round" opacity="0.45"/>' +
+    '<path d="M7.1 33.9H40.9L40.2 39.1A2.6 2.6 0 0 1 37.6 41.4H10.4A2.6 2.6 0 0 1 7.8 39.1Z" fill="url(#goldCrownBand)" stroke="#92400E" stroke-width="0.8" stroke-linejoin="round"/>' +
+    '<path d="M8.2 34.7H39.8" stroke="#FFFBEB" stroke-width="1.1" stroke-linecap="round" opacity="0.75"/>' +
+    '<circle cx="24" cy="38" r="2.5" fill="#E11D48" stroke="#FFFBEB" stroke-width="0.7"/>' +
+    '<circle cx="24" cy="38" r="1" fill="#FDA4AF"/>' +
+    '<circle cx="14.4" cy="38" r="1.8" fill="#10B981" stroke="#FFFBEB" stroke-width="0.6"/>' +
+    '<circle cx="33.6" cy="38" r="1.8" fill="#10B981" stroke="#FFFBEB" stroke-width="0.6"/>' +
+    '<circle cx="4.1" cy="16.4" r="2.1" fill="#FFF7E6" stroke="#D97706" stroke-width="0.7"/>' +
+    '<circle cx="43.9" cy="16.4" r="2.1" fill="#FFF7E6" stroke="#D97706" stroke-width="0.7"/>' +
+    '<circle cx="24" cy="5.4" r="2.6" fill="#FFF7E6" stroke="#D97706" stroke-width="0.8"/>' +
+    '<circle cx="23.2" cy="4.6" r="0.9" fill="#FFFFFF"/>' +
+    '</g>' +
+    '</svg>';
 
   function rgbaOf(hex, alpha) {
     const h = String(hex || '').replace('#', '');
@@ -5548,10 +5602,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     drawDangerZone();
     if (S.mode === 'playing') drawAim(t);
 
-    const list = planetBodies();
-    list.sort(function (a, b) {
-      return b.level - a.level;
-    });
+    const list = cachedSortedPlanets;
     for (let i = 0; i < list.length; i++) drawBody(list[i], t, alpha);
 
     drawEffects(t);
@@ -5875,6 +5926,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
  ------------------------------------------------------------ */
   let rafId = 0;
   let loopRunning = false;
+  const MENU_FRAME_MS = 32;
+  let lastRenderAt = 0;
 
   function stopLoop() {
     loopRunning = false;
@@ -5935,6 +5988,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       updateEffects(frameTime / 1000);
     }
 
+    if (S.mode === 'menu' && now - lastRenderAt < MENU_FRAME_MS) return;
+    lastRenderAt = now;
     render(now);
   }
 
