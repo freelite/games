@@ -2474,19 +2474,16 @@ body[data-theme="crystals"] { --lb-glow: rgba(167, 139, 250, 0.4); }
 .lb-league-bottom span:last-child { font-weight: 800; color: var(--lb-gold-2); }
 .lb-list {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 96px;
+  flex: 0 0 auto;
+  min-height: 0;
   padding: 3px;
-  overflow-y: auto !important;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: rgba(6, 8, 22, 0.55);
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  touch-action: none !important;
+  touch-action: pan-y !important;
   overscroll-behavior: contain !important;
 }
-.lb-list::-webkit-scrollbar { width: 0; }
 .lb-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -2813,10 +2810,10 @@ body[data-theme] .lb-league-bottom { font-size: 10px; color: #cbb7f6 !important;
 .lb-av-crest svg { width: 21px; height: 21px; }
 
 .lb-list {
-  flex: 1 1 auto !important;
-  min-height: 92px;
+  flex: 0 0 auto !important;
+  min-height: 0;
   max-height: none;
-  overflow-y: auto !important;
+  overflow: hidden !important;
 }
 .lb-row { grid-template-columns: minmax(0, 1fr) auto; }
 .lb-who { gap: 6px; }
@@ -5121,7 +5118,7 @@ body[data-theme] #leaderboardOverlay .lb-row.is-you {
    v55 - balanced "Space themes" cards (title and description on
    the left, rewarded action button on the right), centred
    autosave hint, modals pinned below the Telegram system buttons
-   and a five-row scrollable "Space leaderboard" list
+   and a five-player "Space leaderboard" list
    ============================================================ */
 
 /* ---- theme cards: preview + text + action button ---- */
@@ -5216,14 +5213,6 @@ body[data-theme] #leaderboardOverlay .lb-row.is-you {
 #dailyOverlay .sheet-modal {
   margin: auto !important;
   max-height: calc(100dvh - var(--tg-top-inset, 48px) - 28px) !important;
-}
-
-/* ---- leaderboard: exactly five visible rows, the rest scrolls ---- */
-#leaderboardOverlay .lb-list,
-.lb-list {
-  max-height: 272px !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 769px) {
@@ -5345,17 +5334,13 @@ body[data-theme] #leaderboardOverlay .lb-row.is-you {
 
 #leaderboardOverlay .lb-list,
 .lb-list {
-  max-height: 272px !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
   touch-action: pan-y !important;
   overscroll-behavior: contain !important;
 }
 
 
 /* ============================================================
-   v57 - leaderboard: title pinned left, compact 5-row window,
+   v57 - leaderboard: title pinned left, five-player list,
    guaranteed finger scrolling on iPhone / Android
    ============================================================ */
 #leaderboardOverlay {
@@ -5404,17 +5389,13 @@ body[data-theme] #leaderboardOverlay .lb-row.is-you {
 #leaderboardOverlay .lb-list,
 .lb-list {
   height: auto !important;
-  max-height: 248px !important;
-  overflow-y: scroll !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  touch-action: pan-y !important;
-  overscroll-behavior: contain !important;
+  max-height: none !important;
+  overflow: hidden !important;
   pointer-events: auto !important;
 }
 
 /* ============================================================
-   v58 - exact five-player window + native finger scrolling
+   v58 - five-player list, no inner scroll container
    ============================================================ */
 body:has(.modal-overlay.active),
 body:has(.sheet-overlay.open),
@@ -5461,21 +5442,6 @@ body:has(#leaderboardOverlay.open) .overlay {
   touch-action: pan-y !important;
 }
 
-#lbList, #lb-list, .lb-list {
-  max-height: 264px !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior: contain !important;
-  pointer-events: auto !important;
-}
-
-@media (min-width: 769px) {
-  #lbList, #lb-list, .lb-list {
-    max-height: 314px !important;
-  }
-}
-
 /* ============================================================
    v60 - exactly five full player rows, roomy bottom padding
    ============================================================ */
@@ -5491,8 +5457,6 @@ body:has(#leaderboardOverlay.open) .overlay {
 #lbList, #lb-list, .lb-list {
   padding: 4px 4px 8px !important;
   box-sizing: content-box !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
 }
 @media (min-width: 769px) {
   #leaderboardOverlay .lb-modal,
@@ -5500,4 +5464,22 @@ body:has(#leaderboardOverlay.open) .overlay {
     height: auto !important;
     max-height: 92dvh !important;
   }
+}
+
+/* ============================================================
+   v62 - Space leaderboard: exactly five players, no scrollbar
+   (top four + the player's own row when the player is lower)
+   ============================================================ */
+#leaderboardOverlay .lb-list,
+.lb-list {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  -webkit-overflow-scrolling: auto !important;
+  box-sizing: content-box !important;
+}
+#leaderboardOverlay .lb-list .lb-row:last-child {
+  margin-bottom: 2px !important;
 }

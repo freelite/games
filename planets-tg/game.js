@@ -3053,6 +3053,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const LB_CLOUD_KEY = 'planet_merge_leaderboard_v1';
   const LB_GUEST_KEY = 'merge_cosmos_guest_id_v1';
   const LB_TOP_LIMIT = 50;
+  const LB_VISIBLE_ROWS = 5;
 
   function leaderboardEndpoint(suffix) {
     const base = String(LEADERBOARD_DB_URL || '').trim().replace(/\/+$/, '');
@@ -3460,6 +3461,16 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return top;
   }
 
+  /* The window shows exactly five players: the leading four plus the
+     player's own row when the player is further down the ranking. */
+  function visibleLeaderboardRows(rows) {
+    const list = rows.slice(0, LB_VISIBLE_ROWS);
+    const selfIndex = rows.findIndex(function (row) { return row.you; });
+    if (selfIndex < LB_VISIBLE_ROWS) return list;
+    list[LB_VISIBLE_ROWS - 1] = rows[selfIndex];
+    return list;
+  }
+
   function medalMarkup(place) {
     const color = LB_MEDAL[place];
     return '<svg class="lb-medal" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">' +
@@ -3719,44 +3730,11 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (lbProgressFill) lbProgressFill.style.width = percent.toFixed(1) + '%';
     if (lbProgressText) lbProgressText.textContent = progressText;
 
+    const visibleRows = visibleLeaderboardRows(rows);
     lbListEl.innerHTML = '';
-    for (let i = 0; i < rows.length; i++) {
-      lbListEl.appendChild(buildLbRow(rows[i], i + 1));
+    for (let i = 0; i < visibleRows.length; i++) {
+      lbListEl.appendChild(buildLbRow(visibleRows[i], rows.indexOf(visibleRows[i]) + 1));
     }
-
-    requestAnimationFrame(function () {
-      if (!lbListEl) return;
-      const firstRow = lbListEl.querySelector('.lb-row');
-      if (firstRow) {
-        const cs = window.getComputedStyle(lbListEl);
-        const rowH = firstRow.getBoundingClientRect().height;
-        const rowNodes = lbListEl.querySelectorAll('.lb-row');
-        let gap = 0;
-        if (rowNodes.length > 1) {
-          gap = Math.max(0, rowNodes[1].getBoundingClientRect().top - firstRow.getBoundingClientRect().bottom);
-        }
-        if (!gap) {
-          gap = parseFloat(cs.rowGap || cs.gap) || 8;
-        }
-        if (rowH > 0) {
-          const exactH = Math.ceil(rowH * 5 + gap * 4);
-          lbListEl.style.setProperty('box-sizing', 'content-box', 'important');
-          lbListEl.style.setProperty('flex', '0 0 auto', 'important');
-          lbListEl.style.setProperty('min-height', '0', 'important');
-          lbListEl.style.setProperty('height', exactH + 'px', 'important');
-          lbListEl.style.setProperty('max-height', exactH + 'px', 'important');
-          lbListEl.style.setProperty('overflow-y', 'auto', 'important');
-        }
-      }
-      const youRow = lbListEl.querySelector('.lb-row.is-you');
-      if (!youRow) return;
-      const target = Math.max(0, youRow.offsetTop - lbListEl.clientHeight / 2 + youRow.offsetHeight / 2);
-      try {
-        lbListEl.scrollTo({ top: target, behavior: 'smooth' });
-      } catch (err) {
-        lbListEl.scrollTop = target;
-      }
-    });
   }
 
   function openLeaderboard() {
@@ -5610,65 +5588,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (!Sound.muted) Sound.ui();
   }
 
-  function bindLeaderboardTouchScroll() {
-    const el = lbListEl;
-    if (!el || el.dataset.touchScrollBound === '1') return;
-    el.dataset.touchScrollBound = '1';
-    let startY = 0;
-    let lastY = 0;
-    let velocity = 0;
-    let momentumId = 0;
-
-    function stopMomentum() {
-      if (momentumId) {
-        cancelAnimationFrame(momentumId);
-        momentumId = 0;
-      }
-    }
-
-    function momentum() {
-      if (Math.abs(velocity) > 0.5) {
-        el.scrollTop -= velocity;
-        velocity *= 0.92;
-        momentumId = requestAnimationFrame(momentum);
-      } else {
-        velocity = 0;
-        momentumId = 0;
-      }
-    }
-
-    el.addEventListener('touchstart', function (e) {
-      stopMomentum();
-      startY = e.touches[0].clientY;
-      lastY = startY;
-      velocity = 0;
-      e.stopPropagation();
-    }, { passive: false });
-
-    el.addEventListener('touchmove', function (e) {
-      stopMomentum();
-      const dy = e.touches[0].clientY - lastY;
-      lastY = e.touches[0].clientY;
-      velocity = dy;
-      el.scrollTop -= dy;
-      e.stopPropagation();
-      e.preventDefault();
-    }, { passive: false });
-
-    el.addEventListener('touchend', function (e) {
-      if (Math.abs(velocity) > 0.5) {
-        stopMomentum();
-        momentumId = requestAnimationFrame(momentum);
-      }
-      e.stopPropagation();
-    }, { passive: false });
-
-    el.addEventListener('touchcancel', function () {
-      stopMomentum();
-      velocity = 0;
-    }, { passive: true });
-  }
-
   function bindEvents() {
     window.addEventListener('contextmenu', function (e) {
       e.preventDefault();
@@ -5771,7 +5690,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       });
     }
     if (lbShareBtn) lbShareBtn.addEventListener('click', leaderboardShare);
-    bindLeaderboardTouchScroll();
     adBoosterBtn.addEventListener('click', adBooster);
     secondChanceBtn.addEventListener('click', secondChance);
 
