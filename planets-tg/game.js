@@ -3336,20 +3336,23 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     el.style.setProperty('--crest-color', color);
     el.style.setProperty('--league-color', color);
     el.style.setProperty('--league-glow', glow);
-    el.style.setProperty('background', bg, 'important');
+    el.style.setProperty('--league-rgb', rgb);
+    el.style.setProperty('background', 'rgba(13, 19, 35, 0.78)', 'important');
     el.style.setProperty('background-image', 'none', 'important');
-    el.style.setProperty('border', '1.5px solid ' + line, 'important');
+    el.style.setProperty('border', '1.5px solid ' + color, 'important');
     el.style.setProperty('border-radius', '10px', 'important');
     el.style.setProperty('box-sizing', 'border-box', 'important');
     el.style.setProperty('padding', '4px', 'important');
-    el.style.setProperty('overflow', 'visible', 'important');
-    el.style.setProperty('box-shadow', 'inset 0 0 10px rgba(' + rgb + ', 0.34), 0 0 10px ' + glow, 'important');
+    el.style.setProperty('overflow', 'hidden', 'important');
+    el.style.setProperty('box-shadow', 'none', 'important');
+    el.style.setProperty('filter', 'none', 'important');
     el.style.setProperty('color', color, 'important');
     const svg = el.querySelector('svg');
     if (svg) {
       svg.style.setProperty('color', color, 'important');
       svg.style.setProperty('stroke', 'currentColor', 'important');
       svg.style.setProperty('filter', 'none', 'important');
+      svg.style.setProperty('box-shadow', 'none', 'important');
       svg.style.setProperty('overflow', 'visible', 'important');
     }
   }
@@ -3550,15 +3553,20 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const el = document.createElement('div');
     el.className = 'lb-row' + (row.you ? ' is-you' : '') + (place <= 3 ? ' is-top' : '');
 
+    const rowLeague = leagueForScore(row.score);
+    const rowLeagueColor = LB_LEAGUE_COLOR[rowLeague.step] || '#fbbf24';
+    const rowLeagueRgb = hexTriplet(rowLeagueColor);
+    const rowGradient = 'linear-gradient(90deg, rgba(13, 19, 35, 0.96) 0%, rgba(15, 23, 42, 0.86) 38%, rgba(' + rowLeagueRgb + ', 0.28) 100%)';
+    el.style.setProperty('--row-color', rowLeagueColor);
+    el.style.setProperty('--row-rgb', rowLeagueRgb);
+    el.style.setProperty('background', rowGradient, 'important');
+    el.style.setProperty('background-image', rowGradient, 'important');
+    el.style.setProperty('background-color', 'transparent', 'important');
+    el.style.setProperty('box-shadow', 'none', 'important');
     if (row.you) {
-      const youLeague = leagueForScore(row.score);
-      const youColor = LB_LEAGUE_COLOR[youLeague.step] || '#fbbf24';
-      const youRgb = hexTriplet(youColor);
-      el.style.setProperty('--you-color', youColor);
-      el.style.setProperty('--you-rgb', youRgb);
-      el.style.setProperty('border-color', youColor, 'important');
-      el.style.setProperty('background', 'linear-gradient(135deg, rgba(' + youRgb + ', 0.24), rgba(20, 18, 42, 0.9))', 'important');
-      el.style.setProperty('box-shadow', '0 0 16px -6px ' + youColor + ', inset 0 0 14px rgba(' + youRgb + ', 0.14)', 'important');
+      el.style.setProperty('--you-color', rowLeagueColor);
+      el.style.setProperty('--you-rgb', rowLeagueRgb);
+      el.style.setProperty('border-color', rowLeagueColor, 'important');
     }
 
     const whoEl = document.createElement('span');
@@ -3566,8 +3574,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     const crestEl = document.createElement('span');
     crestEl.className = 'lb-av-crest';
-    const rowLeague = leagueForScore(row.score);
-    const rowLeagueColor = LB_LEAGUE_COLOR[rowLeague.step] || '#fbbf24';
     crestEl.innerHTML = leagueCrestMarkup(rowLeague.step, 'lb-crest', rowLeagueColor);
     applyCrestPalette(crestEl, rowLeague.step);
     whoEl.appendChild(crestEl);
@@ -3637,9 +3643,15 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       applyCrestPalette(lbLeagueIcon, league.step);
     }
     if (lbLeagueCard) {
+      const leagueRgb = hexTriplet(leagueColor);
+      const cardGradient = 'linear-gradient(90deg, rgba(13, 19, 35, 0.96) 0%, rgba(15, 23, 42, 0.86) 38%, rgba(' + leagueRgb + ', 0.28) 100%)';
       lbLeagueCard.setAttribute('data-league', String(league.step));
       lbLeagueCard.style.setProperty('--league-color', leagueColor);
       lbLeagueCard.style.setProperty('--league-glow', leagueGlow);
+      lbLeagueCard.style.setProperty('--league-rgb', leagueRgb);
+      lbLeagueCard.style.setProperty('background', cardGradient, 'important');
+      lbLeagueCard.style.setProperty('background-image', cardGradient, 'important');
+      lbLeagueCard.style.setProperty('background-color', 'transparent', 'important');
     }
     renderLeagueShowcase(league);
 

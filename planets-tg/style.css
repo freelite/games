@@ -4969,3 +4969,95 @@ body[data-theme] #dailyOverlay .daily-cell.super::before {
   #dailyOverlay .daily-cell.super { min-height: 92px; }
   #dailyOverlay .daily-tomorrow { font-size: 13px !important; }
 }
+
+/* ============================================================
+   v53 - crest squares with a clean rounded frame (no square
+   shadow/filter artefacts), one horizontal league gradient on the
+   "Your league" card and on every leaderboard row, and the
+   YOU badge glued right to the nickname (all devices)
+   ============================================================ */
+
+/* ---- crest squares: clean rounded frame, no shadow, no filter ---- */
+#leaderboardOverlay .lb-av-crest,
+#leaderboardOverlay .lb-league-icon,
+body[data-theme] #leaderboardOverlay .lb-av-crest,
+body[data-theme] #leaderboardOverlay .lb-league-icon {
+  background: rgba(13, 19, 35, 0.78) !important;
+  background-image: none !important;
+  border: 1.5px solid var(--crest-color, var(--league-color, #ffd76a)) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  overflow: hidden !important;
+  padding: 4px !important;
+  box-sizing: border-box !important;
+}
+#leaderboardOverlay .lb-av-crest *,
+#leaderboardOverlay .lb-league-icon *,
+body[data-theme] #leaderboardOverlay .lb-av-crest *,
+body[data-theme] #leaderboardOverlay .lb-league-icon * {
+  box-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+#leaderboardOverlay .lb-av-crest::before,
+#leaderboardOverlay .lb-av-crest::after,
+#leaderboardOverlay .lb-league-icon::before,
+#leaderboardOverlay .lb-league-icon::after,
+body[data-theme] #leaderboardOverlay .lb-av-crest::before,
+body[data-theme] #leaderboardOverlay .lb-av-crest::after,
+body[data-theme] #leaderboardOverlay .lb-league-icon::before,
+body[data-theme] #leaderboardOverlay .lb-league-icon::after {
+  display: none !important;
+  content: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+#leaderboardOverlay .lb-crest,
+#leaderboardOverlay .lb-card-crest,
+body[data-theme] #leaderboardOverlay .lb-crest,
+body[data-theme] #leaderboardOverlay .lb-card-crest {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* ---- one horizontal league gradient: dark left -> league right ---- */
+#leaderboardOverlay .lb-league,
+body[data-theme] #leaderboardOverlay .lb-league {
+  background: linear-gradient(90deg, rgba(13, 19, 35, 0.96) 0%, rgba(15, 23, 42, 0.86) 38%, rgba(var(--league-rgb, 255, 215, 106), 0.28) 100%) !important;
+  background-image: linear-gradient(90deg, rgba(13, 19, 35, 0.96) 0%, rgba(15, 23, 42, 0.86) 38%, rgba(var(--league-rgb, 255, 215, 106), 0.28) 100%) !important;
+  background-color: transparent !important;
+  background-repeat: no-repeat !important;
+}
+#leaderboardOverlay .lb-row,
+#leaderboardOverlay .lb-row.is-top,
+#leaderboardOverlay .lb-row.is-you,
+body[data-theme] #leaderboardOverlay .lb-row,
+body[data-theme] #leaderboardOverlay .lb-row.is-top,
+body[data-theme] #leaderboardOverlay .lb-row.is-you {
+  background: linear-gradient(90deg, rgba(13, 19, 35, 0.96) 0%, rgba(15, 23, 42, 0.86) 38%, rgba(var(--row-rgb, 255, 215, 106), 0.28) 100%) !important;
+  background-image: linear-gradient(90deg, rgba(13, 19, 35, 0.96) 0%, rgba(15, 23, 42, 0.86) 38%, rgba(var(--row-rgb, 255, 215, 106), 0.28) 100%) !important;
+  background-color: transparent !important;
+  background-repeat: no-repeat !important;
+}
+
+/* ---- YOU badge glued to the nickname, score pushed to the right ---- */
+#leaderboardOverlay .lb-name,
+body[data-theme] #leaderboardOverlay .lb-name {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+#leaderboardOverlay .lb-you,
+body[data-theme] #leaderboardOverlay .lb-you {
+  margin-left: 6px !important;
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+}
+#leaderboardOverlay .lb-score,
+body[data-theme] #leaderboardOverlay .lb-score {
+  margin-left: auto !important;
+}
