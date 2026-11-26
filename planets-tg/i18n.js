@@ -96,9 +96,11 @@
     'Активна': 'Active',
     'Выбрать': 'Select',
     'Награды': 'Daily',
+    'Бонусы орбиты': 'Orbit Bonuses',
+    'Приходите завтра за новым подарком': 'Come back tomorrow for a new gift',
     'Ежедневные награды': 'Daily Rewards',
     'Забрать': 'Claim',
-    'Забрать ×2 за рекламу': 'Claim ×2 via Ad',
+    'Забрать ×2 за рекламу': 'Claim ×2 (Ad)',
     'Выбор темы сохраняется автоматически': 'Your theme is saved automatically',
     'Заходи каждый день — на 7-й день суперприз':
       'Come back every day — the grand prize is on day 7',

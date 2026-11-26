@@ -5517,3 +5517,142 @@ body:has(#leaderboardOverlay.open) .overlay {
   height: auto !important;
   max-height: calc(100dvh - 2 * max(var(--tg-top-inset, 48px), 12px) - 8px) !important;
 }
+
+/* ============================================================
+   v64 - "Orbit Bonuses": the active day card is the claim button,
+   a single x2 ad button at the bottom, compact mobile typography
+   ============================================================ */
+
+/* ---- the current day card is an interactive claim button ---- */
+.daily-cell.is-claimable,
+body[data-theme] .daily-cell.is-claimable {
+  cursor: pointer;
+  border: 2px solid #fbbf24 !important;
+  background: linear-gradient(160deg, rgba(180, 83, 9, 0.92), rgba(88, 28, 135, 0.92)) !important;
+  box-shadow:
+    inset 0 0 26px rgba(251, 191, 36, 0.32),
+    inset 0 0 0 1px rgba(253, 230, 138, 0.35),
+    0 0 0 1px rgba(251, 191, 36, 0.45),
+    0 0 28px -4px rgba(251, 191, 36, 0.9) !important;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, box-shadow 0.18s ease;
+}
+.daily-cell.is-claimable:hover,
+body[data-theme] .daily-cell.is-claimable:hover {
+  box-shadow:
+    inset 0 0 30px rgba(251, 191, 36, 0.4),
+    inset 0 0 0 1px rgba(253, 230, 138, 0.45),
+    0 0 0 1px rgba(253, 230, 138, 0.6),
+    0 0 36px -2px rgba(251, 191, 36, 1) !important;
+}
+.daily-cell.is-claimable:active {
+  transform: translateY(1px) scale(0.985);
+}
+.daily-cell.is-claimable:focus-visible {
+  outline: 2px solid #fde68a;
+  outline-offset: 2px;
+}
+.daily-cell.is-claimable .daily-today-badge {
+  top: 5px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  font-size: 8.4px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.95);
+}
+.daily-cell.super.is-claimable .daily-today-badge {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+  transform: none;
+  justify-self: end;
+  align-self: center;
+  grid-area: badge;
+  margin: 0;
+}
+.daily-cell.super.is-claimable { padding-top: 11px !important; }
+
+/* ---- claimed state of the super card sits in the badge cell ---- */
+.daily-cell.super .daily-state {
+  grid-area: badge;
+  justify-self: end;
+  align-self: center;
+}
+
+/* ---- mobile typography inside "Orbit Bonuses" ---- */
+@media (max-width: 768px) {
+  #dailyOverlay .daily-banner-title { font-size: 17px !important; }
+  #dailyOverlay .daily-sub {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+  }
+  #dailyOverlay .daily-cell:not(.super) .daily-day {
+    font-size: 10.5px !important;
+    letter-spacing: 0.5px !important;
+  }
+  #dailyOverlay .daily-cell:not(.super) .daily-text {
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    font-weight: 600 !important;
+  }
+  #dailyOverlay .daily-cell:not(.super) { padding: 10px 6px !important; }
+  #dailyOverlay .daily-cell:not(.super).is-claimable {
+    padding-top: 24px !important;
+    padding-bottom: 10px !important;
+  }
+  #dailyOverlay .daily-cell:not(.super).is-claimed {
+    padding-bottom: 10px !important;
+  }
+  #dailyOverlay .daily-cell:not(.super) .daily-state {
+    position: static !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+  }
+  #dailyOverlay .daily-state,
+  #dailyOverlay .daily-today-badge {
+    font-size: 9.5px !important;
+    padding: 2px 7px !important;
+    margin-top: 4px !important;
+  }
+  #dailyOverlay .daily-cell.super .daily-day { font-size: 12.5px !important; }
+  #dailyOverlay .daily-cell.super .daily-text {
+    font-size: 11.5px !important;
+    line-height: 1.25 !important;
+  }
+  #dailyOverlay .daily-cell.super .daily-super-badge { font-size: 10px !important; }
+  #dailyOverlay .daily-ad-btn,
+  #dailyOverlay .daily-tomorrow { font-size: 13px !important; }
+  #dailyOverlay .daily-ad-btn { height: 46px !important; }
+  #dailyOverlay .daily-ad-btn svg { width: 18px !important; height: 18px !important; }
+  #dailyOverlay .daily-cell { min-height: 106px; }
+  #dailyOverlay .daily-cell.super { min-height: 84px; }
+}
+
+/* the single x2 ad button is the primary call to action */
+.daily-ad-btn,
+body[data-theme] .daily-ad-btn {
+  height: 48px !important;
+  border: 1px solid rgba(253, 230, 138, 0.9) !important;
+  background: linear-gradient(135deg, #fbbf24 0%, #f97316 55%, #fb7185 100%) !important;
+  color: #2a1206 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.2px;
+  box-shadow:
+    0 6px 0 #b45309,
+    0 18px 34px -16px rgba(249, 115, 22, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+}
+.daily-ad-btn svg { color: #2a1206; }
+.daily-ad-btn:hover:not(:disabled) { filter: brightness(1.06); }
+.daily-ad-btn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    0 3px 0 #b45309,
+    0 10px 22px -14px rgba(249, 115, 22, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+}

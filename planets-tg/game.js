@@ -1154,7 +1154,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   const dailyOverlay = $('dailyOverlay');
   const dailyClose = $('dailyClose');
   const dailyGridEl = $('dailyGrid');
-  const dailyClaimBtn = $('dailyClaimBtn');
   const dailyAdBtn = $('dailyAdBtn');
   const dailyStreakEl = $('dailyStreak');
   const dailyTomorrowEl = $('dailyTomorrow');
@@ -4563,18 +4562,13 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       dailyStreakEl.textContent = en ? 'Streak: ' + days + ' d.' : 'Серия: ' + days + ' дн.';
     }
     if (dailyTitleEl) {
-      dailyTitleEl.textContent = dailyText('Праздничный календарь', 'Festive Calendar');
+      dailyTitleEl.textContent = dailyText('Бонусы орбиты', 'Orbit Bonuses');
     }
     if (dailySubEl) {
       dailySubEl.textContent = dailyText(
         'Забирай подарок каждый день — на 7-й день ждёт супер-приз',
         'Claim a gift every day — the grand prize awaits on day 7'
       );
-    }
-    if (dailyClaimBtn) {
-      dailyClaimBtn.disabled = claimed;
-      dailyClaimBtn.hidden = claimed;
-      dailyClaimBtn.innerHTML = ICON_GIFT + '<span>' + dailyText('Забрать награду', 'Claim Reward') + '</span>';
     }
     if (dailyAdBtn) {
       dailyAdBtn.disabled = claimed;
@@ -4622,9 +4616,22 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       }
 
       if (isToday) {
+        cell.classList.add('is-claimable');
+        cell.setAttribute('role', 'button');
+        cell.setAttribute('tabindex', '0');
+        cell.setAttribute('aria-label', dailyText('Забрать награду', 'Claim reward'));
+        cell.addEventListener('click', function () {
+          claimDaily(false);
+        });
+        cell.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            claimDaily(false);
+          }
+        });
         const badge = document.createElement('span');
         badge.className = 'daily-today-badge';
-        badge.textContent = dailyText('СЕГОДНЯ', 'TODAY');
+        badge.textContent = dailyText('ЗАБРАТЬ', 'CLAIM');
         cell.appendChild(badge);
       }
 
@@ -4643,14 +4650,14 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       txt.textContent = window.I18N ? I18N.t(rew.text) : rew.text;
       cell.appendChild(txt);
 
-      if (rew.super) {
+      if (rew.super && !isClaimed) {
         const badge = document.createElement('span');
         badge.className = 'daily-super-badge';
         badge.textContent = dailyText('СУПЕР-ПРИЗ', 'SUPER PRIZE');
         cell.appendChild(badge);
       }
 
-      if (isClaimed && !rew.super) {
+      if (isClaimed) {
         const state = document.createElement('span');
         state.className = 'daily-state';
         state.textContent = dailyText('Получено', 'Claimed');
@@ -4681,6 +4688,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     updateDailyBadge();
     renderDailyGrid();
     Sound.clean();
+    haptic('medium');
     if (mult === 2) showToast('Награда удвоена!');
     else showToast('Награда получена!');
   }
@@ -5744,11 +5752,6 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (dailyOverlay) {
       dailyOverlay.addEventListener('click', function (e) {
         if (e.target === dailyOverlay) closeDaily();
-      });
-    }
-    if (dailyClaimBtn) {
-      dailyClaimBtn.addEventListener('click', function () {
-        claimDaily(false);
       });
     }
     if (dailyAdBtn) {
