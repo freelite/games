@@ -3343,8 +3343,8 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     el.style.setProperty('border-radius', '10px', 'important');
     el.style.setProperty('box-sizing', 'border-box', 'important');
     el.style.setProperty('padding', '4px', 'important');
-    el.style.setProperty('overflow', 'hidden', 'important');
-    el.style.setProperty('box-shadow', 'none', 'important');
+    el.style.setProperty('overflow', 'visible', 'important');
+    el.style.setProperty('box-shadow', 'inset 0 0 11px rgba(' + rgb + ', 0.38), 0 0 12px rgba(' + rgb + ', 0.35)', 'important');
     el.style.setProperty('filter', 'none', 'important');
     el.style.setProperty('color', color, 'important');
     const svg = el.querySelector('svg');
@@ -3454,12 +3454,23 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return out;
   }
 
-  function leagueCrestMarkup(tier, cls, color) {
+  let crestGlowSeq = 0;
+
+  function leagueCrestMarkup(tier, cls, color, glow) {
     const tint = color || LB_LEAGUE_COLOR[tier] || '#ffd76a';
+    const glowId = glow ? 'crest-glow-' + (++crestGlowSeq) : '';
     const crown = tier >= 5
       ? '<path d="M16.6 9.2l2.6-5 4.8 3.4 4.8-3.4 2.6 5"/><circle cx="24" cy="3.4" r="1.7" fill="currentColor" stroke="none"/>'
       : '<circle cx="24" cy="7.4" r="1.5" fill="currentColor" stroke="none" opacity="0.55"/>';
+    const glowDefs = glow
+      ? '<defs><filter id="' + glowId + '" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="0" stdDeviation="2.2" flood-color="' + tint + '" flood-opacity="0.85"/></filter></defs>'
+      : '';
+    const glowAttr = glow
+      ? ' filter="url(#' + glowId + ')" style="filter:url(#' + glowId + ') !important"'
+      : '';
     return '<svg class="' + (cls || 'lb-crest') + '" style="color:' + tint + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      glowDefs +
+      '<g' + glowAttr + '>' +
       crestSpikeFan(tier) +
       '<path d="M15.4 18.6c-3.5-.5-6.4-2.4-8.1-5.8 3.8-.5 6.9.8 8.9 3.3"/>' +
       '<path d="M12.9 24.4c-3.3-1.4-5.6-4-6.8-7.4 3.6 0 6.5 1.6 8.4 4.2"/>' +
@@ -3468,7 +3479,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       crown +
       '<path d="M24 11.4l8 3v9.2c0 4.9-3.4 8.6-8 10.3-4.6-1.7-8-5.4-8-10.3v-9.2l8-3z"/>' +
       '<path d="M24 15.2l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5 1.6-3.3z" fill="currentColor" stroke="none"/>' +
-      '</svg>';
+      '</g></svg>';
   }
 
   function renderLeagueShowcase(current) {
@@ -3574,7 +3585,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
 
     const crestEl = document.createElement('span');
     crestEl.className = 'lb-av-crest';
-    crestEl.innerHTML = leagueCrestMarkup(rowLeague.step, 'lb-crest', rowLeagueColor);
+    crestEl.innerHTML = leagueCrestMarkup(rowLeague.step, 'lb-crest', rowLeagueColor, true);
     applyCrestPalette(crestEl, rowLeague.step);
     whoEl.appendChild(crestEl);
 
@@ -3639,7 +3650,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     const leagueColor = LB_LEAGUE_COLOR[league.step] || '#fbbf24';
     const leagueGlow = rgbaOf(leagueColor, 0.55);
     if (lbLeagueIcon) {
-      lbLeagueIcon.innerHTML = leagueCrestMarkup(league.step, 'lb-league-crest', leagueColor);
+      lbLeagueIcon.innerHTML = leagueCrestMarkup(league.step, 'lb-league-crest', leagueColor, true);
       applyCrestPalette(lbLeagueIcon, league.step);
     }
     if (lbLeagueCard) {

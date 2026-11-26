@@ -5061,3 +5061,63 @@ body[data-theme] #leaderboardOverlay .lb-you {
 body[data-theme] #leaderboardOverlay .lb-score {
   margin-left: auto !important;
 }
+
+
+/* ============================================================
+   v54 - clean soft inner + outer glow on the crest squares
+   (Your league crest and leaderboard row crests only; the five
+   league cards stay untouched). Native SVG feDropShadow with an
+   expanded filter region instead of CSS drop-shadow, so no
+   rectangular clipping artefacts appear anywhere.
+   ============================================================ */
+
+/* ---- crest square: rounded frame with soft inset + outer glow ---- */
+#leaderboardOverlay .lb-av-crest,
+#leaderboardOverlay .lb-league-icon,
+body[data-theme] #leaderboardOverlay .lb-av-crest,
+body[data-theme] #leaderboardOverlay .lb-league-icon {
+  overflow: visible !important;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+  padding: 4px !important;
+  box-shadow:
+    inset 0 0 11px rgba(var(--crest-rgb, 255, 215, 106), 0.38),
+    0 0 12px rgba(var(--crest-rgb, 255, 215, 106), 0.35) !important;
+  -webkit-box-shadow:
+    inset 0 0 11px rgba(var(--crest-rgb, 255, 215, 106), 0.38),
+    0 0 12px rgba(var(--crest-rgb, 255, 215, 106), 0.35) !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* ---- native SVG glow group must keep its feDropShadow filter ---- */
+#leaderboardOverlay .lb-av-crest g[filter],
+#leaderboardOverlay .lb-league-icon g[filter],
+body[data-theme] #leaderboardOverlay .lb-av-crest g[filter],
+body[data-theme] #leaderboardOverlay .lb-league-icon g[filter] {
+  box-shadow: none !important;
+}
+
+/* ---- parents must not clip the outer glow of the crest square ---- */
+#leaderboardOverlay .lb-row,
+#leaderboardOverlay .lb-row.is-top,
+#leaderboardOverlay .lb-row.is-you,
+#leaderboardOverlay .lb-who,
+#leaderboardOverlay .lb-league,
+#leaderboardOverlay .lb-league-top,
+body[data-theme] #leaderboardOverlay .lb-row,
+body[data-theme] #leaderboardOverlay .lb-row.is-top,
+body[data-theme] #leaderboardOverlay .lb-row.is-you,
+body[data-theme] #leaderboardOverlay .lb-who,
+body[data-theme] #leaderboardOverlay .lb-league,
+body[data-theme] #leaderboardOverlay .lb-league-top {
+  overflow: visible !important;
+}
+#leaderboardOverlay .lb-row,
+#leaderboardOverlay .lb-row.is-top,
+#leaderboardOverlay .lb-row.is-you,
+body[data-theme] #leaderboardOverlay .lb-row,
+body[data-theme] #leaderboardOverlay .lb-row.is-top,
+body[data-theme] #leaderboardOverlay .lb-row.is-you {
+  border-radius: 10px !important;
+}
