@@ -3739,7 +3739,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
           gap = parseFloat(cs.rowGap || cs.gap) || 8;
         }
         if (rowH > 0) {
-          const exactH = Math.ceil(rowH * 5 + gap * 4 + 6);
+          const exactH = Math.ceil(rowH * 5 + gap * 4);
           lbListEl.style.setProperty('box-sizing', 'content-box', 'important');
           lbListEl.style.setProperty('flex', '0 0 auto', 'important');
           lbListEl.style.setProperty('min-height', '0', 'important');
