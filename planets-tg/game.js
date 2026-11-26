@@ -3728,6 +3728,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       if (!lbListEl) return;
       const firstRow = lbListEl.querySelector('.lb-row');
       if (firstRow) {
+        const cs = window.getComputedStyle(lbListEl);
         const rowH = firstRow.getBoundingClientRect().height;
         const rowNodes = lbListEl.querySelectorAll('.lb-row');
         let gap = 0;
@@ -3735,12 +3736,16 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
           gap = Math.max(0, rowNodes[1].getBoundingClientRect().top - firstRow.getBoundingClientRect().bottom);
         }
         if (!gap) {
-          const cs = window.getComputedStyle(lbListEl);
-          gap = parseFloat(cs.rowGap || cs.gap) || 0;
+          gap = parseFloat(cs.rowGap || cs.gap) || 8;
         }
         if (rowH > 0) {
-          lbListEl.style.maxHeight = Math.ceil(rowH * 5 + gap * 4 + 14) + 'px';
-          lbListEl.style.overflowY = 'auto';
+          const exactH = Math.ceil(rowH * 5 + gap * 4 + 6);
+          lbListEl.style.setProperty('box-sizing', 'content-box', 'important');
+          lbListEl.style.setProperty('flex', '0 0 auto', 'important');
+          lbListEl.style.setProperty('min-height', '0', 'important');
+          lbListEl.style.setProperty('height', exactH + 'px', 'important');
+          lbListEl.style.setProperty('max-height', exactH + 'px', 'important');
+          lbListEl.style.setProperty('overflow-y', 'auto', 'important');
         }
       }
       const youRow = lbListEl.querySelector('.lb-row.is-you');
@@ -6012,7 +6017,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       try { tg.ready(); } catch (e) {}
       try { tg.expand(); } catch (e) {}
       try { if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
-      try { if (tg.enableClosingConfirmation) tg.enableClosingConfirmation(); } catch (e) {}
+      try { if (typeof tg.disableClosingConfirmation === 'function') { tg.disableClosingConfirmation(); } } catch (e) {}
       try { if (tg.requestFullscreen && !tg.isFullscreen) tg.requestFullscreen(); } catch (e) {}
     } catch (e) {}
   }

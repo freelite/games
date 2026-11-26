@@ -5475,3 +5475,29 @@ body:has(#leaderboardOverlay.open) .overlay {
     max-height: 314px !important;
   }
 }
+
+/* ============================================================
+   v60 - exactly five full player rows, roomy bottom padding
+   ============================================================ */
+.modal-card {
+  height: auto !important;
+  max-height: 92dvh !important;
+}
+#leaderboardOverlay .lb-modal,
+#leaderboardOverlay .sheet-modal-wide {
+  height: auto !important;
+  max-height: calc(100dvh - var(--tg-top-inset, 48px) - 24px) !important;
+}
+#lbList, #lb-list, .lb-list {
+  padding: 4px 4px 8px !important;
+  box-sizing: content-box !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+@media (min-width: 769px) {
+  #leaderboardOverlay .lb-modal,
+  #leaderboardOverlay .sheet-modal-wide {
+    height: auto !important;
+    max-height: 92dvh !important;
+  }
+}
