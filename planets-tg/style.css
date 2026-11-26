@@ -5455,7 +5455,7 @@ body:has(#leaderboardOverlay.open) .overlay {
   max-height: calc(100dvh - var(--tg-top-inset, 48px) - 24px) !important;
 }
 #lbList, #lb-list, .lb-list {
-  padding: 0 4px !important;
+  padding: 6px 4px 0 !important;
   box-sizing: content-box !important;
 }
 @media (min-width: 769px) {
@@ -5469,8 +5469,10 @@ body:has(#leaderboardOverlay.open) .overlay {
 /* ============================================================
    v62 - Space leaderboard: a five-row window over the full ranking.
    Native momentum scrolling, snapped to row boundaries, a hidden
-   scrollbar and no padding at the bottom edge (padding there used to
-   let the sixth row peek out under the fifth one).
+   scrollbar, 6px of headroom above the first row and no padding at
+   the bottom edge (padding there used to let the sixth row peek out
+   under the fifth one). scroll-padding-top equals that headroom so
+   snapping never pulls the first row up under the frame.
    ============================================================ */
 #leaderboardOverlay .lb-list,
 .lb-list {
@@ -5485,6 +5487,9 @@ body:has(#leaderboardOverlay.open) .overlay {
   touch-action: pan-y !important;
   scrollbar-width: none;
   scroll-snap-type: y proximity;
+  scroll-padding-top: 6px;
+  padding-top: 6px !important;
+  padding-bottom: 0 !important;
   box-sizing: content-box !important;
 }
 #leaderboardOverlay .lb-list::-webkit-scrollbar,
