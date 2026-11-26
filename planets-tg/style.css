@@ -5357,3 +5357,63 @@ body[data-theme] #leaderboardOverlay .lb-row.is-you {
   touch-action: pan-y !important;
   overscroll-behavior: contain !important;
 }
+
+
+/* ============================================================
+   v57 - leaderboard: title pinned left, compact 5-row window,
+   guaranteed finger scrolling on iPhone / Android
+   ============================================================ */
+#leaderboardOverlay {
+  touch-action: pan-y !important;
+}
+#leaderboardOverlay .lb-modal,
+#leaderboardOverlay .sheet-modal-wide {
+  height: auto !important;
+  max-height: calc(100dvh - var(--tg-top-inset, 48px) - 28px) !important;
+  touch-action: pan-y !important;
+}
+#leaderboardOverlay .sheet-head {
+  width: 100% !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  touch-action: pan-y !important;
+}
+#leaderboardOverlay .lb-head-text {
+  flex: 1 1 auto !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  min-width: 0 !important;
+  text-align: left !important;
+}
+#leaderboardOverlay .sheet-title,
+#leaderboardOverlay .lb-head-text .sheet-title {
+  flex: 1;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+#leaderboardOverlay .sheet-head .settings-close,
+#leaderboardOverlay #leaderboardClose {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  align-self: center !important;
+}
+#leaderboardOverlay .lb-list,
+#leaderboardOverlay .lb-row {
+  touch-action: pan-y !important;
+}
+#leaderboardOverlay .lb-list,
+.lb-list {
+  height: auto !important;
+  max-height: 248px !important;
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
+  pointer-events: auto !important;
+}

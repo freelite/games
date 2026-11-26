@@ -5690,6 +5690,17 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       });
     }
     if (lbShareBtn) lbShareBtn.addEventListener('click', leaderboardShare);
+    if (lbListEl) {
+      ['touchstart', 'touchmove'].forEach(function (type) {
+        lbListEl.addEventListener(
+          type,
+          function (e) {
+            e.stopPropagation();
+          },
+          { passive: true },
+        );
+      });
+    }
     adBoosterBtn.addEventListener('click', adBooster);
     secondChanceBtn.addEventListener('click', secondChance);
 
