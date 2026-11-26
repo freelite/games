@@ -3461,14 +3461,43 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return top;
   }
 
-  /* The window shows exactly five players: the leading four plus the
-     player's own row when the player is further down the ranking. */
-  function visibleLeaderboardRows(rows) {
-    const list = rows.slice(0, LB_VISIBLE_ROWS);
-    const selfIndex = rows.findIndex(function (row) { return row.you; });
-    if (selfIndex < LB_VISIBLE_ROWS) return list;
-    list[LB_VISIBLE_ROWS - 1] = rows[selfIndex];
-    return list;
+  /* The list shows exactly five full rows and scrolls through the rest:
+     the window height is measured from the real row pitch so the sixth
+     row never peeks over the bottom edge. */
+  function lbSyncWindow() {
+    if (!lbListEl) return;
+    /* While the dialog is hidden there is nothing to measure: the window
+       is sized again right after it opens. */
+    if (leaderboardOverlay && !leaderboardOverlay.classList.contains('open')) return;
+    const rows = lbListEl.querySelectorAll('.lb-row');
+    lbListEl.style.removeProperty('height');
+    lbListEl.style.removeProperty('max-height');
+    if (rows.length <= LB_VISIBLE_ROWS) {
+      lbListEl.style.setProperty('overflow-y', 'hidden', 'important');
+      return;
+    }
+    const first = rows[0].getBoundingClientRect();
+    const second = rows[1].getBoundingClientRect();
+    let pitch = second.top - first.top;
+    if (!(pitch > 0)) pitch = first.height;
+    if (!(pitch > 0)) {
+      if (!lbSyncWindow.pending) {
+        lbSyncWindow.pending = true;
+        requestAnimationFrame(function () {
+          lbSyncWindow.pending = false;
+          lbSyncWindow();
+        });
+      }
+      return;
+    }
+    const height = Math.round(pitch * LB_VISIBLE_ROWS * 100) / 100;
+    lbListEl.style.setProperty('box-sizing', 'content-box', 'important');
+    lbListEl.style.setProperty('flex', '0 0 auto', 'important');
+    lbListEl.style.setProperty('min-height', '0', 'important');
+    lbListEl.style.setProperty('height', height + 'px', 'important');
+    lbListEl.style.setProperty('max-height', height + 'px', 'important');
+    lbListEl.style.setProperty('overflow-y', 'auto', 'important');
+    lbListEl.style.setProperty('overflow-x', 'hidden', 'important');
   }
 
   function medalMarkup(place) {
@@ -3730,11 +3759,12 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     if (lbProgressFill) lbProgressFill.style.width = percent.toFixed(1) + '%';
     if (lbProgressText) lbProgressText.textContent = progressText;
 
-    const visibleRows = visibleLeaderboardRows(rows);
     lbListEl.innerHTML = '';
-    for (let i = 0; i < visibleRows.length; i++) {
-      lbListEl.appendChild(buildLbRow(visibleRows[i], rows.indexOf(visibleRows[i]) + 1));
+    for (let i = 0; i < rows.length; i++) {
+      lbListEl.appendChild(buildLbRow(rows[i], i + 1));
     }
+    lbListEl.scrollTop = 0;
+    lbSyncWindow();
   }
 
   function openLeaderboard() {
@@ -3751,6 +3781,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       leaderboardOverlay.classList.add('open');
       leaderboardOverlay.setAttribute('aria-hidden', 'false');
     }
+    lbSyncWindow();
     syncLoop();
   }
 
@@ -5798,12 +5829,18 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       const ro = new ResizeObserver(scheduleResize);
       ro.observe(stage);
     }
-    window.addEventListener('resize', scheduleResize);
+    window.addEventListener('resize', function () {
+      scheduleResize();
+      if (leaderboardOverlay && leaderboardOverlay.classList.contains('open')) lbSyncWindow();
+    });
     window.addEventListener('pagehide', function () {
       flushBestRecord();
     });
     window.addEventListener('orientationchange', function () {
-      setTimeout(scheduleResize, 150);
+      setTimeout(function () {
+        scheduleResize();
+        if (leaderboardOverlay && leaderboardOverlay.classList.contains('open')) lbSyncWindow();
+      }, 150);
     });
 
     if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
