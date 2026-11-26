@@ -3061,6 +3061,18 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     return PLATFORM_IDS.indexOf(id) >= 0 ? id : PLATFORM_ID;
   }
 
+  function currentPlayerPlatform() {
+    let userId = null;
+    try {
+      const tg = window.Telegram && window.Telegram.WebApp;
+      const data = tg && tg.initDataUnsafe;
+      userId = data && data.user ? data.user.id : null;
+    } catch (err) {
+      userId = null;
+    }
+    return userId ? 'tg' : 'pg';
+  }
+
   function currentPlayerProfile() {
     const user = telegramPlayer();
     let id = '';
@@ -3078,7 +3090,7 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
       id: id,
       name: name,
       photoUrl: photoUrl,
-      platform: PLATFORM_ID,
+      platform: currentPlayerPlatform(),
       score: Math.max(0, Math.floor(Number(S.best) || 0)),
       updatedAt: Date.now()
     };
@@ -3327,13 +3339,18 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
     el.style.setProperty('background', bg, 'important');
     el.style.setProperty('background-image', 'none', 'important');
     el.style.setProperty('border', '1.5px solid ' + line, 'important');
-    el.style.setProperty('box-shadow', 'inset 0 0 12px rgba(' + rgb + ', 0.38), 0 0 10px ' + glow, 'important');
+    el.style.setProperty('border-radius', '10px', 'important');
+    el.style.setProperty('box-sizing', 'border-box', 'important');
+    el.style.setProperty('padding', '4px', 'important');
+    el.style.setProperty('overflow', 'visible', 'important');
+    el.style.setProperty('box-shadow', 'inset 0 0 10px rgba(' + rgb + ', 0.34), 0 0 10px ' + glow, 'important');
     el.style.setProperty('color', color, 'important');
     const svg = el.querySelector('svg');
     if (svg) {
       svg.style.setProperty('color', color, 'important');
       svg.style.setProperty('stroke', 'currentColor', 'important');
-      svg.style.setProperty('filter', 'drop-shadow(0 0 5px rgba(' + rgb + ', 0.85))', 'important');
+      svg.style.setProperty('filter', 'none', 'important');
+      svg.style.setProperty('overflow', 'visible', 'important');
     }
   }
 
@@ -3532,6 +3549,17 @@ const settingsVibrationBtn = $('settingsVibrationBtn');
   function buildLbRow(row, place) {
     const el = document.createElement('div');
     el.className = 'lb-row' + (row.you ? ' is-you' : '') + (place <= 3 ? ' is-top' : '');
+
+    if (row.you) {
+      const youLeague = leagueForScore(row.score);
+      const youColor = LB_LEAGUE_COLOR[youLeague.step] || '#fbbf24';
+      const youRgb = hexTriplet(youColor);
+      el.style.setProperty('--you-color', youColor);
+      el.style.setProperty('--you-rgb', youRgb);
+      el.style.setProperty('border-color', youColor, 'important');
+      el.style.setProperty('background', 'linear-gradient(135deg, rgba(' + youRgb + ', 0.24), rgba(20, 18, 42, 0.9))', 'important');
+      el.style.setProperty('box-shadow', '0 0 16px -6px ' + youColor + ', inset 0 0 14px rgba(' + youRgb + ', 0.14)', 'important');
+    }
 
     const whoEl = document.createElement('span');
     whoEl.className = 'lb-who';

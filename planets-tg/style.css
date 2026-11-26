@@ -4482,9 +4482,9 @@ body[data-theme] .daily-ad-btn {
   #themesOverlay .theme-name { font-size: 15px !important; }
   #themesOverlay .theme-sub { font-size: 12.5px !important; }
   #themesOverlay .theme-action {
-    height: 40px !important;
-    min-height: 40px !important;
-    padding: 0 16px !important;
+    height: auto !important;
+    min-height: 42px !important;
+    padding: 9px 14px !important;
     border-radius: 12px !important;
     font-size: 12.5px !important;
   }
@@ -4721,9 +4721,9 @@ body[data-theme] #leaderboardOverlay .lb-score {
   #themesOverlay .theme-name { font-size: 16px !important; }
   #themesOverlay .theme-sub { font-size: 13px !important; }
   #themesOverlay .theme-action {
-    height: 44px !important;
-    min-height: 44px !important;
-    padding: 10px 18px !important;
+    height: auto !important;
+    min-height: 42px !important;
+    padding: 9px 16px !important;
     border-radius: 12px !important;
     font-size: 13px !important;
   }
@@ -4731,4 +4731,241 @@ body[data-theme] #leaderboardOverlay .lb-score {
     margin-top: 16px !important;
     font-size: 13px !important;
   }
+}
+
+
+/* ============================================================
+   v52 - smooth rounded crest glow (no square drop-shadow clips),
+   league-coloured current player row, themes buttons and
+   calendar typography (all devices)
+   ============================================================ */
+svg { overflow: visible; }
+
+/* ---- crests: no rectangular filter artefacts, glow only on the
+   rounded container via box-shadow ---- */
+#leaderboardOverlay svg { overflow: visible !important; }
+#leaderboardOverlay .lb-crest,
+#leaderboardOverlay .lb-league-crest,
+#leaderboardOverlay .lb-medal,
+body[data-theme] #leaderboardOverlay .lb-crest,
+body[data-theme] #leaderboardOverlay .lb-league-crest,
+body[data-theme] #leaderboardOverlay .lb-medal { filter: none !important; }
+#leaderboardOverlay .lb-av-crest,
+#leaderboardOverlay .lb-league-icon,
+body[data-theme] #leaderboardOverlay .lb-av-crest,
+body[data-theme] #leaderboardOverlay .lb-league-icon {
+  overflow: visible !important;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+  padding: 4px !important;
+}
+#leaderboardOverlay .lb-av-crest svg,
+#leaderboardOverlay .lb-league-icon svg,
+body[data-theme] #leaderboardOverlay .lb-av-crest svg,
+body[data-theme] #leaderboardOverlay .lb-league-icon svg {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  filter: none !important;
+}
+
+/* ---- current player row painted in the colour of its league ---- */
+#leaderboardOverlay .lb-row.is-you .lb-you,
+body[data-theme] #leaderboardOverlay .lb-row.is-you .lb-you {
+  border-color: var(--you-color, var(--lb-gold)) !important;
+  background: rgba(var(--you-rgb, 255, 201, 107), 0.18) !important;
+  color: var(--you-color, var(--lb-gold-2)) !important;
+}
+#leaderboardOverlay .lb-row.is-you .lb-score,
+body[data-theme] #leaderboardOverlay .lb-row.is-you .lb-score {
+  color: var(--you-color, var(--lb-gold)) !important;
+}
+#leaderboardOverlay .lb-row.is-you .lb-avatar,
+body[data-theme] #leaderboardOverlay .lb-row.is-you .lb-avatar {
+  border-color: var(--you-color, var(--lb-gold)) !important;
+  box-shadow: 0 0 10px -4px var(--you-color, var(--lb-gold)) !important;
+}
+
+/* ---- "Space themes" action buttons: auto height, never clip text ---- */
+#themesOverlay .theme-btn,
+#themesOverlay .theme-action-btn,
+#themesOverlay .theme-action,
+.theme-action-btn,
+.theme-action {
+  height: auto !important;
+  max-height: none !important;
+  min-width: 148px;
+  min-height: 42px;
+  max-width: none;
+  box-sizing: border-box;
+  padding: 9px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.25;
+  white-space: normal;
+  overflow: visible;
+}
+
+/* ---- "Holiday calendar": larger fonts and a smooth DAY 7 card ---- */
+#dailyOverlay .daily-sub,
+.daily-sub {
+  font-size: 13.5px !important;
+  line-height: 1.38;
+}
+#dailyOverlay .daily-cell:not(.super) .daily-day,
+.daily-cell:not(.super) .daily-day { font-size: 12px !important; }
+#dailyOverlay .daily-cell:not(.super) .daily-text,
+.daily-cell:not(.super) .daily-text {
+  font-size: 13px !important;
+  line-height: 1.3;
+}
+#dailyOverlay .daily-cell,
+.daily-cell { min-height: 108px; }
+#dailyOverlay .daily-cell.super .daily-day,
+body[data-theme] #dailyOverlay .daily-cell.super .daily-day {
+  font-size: 14px !important;
+  letter-spacing: 0.9px;
+}
+#dailyOverlay .daily-cell.super .daily-text,
+body[data-theme] #dailyOverlay .daily-cell.super .daily-text {
+  font-size: 13.5px !important;
+  line-height: 1.3;
+  font-weight: 700;
+}
+#dailyOverlay .daily-cell.super .daily-super-badge,
+body[data-theme] #dailyOverlay .daily-cell.super .daily-super-badge {
+  font-size: 12px !important;
+  padding: 4px 9px;
+}
+#dailyOverlay .daily-claim,
+#dailyOverlay .daily-ad-btn,
+.daily-claim,
+.daily-ad-btn { font-size: 14px !important; }
+#dailyOverlay .daily-cell.super,
+body[data-theme] #dailyOverlay .daily-cell.super,
+body[data-theme="neon"] #dailyOverlay .daily-cell.super,
+body[data-theme="crystals"] #dailyOverlay .daily-cell.super {
+  background: linear-gradient(120deg, var(--dm-royal-a) 0%, var(--dm-royal-b) 100%) !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  background-position: 0 0 !important;
+  overflow: hidden !important;
+  min-height: 84px;
+}
+#dailyOverlay .daily-cell.super::before,
+body[data-theme] #dailyOverlay .daily-cell.super::before {
+  inset: 0 !important;
+  height: 100% !important;
+  border-radius: inherit;
+  background: radial-gradient(circle at 26% 38%, rgba(255, 236, 170, 0.22), transparent 72%) !important;
+}
+
+/* ============================================================
+   v52 - desktop only (min-width: 769px): Montserrat and larger
+   typography for HUD plates, side panels and modal windows
+   ============================================================ */
+@media (min-width: 769px) {
+  html,
+  body,
+  .app,
+  button,
+  input,
+  .btn,
+  .hud,
+  .hud-card,
+  .hud-label,
+  .hud-pair,
+  .stat,
+  .stat-value,
+  .stat-label,
+  .next-card,
+  .next-name,
+  .next-label,
+  .control-grid,
+  .bonus-btn,
+  .invite-btn,
+  .bonus-text,
+  .evo-tool,
+  .rail,
+  .rail .evo-row,
+  .overlay,
+  .sheet-modal,
+  .sheet-title,
+  .sheet-note,
+  .theme-card,
+  .theme-name,
+  .theme-sub,
+  .theme-action,
+  .daily-modal,
+  .daily-banner-title,
+  .daily-sub,
+  .daily-cell,
+  .daily-day,
+  .daily-text,
+  .daily-claim,
+  .daily-ad-btn,
+  .daily-tomorrow,
+  .lb-modal,
+  .lb-row,
+  .lb-name,
+  .lb-score,
+  .lb-card-name,
+  .lb-card-desc {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* HUD plates СЧЁТ / РЕКОРД */
+  .hud-card .stat-value { font-size: 26px !important; }
+  .hud-label { font-size: 12px !important; letter-spacing: 1px !important; }
+  .hud-best-row { gap: 6px; }
+  .hud-best-row .best-cup { width: 17px; height: 17px; }
+
+  /* side panels */
+  .hud-next .next-label { font-size: 10.8px !important; }
+  .hud-next .next-name { font-size: 12.6px !important; }
+  .control-grid .bonus-btn .bonus-text,
+  .control-grid .invite-btn > span { font-size: 12.2px !important; }
+
+  /* "Space leaderboard" (+1.5px) */
+  #leaderboardOverlay .sheet-title { font-size: 21.5px !important; }
+  #leaderboardOverlay .lb-league-name { font-size: 15.5px !important; }
+  #leaderboardOverlay .lb-league-sub { font-size: 11.5px !important; }
+  #leaderboardOverlay .lb-league-bottom { font-size: 11.5px !important; }
+  #leaderboardOverlay .lb-card-name { font-size: 13.5px !important; line-height: 1.28 !important; }
+  #leaderboardOverlay .lb-card-desc { font-size: 12px !important; line-height: 1.3 !important; }
+  #leaderboardOverlay .lb-card-points { font-size: 12.5px !important; }
+  #leaderboardOverlay .lb-card-current { font-size: 11px !important; }
+  #leaderboardOverlay .lb-name { font-size: 16.5px !important; }
+  #leaderboardOverlay .lb-score { font-size: 17.5px !important; }
+  #leaderboardOverlay .lb-you { font-size: 10.5px !important; }
+  #leaderboardOverlay .lb-share { font-size: 16.5px !important; }
+
+  /* "Space themes" (+1.5px) */
+  #themesOverlay .sheet-title { font-size: 21.5px !important; }
+  #themesOverlay .theme-name { font-size: 16.5px !important; }
+  #themesOverlay .theme-sub { font-size: 14px !important; line-height: 1.32 !important; }
+  #themesOverlay .theme-action { font-size: 14px !important; min-width: 148px !important; }
+  #themesOverlay .sheet-note { font-size: 13.5px !important; }
+
+  /* "Holiday calendar" (+1.5px on top of the new base sizes) */
+  #dailyOverlay .daily-banner-title { font-size: 16.5px !important; }
+  #dailyOverlay .daily-sub { font-size: 15px !important; }
+  #dailyOverlay .daily-cell:not(.super) .daily-day { font-size: 13.5px !important; }
+  #dailyOverlay .daily-cell:not(.super) .daily-text { font-size: 14.5px !important; line-height: 1.32 !important; }
+  #dailyOverlay .daily-cell.super .daily-day { font-size: 15.5px !important; }
+  #dailyOverlay .daily-cell.super .daily-text { font-size: 15px !important; line-height: 1.32 !important; }
+  #dailyOverlay .daily-cell.super .daily-super-badge { font-size: 13px !important; }
+  #dailyOverlay .daily-claim,
+  #dailyOverlay .daily-ad-btn { font-size: 15.5px !important; }
+  #dailyOverlay .daily-cell { min-height: 118px; }
+  #dailyOverlay .daily-cell.super { min-height: 92px; }
+  #dailyOverlay .daily-tomorrow { font-size: 13px !important; }
 }
